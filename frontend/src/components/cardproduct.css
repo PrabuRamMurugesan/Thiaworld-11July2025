@@ -1,0 +1,383 @@
+.card-product-title {
+    display: flex;
+    gap: 5px;
+    border-bottom: 1px solid black;
+    padding: 5px 10%;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 14px;
+    color: gray;
+    flex-wrap: wrap;
+   
+    }
+    .card-product-payments{
+        width: 80%;
+        border-collapse: collapse;
+        
+    }
+    .card-product-payment{
+        display: flex;
+        flex-direction: row;
+        gap: 5px;
+        padding: 5px 10%;
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 14px;
+        color: gray;
+    }
+    .card-product {
+    padding: 25px 8%;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: center;
+    }
+    
+    .card-product-image {
+    display: flex;
+    flex-direction: column;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 14px;
+    color: gray;
+    max-width: 100%;
+    position: relative;
+    }
+    
+    .card-product-image img {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    object-fit: contain;
+    }
+    
+    .card-product-images {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin: 50px 10px;
+    
+    }
+    .card-product-images img {
+    width:150px;
+    object-fit: contain;
+    display: flex;
+    justify-content:center;
+    border: 1px solid gray ;
+    border-radius: 5px;
+    padding: 5px 15px;
+    }
+    
+    
+    
+    .card-product-image span {
+    background-color: orange;
+    width: fit-content;
+    height: 25px;
+    padding: 5px 20px;
+    border-radius: 50px;
+    color: white;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    }
+    
+    .card-product-info {
+    border: 1px solid gray;
+    border-radius: 5px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 280px;
+    }
+    
+    .card-product-info h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    }
+    
+    .card-product-info > div {
+    margin-bottom: 15px;
+    }
+    
+    .card-product-shipping {
+    background-color: lightgray;
+    border-radius: 5px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+    }
+    
+    .card-product-button {
+    background-color: rgb(150, 147, 11);
+    color: rgb(17, 15, 15);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 15px;
+    cursor: pointer;
+    margin-top: 20px;
+    width:150px;
+    }
+    
+    .safety-check{
+    width: 600px;
+    height: 100px;
+    border: 1px solid gray; 
+    border-radius: 5px;
+    margin: 50px 10px;   
+    }
+    
+    .safety-check legend {
+    text-align: center;
+    font-weight: bold;
+    padding: 0 10px;
+    font-size: 20px;
+    }
+    .card-product-price{
+        display: flex;
+        gap:10px;
+    }
+    
+    .box-maintesnce{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items:center;
+    gap: 20px;
+    padding: 10px 10px;
+    }
+    .box-salfety{
+    
+    width: 50px;
+    height: 40px;
+    border: 1px solid gray;
+    
+    }
+    .text-your{
+    text-align:center;
+    }
+    
+   .tab-content{
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+   }
+    
+    /* Responsive Media Query */
+    @media (max-width: 768px) {
+    .card-product {
+    flex-direction: column;
+    align-items: center;
+    padding: 15px 5%;
+    }
+    
+    .card-product-image img {
+    max-width: 100%;
+    height: auto;
+    }
+    
+    .card-product-info h1 {
+    font-size: 20px;
+    }
+    
+    .card-product-title {
+    font-size: 12px;
+    padding: 5px 5%;
+    }
+    }.price-table {
+    display: flex;
+    margin-bottom: 20px;
+    padding: 0 30px;
+  }
+ .custom-table {
+width: 50%;
+border-collapse: collapse;
+font-family: Arial, sans-serif;
+margin-top: 20px;
+}
+
+.custom-table th,
+.custom-table td {
+border: 1px solid gray;
+padding: 10px;
+}
+
+.custom-table th {
+text-align: right; /* align th content to the right */
+background-color: #f9f9f9;
+width: 40%;
+font-weight: bold;
+}
+
+.custom-table td {
+text-align: left; /* align td content to the left */
+width: 60%;
+}
+
+
+    .tab-buttons {
+    border-top: 1px solid lightgray;
+    display: flex;
+    gap: 10px;
+    margin:0 10px ;
+  }
+
+  .tab-buttons button {
+    padding: 5px 20px;
+    margin: 10px 5px;
+    border: none;
+    background: white;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
+  .tab-buttons button:hover {
+    
+    background-color: rgb(71, 44, 24);
+  }
+
+  .tab-buttons .active {
+    color: black;
+    font-weight: bold;
+    background-color: chocolate;
+  }
+
+  .tab-content {
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+ .payment-plans{
+   margin: 20px 10px;
+   padding: 10px 25px;
+   border-radius: 5px;
+  
+ }
+ .color-brown{
+    color: brown;
+    font-weight: bold;
+ }
+  .card-product-addCart{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+align-self: center;
+gap: 10px;
+padding: 0px 20px;
+margin: 20px 10px;
+  }
+  .card-product-inde{
+  gap: 10px;
+  border: 1px solid gray;
+  padding: 5px 10px;
+  border-radius: 5px;
+  }
+
+  .card-product-buyNow{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0px 20px;
+  }
+  .card-product-buyNow button{
+  background-color: black;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+}
+.card-product-details{
+display: flex;
+flex-direction: row;
+gap: 20px;
+}
+.card-product-categories{
+display: flex;
+flex-direction: column;
+}
+.card-products-category{
+    width: 300px;
+}
+
+
+@media (max-width: 1024px) {
+    .card-product-details {
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .safety-check {
+      width: 90%;
+      height: auto;
+      padding: 10px;
+      margin: 30px auto;
+    }
+
+    .box-maintesnce {
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .box-salfety {
+      width: 40px;
+      height: 35px;
+    }
+
+    .card-product-images {
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .card-product-images img {
+      width: 100px;
+    }
+
+    .card-product {
+      padding: 15px 5%;
+    }
+
+    .custom-table {
+      width: 100%;
+      font-size: 14px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .card-product-info {
+      padding: 15px;
+    }
+
+    .card-product-title {
+      font-size: 12px;
+      flex-wrap: wrap;
+      padding: 5px 4%;
+    }
+
+    .card-product-button {
+      width: 100%;
+    }
+
+    .tab-buttons {
+      flex-wrap: nowrap;
+      justify-content: center;
+      font-size:12px;
+      gap: 5px;
+      padding: 0 10px;
+    }
+
+    .card-product-addCart {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .card-product-buyNow {
+      gap: 5px;
+      text-align: center;
+    }
+  }
+
