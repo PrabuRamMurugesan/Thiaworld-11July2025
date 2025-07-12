@@ -28,15 +28,14 @@ const ThiaHomePage = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const toggleChat = () => setIsOpen((prev) => !prev);
+  const API = import.meta.env.VITE_API_BASE_URL;
 
   const [bestSellingProducts, setBestSellingProducts] = useState([]);
 
   useEffect(() => {
     const fetchBestSelling = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:5000/api/products/best-selling"
-        );
+        const res = await axios.get(`${API}/api/products/best-selling`);
         setBestSellingProducts(res.data);
         console.log(res.data, "dsagsgtsgtger");
       } catch (err) {
@@ -56,18 +55,17 @@ const ThiaHomePage = () => {
 
       <HomeProductSection />
 
-       <section className="py-10 px-4 bg-slate-100">
+      <section className="py-10 px-4 bg-slate-100">
         <h2 className="text-center mb-5 font-serif text-3xl font-bold">
-         Thiaworld Exclusive 
+          Thiaworld Exclusive
         </h2>
-          <THIAWorldExclusiveStorefrontPage/>
+        <THIAWorldExclusiveStorefrontPage />
       </section>
-
 
       {/* ✅ UPDATED Best Selling Section */}
       <section className="py-10 px-4 bg-slate-100">
         <h2 className="text-center mb-5 font-serif text-3xl font-bold">
-        Best Selling Products
+          Best Selling Products
         </h2>
         <BestSellingProducts />
       </section>

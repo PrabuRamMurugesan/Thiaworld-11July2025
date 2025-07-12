@@ -3,10 +3,11 @@ import axios from "axios";
 
 const ComparePlanLogs = () => {
   const [logs, setLogs] = useState([]);
+  const API = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/compareplan/all", {
+      .get(`${API}/api/compareplan/all`, {
         headers: {
           Authorization: "Bearer adminkey123", // secured admin middleware
         },
@@ -17,7 +18,9 @@ const ComparePlanLogs = () => {
 
   return (
     <div className="p-6 bg-white min-h-screen">
-      <h1 className="text-2xl font-bold mb-4 text-yellow-700">📊 Compare Plan Logs</h1>
+      <h1 className="text-2xl font-bold mb-4 text-yellow-700">
+        📊 Compare Plan Logs
+      </h1>
       <div className="overflow-x-auto">
         <table className="table-auto w-full border text-sm">
           <thead>
@@ -44,7 +47,9 @@ const ComparePlanLogs = () => {
                 <td className="border px-3 py-1">₹{log.monthlyEMI}</td>
                 <td className="border px-3 py-1">₹{log.totalInterest}</td>
                 <td className="border px-3 py-1">₹{log.totalPayable}</td>
-                <td className="border px-3 py-1">{new Date(log.viewedAt).toLocaleString()}</td>
+                <td className="border px-3 py-1">
+                  {new Date(log.viewedAt).toLocaleString()}
+                </td>
               </tr>
             ))}
           </tbody>

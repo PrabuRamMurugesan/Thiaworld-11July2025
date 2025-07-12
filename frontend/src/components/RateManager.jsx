@@ -29,11 +29,12 @@ const RateManager = ({ metalType }) => {
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const API = import.meta.env.VITE_API_BASE_URL;
 
   const fetchRates = async () => {
     setLoading(true);
     const res = await axios.get(
-      `http://localhost:5000/api/goldrate/all?metalType=${metalType}`
+      `${API}/api/goldrate/all?metalType=${metalType}`
     );
     setRates(res.data);
     setLoading(false);
@@ -51,13 +52,13 @@ const RateManager = ({ metalType }) => {
   const handleSubmit = async () => {
     try {
       if (editingId) {
-        await axios.put(
-          `http://localhost:5000/api/goldrate/update/${editingId}`,
-          { metalType, ...form }
-        );
+        await axios.put(`${API}/api/goldrate/update/${editingId}`, {
+          metalType,
+          ...form,
+        });
         setMessage("Updated successfully!");
       } else {
-        await axios.post(`http://localhost:5000/api/goldrate/create`, {
+        await axios.post(`${API}/api/goldrate/create`, {
           metalType,
           ...form,
         });
@@ -95,7 +96,7 @@ const RateManager = ({ metalType }) => {
 
   const handleDelete = async (id) => {
     if (window.confirm("Delete this rate?")) {
-      await axios.delete(`http://localhost:5000/api/goldrate/delete/${id}`);
+      await axios.delete(`${API}/api/goldrate/delete/${id}`);
       fetchRates();
     }
   };

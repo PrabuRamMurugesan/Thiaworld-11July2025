@@ -5,7 +5,12 @@ const ProductCMSPanel = () => {
   const [products, setProducts] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
-  const [filters, setFilters] = useState({ category: "", metalType: "", search: "" });
+  const [filters, setFilters] = useState({
+    category: "",
+    metalType: "",
+    search: "",
+  });
+  const API = import.meta.env.VITE_API_BASE_URL;
 
   const [form, setForm] = useState({
     name: "",
@@ -30,7 +35,7 @@ const ProductCMSPanel = () => {
   // 🟡 Fetch all products
   const fetchProducts = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/products/all");
+      const res = await axios.get(`${API}/api/products/all`);
       setProducts(res.data);
     } catch (err) {
       alert("Failed to fetch products.");
@@ -45,12 +50,16 @@ const ProductCMSPanel = () => {
   const handleSubmit = async () => {
     try {
       if (editingProduct) {
-        await axios.put(`http://localhost:5000/api/products/update/${editingProduct._id}`, form, {
-          headers: { Authorization: "Bearer adminkey123" },
-        });
+        await axios.put(
+          `${API}/api/products/update/${editingProduct._id}`,
+          form,
+          {
+            headers: { Authorization: "Bearer adminkey123" },
+          }
+        );
         alert("✅ Product updated!");
       } else {
-        await axios.post("http://localhost:5000/api/products/add", form, {
+        await axios.post(`${API}/api/products/add`, form, {
           headers: { Authorization: "Bearer adminkey123" },
         });
         alert("✅ Product added!");
@@ -67,7 +76,7 @@ const ProductCMSPanel = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this product?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/products/delete/${id}`, {
+      await axios.delete(`${API}/api/products/delete/${id}`, {
         headers: { Authorization: "Bearer adminkey123" },
       });
       alert("✅ Deleted!");
@@ -93,7 +102,9 @@ const ProductCMSPanel = () => {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4 text-yellow-700">📦 Product CMS Panel</h1>
+      <h1 className="text-2xl font-bold mb-4 text-yellow-700">
+        📦 Product CMS Panel
+      </h1>
 
       {/* Filters */}
       <div className="flex gap-4 mb-6">
@@ -115,7 +126,9 @@ const ProductCMSPanel = () => {
         </select>
         <select
           className="border rounded px-3 py-2"
-          onChange={(e) => setFilters({ ...filters, metalType: e.target.value })}
+          onChange={(e) =>
+            setFilters({ ...filters, metalType: e.target.value })
+          }
         >
           <option value="">Metal</option>
           <option value="Gold">Gold</option>
@@ -194,28 +207,128 @@ const ProductCMSPanel = () => {
       {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded w-[90%] md:w-[600px] max-h-[90vh] overflow-auto shadow-lg">
-            <h2 className="text-lg font-bold mb-4">{editingProduct ? "Edit" : "Add"} Product</h2>
+            <h2 className="text-lg font-bold mb-4">
+              {editingProduct ? "Edit" : "Add"} Product
+            </h2>
 
             <div className="grid grid-cols-2 gap-4">
-              <input name="name" value={form.name || ""} onChange={handleChange} placeholder="Product Name" className="border p-2 rounded" />
-              <input name="category" value={form.category || ""} onChange={handleChange} placeholder="Category" className="border p-2 rounded" />
-              <input name="metalType" value={form.metalType || ""} onChange={handleChange} placeholder="Metal Type" className="border p-2 rounded" />
-              <input name="metalColor" value={form.metalColor || ""} onChange={handleChange} placeholder="Metal Color" className="border p-2 rounded" />
-              <input name="netWeight" value={form.netWeight || ""} onChange={handleChange} placeholder="Net Weight (g)" className="border p-2 rounded" />
-              <input name="grossWeight" value={form.grossWeight || ""} onChange={handleChange} placeholder="Gross Weight (g)" className="border p-2 rounded" />
-              <input name="price" value={form.price || ""} onChange={handleChange} placeholder="Price ₹" className="border p-2 rounded" />
-              <input name="discount" value={form.discount || ""} onChange={handleChange} placeholder="Discount %" className="border p-2 rounded" />
-              <input name="makingCharges" value={form.makingCharges || ""} onChange={handleChange} placeholder="Making Charges ₹" className="border p-2 rounded" />
-              <input name="gst" value={form.gst || ""} onChange={handleChange} placeholder="GST ₹" className="border p-2 rounded" />
-              <input name="comboGroupId" value={form.comboGroupId || ""} onChange={handleChange} placeholder="Combo Group ID" className="border p-2 rounded" />
+              <input
+                name="name"
+                value={form.name || ""}
+                onChange={handleChange}
+                placeholder="Product Name"
+                className="border p-2 rounded"
+              />
+              <input
+                name="category"
+                value={form.category || ""}
+                onChange={handleChange}
+                placeholder="Category"
+                className="border p-2 rounded"
+              />
+              <input
+                name="metalType"
+                value={form.metalType || ""}
+                onChange={handleChange}
+                placeholder="Metal Type"
+                className="border p-2 rounded"
+              />
+              <input
+                name="metalColor"
+                value={form.metalColor || ""}
+                onChange={handleChange}
+                placeholder="Metal Color"
+                className="border p-2 rounded"
+              />
+              <input
+                name="netWeight"
+                value={form.netWeight || ""}
+                onChange={handleChange}
+                placeholder="Net Weight (g)"
+                className="border p-2 rounded"
+              />
+              <input
+                name="grossWeight"
+                value={form.grossWeight || ""}
+                onChange={handleChange}
+                placeholder="Gross Weight (g)"
+                className="border p-2 rounded"
+              />
+              <input
+                name="price"
+                value={form.price || ""}
+                onChange={handleChange}
+                placeholder="Price ₹"
+                className="border p-2 rounded"
+              />
+              <input
+                name="discount"
+                value={form.discount || ""}
+                onChange={handleChange}
+                placeholder="Discount %"
+                className="border p-2 rounded"
+              />
+              <input
+                name="makingCharges"
+                value={form.makingCharges || ""}
+                onChange={handleChange}
+                placeholder="Making Charges ₹"
+                className="border p-2 rounded"
+              />
+              <input
+                name="gst"
+                value={form.gst || ""}
+                onChange={handleChange}
+                placeholder="GST ₹"
+                className="border p-2 rounded"
+              />
+              <input
+                name="comboGroupId"
+                value={form.comboGroupId || ""}
+                onChange={handleChange}
+                placeholder="Combo Group ID"
+                className="border p-2 rounded"
+              />
             </div>
 
             {/* Toggles */}
             <div className="flex gap-6 mt-4">
-              <label><input type="checkbox" name="isCombo" checked={form.isCombo} onChange={handleChange} /> Combo</label>
-              <label><input type="checkbox" name="isSecurePlanEnabled" checked={form.isSecurePlanEnabled} onChange={handleChange} /> SecurePlan</label>
-              <label><input type="checkbox" name="isPartialPaymentEnabled" checked={form.isPartialPaymentEnabled} onChange={handleChange} /> PartialPay</label>
-              <label><input type="checkbox" name="isAvailable" checked={form.isAvailable} onChange={handleChange} /> Available</label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="isCombo"
+                  checked={form.isCombo}
+                  onChange={handleChange}
+                />{" "}
+                Combo
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="isSecurePlanEnabled"
+                  checked={form.isSecurePlanEnabled}
+                  onChange={handleChange}
+                />{" "}
+                SecurePlan
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="isPartialPaymentEnabled"
+                  checked={form.isPartialPaymentEnabled}
+                  onChange={handleChange}
+                />{" "}
+                PartialPay
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="isAvailable"
+                  checked={form.isAvailable}
+                  onChange={handleChange}
+                />{" "}
+                Available
+              </label>
             </div>
 
             {/* Action buttons */}

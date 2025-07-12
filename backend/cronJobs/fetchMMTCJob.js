@@ -8,7 +8,7 @@ cron.schedule("0 9,12,15,17 * * *", async () => {
   console.log("[CRON] Fetching MMTC-PAMP gold rate...");
   try {
     const res = await axios.get(
-      "http://localhost:5000/api/goldrate/fetch-mmtc-now"
+      `${API}/api/goldrate/fetch-mmtc-now`
     );
     console.log("[CRON] Response:", res.data.message);
   } catch (err) {
