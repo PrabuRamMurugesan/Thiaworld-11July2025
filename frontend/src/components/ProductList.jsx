@@ -17,6 +17,7 @@ const ProductList = () => {
   const [sortOption, setSortOption] = useState("");
 
   const { addToCart } = useContext(CartContext);
+  const API = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     fetchProducts();
@@ -38,9 +39,7 @@ const ProductList = () => {
         if (sortOption === "New Arrivals") query.push("sort=newest");
       }
 
-      const res = await axios.get(
-        `http://localhost:5000/api/products/all?${query.join("&")}`
-      );
+      const res = await axios.get(`${API}/api/products/all?${query.join("&")}`);
 
       setProducts(res.data);
     } catch (err) {

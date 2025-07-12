@@ -1,27 +1,29 @@
-import React from 'react';
-import { useEffect } from 'react';
+import React from "react";
+import { useEffect } from "react";
 
 const ContactSection = () => {
- 
-  useEffect(() => {
-    fetch('http://localhost:5000/api/contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: 'MGR',
-        email: 'mgr@example.com',
-        message: 'I love this jewelry site!'
-      })
-    })
-    .then(res => res.json())
-    .then(data => console.log(data))
-    .catch(error => console.error('Error:', error));
-  }, []);
+  const API = import.meta.env.VITE_API_BASE_URL;
 
+  useEffect(() => {
+    fetch(`${API}/api/contact`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: "MGR",
+        email: "mgr@example.com",
+        message: "I love this jewelry site!",
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => console.log(data))
+      .catch((error) => console.error("Error:", error));
+  }, []);
 
   return (
     <div className="max-w-screen-xl mx-auto px-4 py-12 bg-white rounded-lg shadow-sm border border-gray-100">
-      <h2 className="text-2xl font-semibold text-center mb-6">Get in Touch with <span className="text-yellow-600">Thiaworld</span></h2>
+      <h2 className="text-2xl font-semibold text-center mb-6">
+        Get in Touch with <span className="text-yellow-600">Thiaworld</span>
+      </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Contact Info + Map */}
@@ -53,7 +55,7 @@ const ContactSection = () => {
         </div>
 
         {/* Contact Form */}
-        <form className="flex flex-col gap-4">   
+        <form className="flex flex-col gap-4">
           <input
             type="text"
             placeholder="Your Name"
