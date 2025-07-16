@@ -9,7 +9,7 @@ const TrackOrder = () => {
   const handleTrackOrder = async () => {
     try {
       const response = await axios.get(
-        `${API}/api/order/track?orderId=${orderId}&phone=${phone}`
+        `http://localhost:5000/api/order/track?orderId=${orderId}&phone=${phone}`
       );
       setOrderDetails(response.data);
     } catch (error) {

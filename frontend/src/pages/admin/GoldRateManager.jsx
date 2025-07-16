@@ -51,10 +51,11 @@ const GoldRateManager = () => {
   const [editingData, setEditingData] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSource, setFilterSource] = useState("All");
-  const API = import.meta.env.VITE_API_BASE_URL;
 
   const fetchGroups = async () => {
-    const res = await axios.get(`${API}/api/goldrate/grouped?metalType=Gold`);
+    const res = await axios.get(
+      "http://localhost:5000/api/goldrate/grouped?metalType=Gold"
+    );
     setGroups(res.data);
   };
 
@@ -68,7 +69,7 @@ const GoldRateManager = () => {
       return;
     }
     try {
-      await axios.post(`${API}/api/goldrate/create`, {
+      await axios.post(`http://localhost:5000/api/goldrate/create`, {
         metalType: "Gold",
         source,
         marketPrice,
@@ -90,18 +91,27 @@ const GoldRateManager = () => {
   const handleUpdate = async () => {
     try {
       // Update all 3
-      await axios.put(`${API}/api/goldrate/update/${editingData._id24}`, {
-        marketPrice: editingData.marketPrice,
-        ratePerGram: editingData.rate24,
-      });
-      await axios.put(`${API}/api/goldrate/update/${editingData._id22}`, {
-        marketPrice: editingData.marketPrice,
-        ratePerGram: editingData.rate22,
-      });
-      await axios.put(`${API}/api/goldrate/update/${editingData._id18}`, {
-        marketPrice: editingData.marketPrice,
-        ratePerGram: editingData.rate18,
-      });
+      await axios.put(
+        `http://localhost:5000/api/goldrate/update/${editingData._id24}`,
+        {
+          marketPrice: editingData.marketPrice,
+          ratePerGram: editingData.rate24,
+        }
+      );
+      await axios.put(
+        `http://localhost:5000/api/goldrate/update/${editingData._id22}`,
+        {
+          marketPrice: editingData.marketPrice,
+          ratePerGram: editingData.rate22,
+        }
+      );
+      await axios.put(
+        `http://localhost:5000/api/goldrate/update/${editingData._id18}`,
+        {
+          marketPrice: editingData.marketPrice,
+          ratePerGram: editingData.rate18,
+        }
+      );
       setMessage("Block updated!");
       setEditingKey(null);
       fetchGroups();
@@ -118,9 +128,15 @@ const GoldRateManager = () => {
 
   const handleDelete = async (group) => {
     if (window.confirm("Delete entire block?")) {
-      await axios.delete(`${API}/api/goldrate/delete/${group._id24}`);
-      await axios.delete(`${API}/api/goldrate/delete/${group._id22}`);
-      await axios.delete(`${API}/api/goldrate/delete/${group._id18}`);
+      await axios.delete(
+        `http://localhost:5000/api/goldrate/delete/${group._id24}`
+      );
+      await axios.delete(
+        `http://localhost:5000/api/goldrate/delete/${group._id22}`
+      );
+      await axios.delete(
+        `http://localhost:5000/api/goldrate/delete/${group._id18}`
+      );
       fetchGroups();
     }
   };

@@ -1,27 +1,44 @@
-import React from "react";
-import { Container, Row, Col } from "react-bootstrap";
+import React, { useState } from "react";
 import AdminSidebar from "./AdminSidebar";
 import AdminHeader from "./AdminHeader";
 import { Outlet } from "react-router-dom";
 
 const AdminLayout = () => {
-  return (
-    <Container fluid className="p-0">
-      <Row className="gx-0">
-        {/* Sidebar */}
-        <Col md={2} className="bg-dark vh-100 text-white position-fixed">
-          <AdminSidebar />
-        </Col>
+  const [collapsed, setCollapsed] = useState(false); // control sidebar state
 
-        {/* Content */}
-        <Col md={{ span: 10, offset: 2 }} className="ms-auto">
-          <AdminHeader />
-          <main className="p-4">
-            <Outlet /> {/* This renders the nested admin pages */}
-          </main>
-        </Col>
-      </Row>
-    </Container>
+  const sidebarWidth = collapsed ? 70 : 240;
+
+  return (
+    <div className="d-flex" style={{ minHeight: "100vh" }}>
+      {/* Sidebar */}
+      <div
+        className="bg-dark text-white position-fixed"
+        style={{
+          width: `${sidebarWidth}px`,
+          height: "100vh",
+          transition: "width 0.3s",
+          overflow: "hidden",
+          zIndex: 1000,
+        }}
+      >
+        <AdminSidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+      </div>
+
+      {/* Main Content */}
+      <div
+        className="flex-grow-1"
+        style={{
+          marginLeft: `${sidebarWidth}px`,
+          transition: "margin-left 0.3s",
+          width: `calc(100% - ${sidebarWidth}px)`,
+        }}
+      >
+        <AdminHeader />
+        <main className="p-4">
+          <Outlet />
+        </main>
+      </div>
+    </div>
   );
 };
 

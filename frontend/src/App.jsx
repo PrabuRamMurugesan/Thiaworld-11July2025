@@ -71,6 +71,16 @@ import AffiliateMarketingPage from "./pages/Marketing & SEO Automation/Affiliate
 import EmailWhatsAppMarketingPage from "./pages/Marketing & SEO Automation/EmailWhatsAppMarketingPage";
 import SeoOptimizationPage from "./pages/Marketing & SEO Automation/SeoOptimizationPage";
 import AdsRetargetingPage from "./pages/Marketing & SEO Automation/AdsRetargetingPage";
+import DragDropBuilderPage from "./pages/admin/CMS/DragDropBuilderPage";
+import MultiLangSupport from "./pages/admin/CMS/LanguageProvider";
+import GeoVisibilityToggle from "./pages/admin/CMS/GeoVisibilityToggle";
+import RoleManager from "./pages/admin/CMS/RoleManager";
+import MediaLibraryPage from "./pages/admin/CMS/MediaLibrary";
+import SeoManagerPage from "./pages/admin/CMS/SeoManagerPage";
+import PreviewSchedulerPage from "./pages/admin/CMS/PreviewSchedulerPage";
+import CMSAdvancedAdminPanel from "./pages/admin/CMS/CMSAdvancedAdminPanel";
+
+
 export default function App() {
   return (
     <Routes>
@@ -147,12 +157,28 @@ export default function App() {
       <Route path="/platinum-collection" element={<PlatinumCollection />} />
       <Route path="/diamond-collection" element={<DiamondCollection />} />
       <Route path="/festive-offers" element={<FestiveOffers />} />
+
+     
+       <Route path="/cms-panel-admin" element={<CMSAdvancedAdminPanel/>} /> 
+     
+
       {/* Admin Panel */}
       <Route path="/admin" element={<AdminLayout />}>
         <Route path="dashboard" element={<DashboardHome />} />
         <Route path="products" element={<ProductManager />} />
         <Route path="orders" element={<OrdersManager />} />
-        <Route path="customers" element={<CustomersManager />} />
+        <Route path="customers" element={<CustomersManager />} /> 
+        
+        {/* created by medun */} 
+        <Route path="dragdrop" element={<DragDropBuilderPage />} /> 
+        <Route path="multi-language" element={<MultiLangSupport />} /> 
+        <Route path="geo-visibility" element={<GeoVisibilityToggle />} /> 
+         <Route path="roles-manager" element={<RoleManager/>} /> 
+         <Route path="media" element={<MediaLibraryPage/>} /> 
+         <Route path="seo-manager" element={<SeoManagerPage/>} /> 
+          <Route path="preview-scheduler" element={<PreviewSchedulerPage/>} /> 
+         <Route path="cms-panel-admin" element={<CMSAdvancedAdminPanel/>} /> 
+     
       </Route>
     </Routes>
   );

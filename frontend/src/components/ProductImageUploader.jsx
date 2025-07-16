@@ -4,7 +4,6 @@ import axios from "axios";
 const ProductImageUploader = ({ productId, currentImage }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(currentImage);
-  const API = import.meta.env.VITE_API_BASE_URL;
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -20,11 +19,11 @@ const ProductImageUploader = ({ productId, currentImage }) => {
 
     try {
       const res = await axios.post(
-        `${API}/api/products/${productId}/upload-image`,
+        `http://localhost:5000/api/products/${productId}/upload-image`,
         formData
       );
       alert("Upload successful!");
-      setPreviewUrl(`${API}${res.data.product.image.url}`);
+      setPreviewUrl(`http://localhost:5000${res.data.product.image.url}`);
     } catch (err) {
       alert("Upload failed.");
       console.error(err);

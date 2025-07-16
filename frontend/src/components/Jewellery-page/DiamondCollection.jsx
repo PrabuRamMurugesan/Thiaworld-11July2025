@@ -18,7 +18,6 @@ const DiamondCollection = () => {
   const [sortOption, setSortOption] = useState("");
 
   const { addToCart } = useContext(CartContext);
-  const API = import.meta.env.VITE_API_BASE_URL;
 
   // ✅ Pagination States - moved to top level
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,7 +44,7 @@ const DiamondCollection = () => {
       }
 
       const res = await axios.get(
-        `${API}/api/products/diamond?${query.join("&")}`
+        `http://localhost:5000/api/products/diamond?${query.join("&")}`
       );
 
       setProducts(res.data);
@@ -206,7 +205,10 @@ const DiamondCollection = () => {
 
               <Link to={`/product/${prod._id}`}>
                 <img
-                  src={`${API}${prod.images?.[0]}` || "/default-product.jpg"}
+                  src={
+                    `http://localhost:5000${prod.images?.[0]}` ||
+                    "/default-product.jpg"
+                  }
                   alt={prod.name}
                   style={{ width: "250px", height: "250px" }}
                 />

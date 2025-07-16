@@ -99,16 +99,18 @@ const Header = () => {
             className="max-w-[180px] max-h-[100px]"
           />
         </div> */}
-        <h1
-          style={{
-            fontFamily: "Lucida Handwriting",
-            fontSize: "30px",
-            padding: "20px",
-            textAlign: "center",
-            color: "red",
-            textShadow: "0px 1px 1px gray",
-          }}
-        >
+     <h1
+  style={{
+    fontFamily: "Lucida Handwriting",
+    fontSize: "30px",
+    padding: "20px",
+    textAlign: "center",
+    background: "linear-gradient(to right, red, yellow, green)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    textShadow: "1px 1px 1px rgba(0, 0, 0, 0.3)",
+  }}
+>
           BBSCART
           <p style={{ fontSize: "10px", textAlign: "center", color: "black" }}>
             online shopping
@@ -155,10 +157,12 @@ const Header = () => {
             </span>
           </button>
 
-          <button className="text-sm text-gray-700 hover:text-yellow-600 flex items-center">
+         <a href="">
+           <button className="text-sm text-gray-700 hover:text-yellow-600 flex items-center">
             <FaUserAlt className="mr-2 text-xl" />
             Login
           </button>
+         </a>
 
           <div style={{ width: "90px", height: "30px", border: "none" }}>
             <Select
@@ -325,7 +329,7 @@ const Header = () => {
                       color: "#007bff",
                       textDecoration: "none",
                       cursor: "pointer", 
-                      color: "gray",
+                  
                       
                     }}
                   >
