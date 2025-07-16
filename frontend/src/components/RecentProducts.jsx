@@ -8,14 +8,15 @@ import Footer from "./Footer";
 const RecentProducts = () => {
   const [recentProducts, setRecentProducts] = useState([]);
   const { addToCart } = useContext(CartContext);
-  const API = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     const fetchNewArrivals = async () => {
       try {
-        const res = await axios.get(`${API}/api/products/new-arrivals`);
-        console.log(res, "dsfgfghdfgfdg");
-
+        const res = await axios.get(
+          "http://localhost:5000/api/products/new-arrivals"
+        );
+        console.log(res,"dsfgfghdfgfdg");
+        
         setRecentProducts(res.data);
       } catch (err) {
         console.error("Failed to fetch new arrivals:", err);
@@ -24,78 +25,75 @@ const RecentProducts = () => {
 
     fetchNewArrivals();
   }, []);
-
+  
   const location = useLocation();
 
+ 
   return (
     <>
-      {location.pathname !== "/" && <Header />}
-      <h2
-        className="text-xl font-semibold font-serif mb-4  text-center text-dark px-5 py-2"
-        style={{ backgroundColor: "rgb(250, 222, 124)" }}
-      >
-        New Arrivals{" "}
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 p-8 m-5">
-        {recentProducts.map((product) => (
-          <div
-            key={product._id}
-            className="relative bg-white shadow rounded-lg overflow-hidden hover:shadow-md transition duration-300 group"
-          >
-            <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded z-10">
-              New
-            </span>
+    {location.pathname !== "/" && <Header />}
+    <h2 className="text-xl font-semibold font-serif mb-4  text-center text-dark px-5 py-2" style={{ backgroundColor: "rgb(250, 222, 124)" }} >New Arrivals </h2> 
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 p-8 m-5">
+      
+      {recentProducts.map((product) => (
+        <div
+          key={product._id}
+          className="relative bg-white shadow rounded-lg overflow-hidden hover:shadow-md transition duration-300 group"
+        >
+          <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded z-10">
+            New
+          </span>
 
-            <div className="overflow-hidden">
-              <img
-                src={
-                  product.images?.[0]
-                    ? `${API}${product.images[0]}`
-                    : "/default-product.jpg"
-                }
-                className="w-100 h-[300px] object-contain group-hover:scale-105 transition duration-300"
-                alt={product.name}
-                onError={(e) => (e.target.src = "/default-product.jpg")}
-              />
+          <div className="overflow-hidden">
+            <img
+              src={
+                product.images?.[0]
+                  ? `http://localhost:5000${product.images[0]}`
+                  : "/default-product.jpg"
+              }
+              className="w-100 h-[300px] object-contain group-hover:scale-105 transition duration-300"
+              alt={product.name}
+              onError={(e) => (e.target.src = "/default-product.jpg")}
+            />
+          </div>
+
+          <div className="p-4">
+            <h3 className="text-base font-medium text-gray-800">
+              {product.name}
+            </h3>
+            <p className="text-sm text-gray-500 mt-1">
+              {product.shortDesc || "Gold Jewellery"}
+            </p>
+
+            <div className="flex items-center text-yellow-500 text-sm mt-2">
+              {Array(5)
+                .fill()
+                .map((_, i) => (
+                  <FaStar
+                    key={i}
+                    className={
+                      i < (product.rating || 4)
+                        ? "text-yellow-500"
+                        : "text-gray-300"
+                    }
+                  />
+                ))}
             </div>
 
-            <div className="p-4">
-              <h3 className="text-base font-medium text-gray-800">
-                {product.name}
-              </h3>
-              <p className="text-sm text-gray-500 mt-1">
-                {product.shortDesc || "Gold Jewellery"}
-              </p>
-
-              <div className="flex items-center text-yellow-500 text-sm mt-2">
-                {Array(5)
-                  .fill()
-                  .map((_, i) => (
-                    <FaStar
-                      key={i}
-                      className={
-                        i < (product.rating || 4)
-                          ? "text-yellow-500"
-                          : "text-gray-300"
-                      }
-                    />
-                  ))}
-              </div>
-
-              <div className=" d-flex justify-between align-items-center gap-3 mt-3">
-                <button
-                  className="btn btn-warning btn-sm  w-100 fw-bold"
-                  onClick={() => addToCart(product)}
-                >
-                  🛒 Add to Cart
-                </button>
-                <FaHeart className="text-gray-500 hover:text-red-500 cursor-pointer size-6" />
-              </div>
+            <div className=" d-flex justify-between align-items-center gap-3 mt-3">
+              <button
+                className="btn btn-warning btn-sm  w-100 fw-bold"
+                onClick={() => addToCart(product)}
+              >
+                🛒 Add to Cart
+              </button>
+              <FaHeart className="text-gray-500 hover:text-red-500 cursor-pointer size-6" />
             </div>
           </div>
-        ))}
-      </div>
-      {location.pathname !== "/" && <Footer />}
+        </div>
+      ))}
+    </div>
+    {location.pathname !== "/" && <Footer />}
     </>
   );
 };

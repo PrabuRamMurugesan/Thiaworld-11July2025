@@ -6,7 +6,6 @@ const UploadImageCMS = () => {
   const [productId, setProductId] = useState("");
   const [images, setImages] = useState([]);
   const [category, setCategory] = useState("");
-  const API = import.meta.env.VITE_API_BASE_URL;
 
   const handleImageChange = (e) => {
     setImages(Array.from(e.target.files));
@@ -24,7 +23,7 @@ const UploadImageCMS = () => {
 
     try {
       const res = await axios.post(
-        `${API}/api/products/upload-images`,
+        "http://localhost:5000/api/products/upload-images",
         formData
       );
       alert("Upload Successful!");

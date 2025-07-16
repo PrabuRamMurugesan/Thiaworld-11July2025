@@ -4,8 +4,6 @@ import { CartContext } from "../context/CartContext";
 import { Link } from "react-router-dom";
 
 const CartPage = () => {
-  const API = import.meta.env.VITE_API_BASE_URL;
-
   const {
     goldCart,
     silverCart,
@@ -14,7 +12,7 @@ const CartPage = () => {
     removeFromCart,
     clearCart,
   } = useContext(CartContext);
-  const [selectedImage, setSelectedImage] = useState("");
+  const [selectedImage, setSelectedImage] = useState(""); 
 
   const goldTotal = goldCart.reduce((sum, item) => sum + item.price, 0);
   const silverTotal = silverCart.reduce((sum, item) => sum + item.price, 0);
@@ -32,7 +30,7 @@ const CartPage = () => {
             borderBottom: "2px solid rgb(207, 162, 47)",
             paddingBottom: "10px",
             fontSize: "35px",
-            ontFamily: "'Playfair Display', serif",
+           ontFamily:"'Playfair Display', serif"
           }}
         >
           My Cart
@@ -61,7 +59,7 @@ const CartPage = () => {
                       item.images.map((img, i) => (
                         <img
                           key={i}
-                          src={`${API}${img}`}
+                          src={`http://localhost:5000${img}`}
                           alt={`thumb-${i}`}
                           className={`w-20 h-20 object-cover rounded border cursor-pointer ${
                             selectedImage === img
@@ -91,10 +89,7 @@ const CartPage = () => {
 
         {/* ✅ SILVER PRODUCTS */}
         <div className="mb-8">
-          <h3
-            className="text-xl font-semibold mb-3"
-            style={{ color: "rgb(135, 135, 135)" }}
-          >
+          <h3 className="text-xl font-semibold mb-3" style={{color:'rgb(135, 135, 135)'}}>
             Silver Products
           </h3>
           {silverCart.length === 0 ? (
@@ -112,7 +107,7 @@ const CartPage = () => {
                       item.images.map((img, i) => (
                         <img
                           key={i}
-                          src={`${API}${img}`}
+                          src={`http://localhost:5000${img}`}
                           alt={`thumb-${i}`}
                           className={`w-20 h-20 object-cover rounded border cursor-pointer ${
                             selectedImage === img
@@ -140,10 +135,7 @@ const CartPage = () => {
         </div>
         {/* ✅ DIAMOND PRODUCTS */}
         <div className="mb-8">
-          <h3
-            className="text-xl font-semibold  mb-3"
-            style={{ color: "rgb(177, 179, 181)" }}
-          >
+          <h3 className="text-xl font-semibold  mb-3" style={{color:'rgb(177, 179, 181)'}}>
             Diamond Products
           </h3>
           {diamondCart.length === 0 ? (
@@ -161,7 +153,7 @@ const CartPage = () => {
                       item.images.map((img, i) => (
                         <img
                           key={i}
-                          src={`${API}${img}`}
+                          src={`http://localhost:5000${img}`}
                           alt={`thumb-${i}`}
                           className={`w-20 h-20 object-cover rounded border cursor-pointer ${
                             selectedImage === img
@@ -192,10 +184,7 @@ const CartPage = () => {
 
         {/* ✅ PLATINUM PRODUCTS */}
         <div className="mb-8">
-          <h3
-            className="text-xl font-semibold  mb-3"
-            style={{ color: "rgb(153, 153, 153)" }}
-          >
+          <h3 className="text-xl font-semibold  mb-3" style={{color:'rgb(153, 153, 153)'}}>
             Platinum Products
           </h3>
           {platinumCart.length === 0 ? (
@@ -213,7 +202,7 @@ const CartPage = () => {
                       item.images.map((img, i) => (
                         <img
                           key={i}
-                          src={`${API}${img}`}
+                          src={`http://localhost:5000${img}`}
                           alt={`thumb-${i}`}
                           className={`w-20 h-20 object-cover rounded border cursor-pointer ${
                             selectedImage === img
@@ -248,8 +237,7 @@ const CartPage = () => {
         <div className="flex gap-4">
           <Link
             to="/checkout"
-            className="btn btn-success px-4 py-2 rounded-pill shadow"
-            type="button"
+            className="btn btn-success px-4 py-2 rounded-pill shadow" type="button"
           >
             Proceed to Checkout
           </Link>
@@ -257,8 +245,8 @@ const CartPage = () => {
             onClick={() => {
               clearCart("Gold");
               clearCart("Silver");
-              clearCart("Diamond");
-              clearCart("Platinum");
+              clearCart("Diamond")
+              clearCart("Platinum")
             }}
             className="px-4 py-2 bg-red-600 text-white rounded"
           >

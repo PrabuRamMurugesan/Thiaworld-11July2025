@@ -8,12 +8,11 @@
 //   const [selectedMessage, setSelectedMessage] = useState(null);
 //   const [error, setError] = useState(null);
 //   const contactsPerPage = 10;
-// const API = import.meta.env.VITE_API_BASE_URL;
 
 //   useEffect(() => {
 //     const fetchContacts = async () => {
 //       try {
-//         const res = await axios.get(`${API}/api/contact`);
+//         const res = await axios.get("http://localhost:5000/api/contact");
 //         setContacts(res.data);
 //       } catch (err) {
 //         console.error("Error loading contacts:", err);
@@ -133,6 +132,7 @@
 
 // export default ContactMessages;
 
+
 // // import React, { useEffect, useState } from 'react';
 // // import axios from 'axios';
 
@@ -140,7 +140,7 @@
 // //   const [contacts, setContacts] = useState([]);
 
 // //   useEffect(() => {
-// //     axios.get(`${API}/api/contact`)
+// //     axios.get("http://localhost:5000/api/contact")
 // //       .then(res => setContacts(res.data))
 // //       .catch(err => console.error("Error loading contacts:", err));
 // //   }, []);
@@ -186,7 +186,7 @@
 // //   const [search, setSearch] = useState('');
 
 // //   useEffect(() => {
-// //     axios.get(`${API}/api/contact`)
+// //     axios.get("http://localhost:5000/api/contact")
 // //       .then(res => {
 // //         setContacts(res.data);
 // //         setFiltered(res.data);
@@ -273,7 +273,7 @@
 //   useEffect(() => {
 //     const fetchContacts = async () => {
 //       try {
-//         const res = await axios.get(`${API}/api/contact`);
+//         const res = await axios.get("http://localhost:5000/api/contact");
 //         setContacts(res.data);
 //       } catch (err) {
 //         console.error("Error loading contacts:", err);
@@ -447,14 +447,15 @@
 
 // export default ContactMessages;
 
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const ContactMessages = () => {
   const [contacts, setContacts] = useState([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [error, setError] = useState(null);
@@ -466,9 +467,9 @@ const ContactMessages = () => {
     message: true,
     createdAt: true,
   });
-  const [subjectFilter, setSubjectFilter] = useState("");
-  const [dateFilter, setDateFilter] = useState("");
-  const [replyStatus, setReplyStatus] = useState("");
+  const [subjectFilter, setSubjectFilter] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
+  const [replyStatus, setReplyStatus] = useState('');
   const [flagged, setFlagged] = useState({});
   const [noteInputs, setNoteInputs] = useState({});
   const contactsPerPage = 10;
@@ -476,7 +477,7 @@ const ContactMessages = () => {
   useEffect(() => {
     const fetchContacts = async () => {
       try {
-        const res = await axios.get(`${API}/api/contact`);
+        const res = await axios.get("http://localhost:5000/api/contact");
         setContacts(res.data);
       } catch (err) {
         console.error("Error loading contacts:", err);
@@ -488,8 +489,8 @@ const ContactMessages = () => {
 
   const handleUpdateContact = async (id, updates) => {
     try {
-      const res = await axios.put(`${API}/api/contact/${id}`, updates);
-      setContacts((prev) => prev.map((c) => (c._id === id ? res.data : c)));
+      const res = await axios.put(`http://localhost:5000/api/contact/${id}`, updates);
+      setContacts(prev => prev.map(c => c._id === id ? res.data : c));
     } catch (err) {
       console.error("Error updating contact:", err);
     }
@@ -500,25 +501,21 @@ const ContactMessages = () => {
   };
 
   const markAsReplied = (id) => {
-    handleUpdateContact(id, { replyStatus: "Replied" });
+    handleUpdateContact(id, { replyStatus: 'Replied' });
   };
 
   const saveNote = (id) => {
-    const note = noteInputs[id] || "";
+    const note = noteInputs[id] || '';
     handleUpdateContact(id, { adminNotes: note });
   };
 
-  const filteredContacts = contacts.filter((c) => {
+  const filteredContacts = contacts.filter(c => {
     const matchesSearch =
       c.name?.toLowerCase().includes(search.toLowerCase()) ||
       c.email?.toLowerCase().includes(search.toLowerCase()) ||
       c.subject?.toLowerCase().includes(search.toLowerCase());
-    const matchesSubject = subjectFilter
-      ? c.subject?.toLowerCase().includes(subjectFilter.toLowerCase())
-      : true;
-    const matchesDate = dateFilter
-      ? new Date(c.createdAt).toISOString().split("T")[0] === dateFilter
-      : true;
+    const matchesSubject = subjectFilter ? c.subject?.toLowerCase().includes(subjectFilter.toLowerCase()) : true;
+    const matchesDate = dateFilter ? new Date(c.createdAt).toISOString().split('T')[0] === dateFilter : true;
     const matchesReply = replyStatus ? c.replyStatus === replyStatus : true;
     return matchesSearch && matchesSubject && matchesDate && matchesReply;
   });
@@ -530,43 +527,35 @@ const ContactMessages = () => {
 
   const exportPDF = () => {
     const doc = new jsPDF();
-    const tableColumn = Object.keys(selectedFields).filter(
-      (key) => selectedFields[key]
-    );
-    const tableRows = contacts.map((c) =>
-      tableColumn.map((field) =>
-        field === "createdAt"
-          ? new Date(c[field]).toLocaleString()
-          : c[field] || ""
+    const tableColumn = Object.keys(selectedFields).filter(key => selectedFields[key]);
+    const tableRows = contacts.map(c =>
+      tableColumn.map(field =>
+        field === 'createdAt' ? new Date(c[field]).toLocaleString() : c[field] || ''
       )
     );
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
     });
-    doc.save("contacts.pdf");
+    doc.save('contacts.pdf');
   };
 
   const exportCSV = () => {
-    const header = Object.keys(selectedFields).filter(
-      (key) => selectedFields[key]
-    );
+    const header = Object.keys(selectedFields).filter(key => selectedFields[key]);
     const csvRows = [
-      header.map((h) => h.charAt(0).toUpperCase() + h.slice(1)),
-      ...contacts.map((c) =>
-        header.map((field) =>
-          field === "createdAt"
-            ? new Date(c[field]).toLocaleString()
-            : c[field] || ""
+      header.map(h => h.charAt(0).toUpperCase() + h.slice(1)),
+      ...contacts.map(c =>
+        header.map(field =>
+          field === 'createdAt' ? new Date(c[field]).toLocaleString() : c[field] || ''
         )
-      ),
+      )
     ];
-    const csvContent = csvRows.map((e) => e.join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv" });
+    const csvContent = csvRows.map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = url;
-    link.download = "contacts.csv";
+    link.download = 'contacts.csv';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -600,26 +589,13 @@ const ContactMessages = () => {
           value={dateFilter}
           onChange={(e) => setDateFilter(e.target.value)}
         />
-        <select
-          className="p-2 border rounded"
-          onChange={(e) => setReplyStatus(e.target.value)}
-        >
+        <select className="p-2 border rounded" onChange={(e) => setReplyStatus(e.target.value)}>
           <option value="">All Status</option>
           <option value="Replied">Replied</option>
           <option value="Pending">Pending</option>
         </select>
-        <button
-          onClick={exportCSV}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Export CSV
-        </button>
-        <button
-          onClick={exportPDF}
-          className="bg-red-500 text-white px-4 py-2 rounded"
-        >
-          Export PDF
-        </button>
+        <button onClick={exportCSV} className="bg-blue-500 text-white px-4 py-2 rounded">Export CSV</button>
+        <button onClick={exportPDF} className="bg-red-500 text-white px-4 py-2 rounded">Export PDF</button>
       </div>
 
       <table className="w-full table-auto border-collapse border border-gray-300">
@@ -640,58 +616,16 @@ const ContactMessages = () => {
               <td className="border p-2">{c.phone}</td>
               <td className="border p-2">{c.email}</td>
               <td className="border p-2">{c.subject}</td>
-              <td className="border p-2">
-                {new Date(c.createdAt).toLocaleString()}
-              </td>
+              <td className="border p-2">{new Date(c.createdAt).toLocaleString()}</td>
               <td className="border p-2 space-y-1 space-x-1">
-                <button
-                  className="bg-green-500 text-white px-2 py-1 rounded"
-                  onClick={() => window.open(`mailto:${c.email}`)}
-                >
-                  Email
-                </button>
-                <button
-                  className="bg-teal-500 text-white px-2 py-1 rounded"
-                  onClick={() => window.open(`https://wa.me/${c.phone}`)}
-                >
-                  WhatsApp
-                </button>
-                <button
-                  className="bg-indigo-500 text-white px-2 py-1 rounded"
-                  onClick={() => setSelectedMessage(c)}
-                >
-                  View
-                </button>
-                <button
-                  className={`px-2 py-1 rounded ${
-                    c.flagged ? "bg-yellow-400" : "bg-gray-300"
-                  }`}
-                  onClick={() => toggleFlag(c._id, c.flagged)}
-                >
-                  {c.flagged ? "Unflag" : "Flag"}
-                </button>
-                <button
-                  className="bg-blue-400 text-white px-2 py-1 rounded"
-                  onClick={() => markAsReplied(c._id)}
-                >
-                  Mark Replied
-                </button>
+                <button className="bg-green-500 text-white px-2 py-1 rounded" onClick={() => window.open(`mailto:${c.email}`)}>Email</button>
+                <button className="bg-teal-500 text-white px-2 py-1 rounded" onClick={() => window.open(`https://wa.me/${c.phone}`)}>WhatsApp</button>
+                <button className="bg-indigo-500 text-white px-2 py-1 rounded" onClick={() => setSelectedMessage(c)}>View</button>
+                <button className={`px-2 py-1 rounded ${c.flagged ? 'bg-yellow-400' : 'bg-gray-300'}`} onClick={() => toggleFlag(c._id, c.flagged)}>{c.flagged ? 'Unflag' : 'Flag'}</button>
+                <button className="bg-blue-400 text-white px-2 py-1 rounded" onClick={() => markAsReplied(c._id)}>Mark Replied</button>
                 <div className="mt-1">
-                  <input
-                    type="text"
-                    placeholder="Admin note..."
-                    className="p-1 border rounded w-full"
-                    value={noteInputs[c._id] || ""}
-                    onChange={(e) =>
-                      setNoteInputs({ ...noteInputs, [c._id]: e.target.value })
-                    }
-                  />
-                  <button
-                    className="bg-purple-500 text-white px-2 py-1 mt-1 rounded"
-                    onClick={() => saveNote(c._id)}
-                  >
-                    Save Note
-                  </button>
+                  <input type="text" placeholder="Admin note..." className="p-1 border rounded w-full" value={noteInputs[c._id] || ''} onChange={(e) => setNoteInputs({ ...noteInputs, [c._id]: e.target.value })} />
+                  <button className="bg-purple-500 text-white px-2 py-1 mt-1 rounded" onClick={() => saveNote(c._id)}>Save Note</button>
                 </div>
               </td>
             </tr>
@@ -700,16 +634,8 @@ const ContactMessages = () => {
       </table>
 
       <div className="mt-4 flex justify-center space-x-2">
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
-          <button
-            key={num}
-            onClick={() => setCurrentPage(num)}
-            className={`px-3 py-1 rounded ${
-              currentPage === num ? "bg-black text-white" : "bg-gray-300"
-            }`}
-          >
-            {num}
-          </button>
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map(num => (
+          <button key={num} onClick={() => setCurrentPage(num)} className={`px-3 py-1 rounded ${currentPage === num ? 'bg-black text-white' : 'bg-gray-300'}`}>{num}</button>
         ))}
       </div>
 
@@ -717,22 +643,11 @@ const ContactMessages = () => {
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center">
           <div className="bg-white p-6 rounded shadow-md w-[90%] md:w-[60%] lg:w-[40%]">
             <h3 className="text-xl font-semibold mb-2">Full Message</h3>
-            <p>
-              <strong>From:</strong> {selectedMessage.name}
-            </p>
-            <p>
-              <strong>Subject:</strong> {selectedMessage.subject}
-            </p>
-            <p className="my-2 whitespace-pre-line">
-              {selectedMessage.message}
-            </p>
+            <p><strong>From:</strong> {selectedMessage.name}</p>
+            <p><strong>Subject:</strong> {selectedMessage.subject}</p>
+            <p className="my-2 whitespace-pre-line">{selectedMessage.message}</p>
             <div className="mt-4 text-right">
-              <button
-                onClick={() => setSelectedMessage(null)}
-                className="bg-red-500 text-white px-4 py-2 rounded"
-              >
-                Close
-              </button>
+              <button onClick={() => setSelectedMessage(null)} className="bg-red-500 text-white px-4 py-2 rounded">Close</button>
             </div>
           </div>
         </div>

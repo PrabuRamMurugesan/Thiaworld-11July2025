@@ -16,7 +16,6 @@ const AllJewellery = () => {
   const [loading, setLoading] = useState(true);
   const { addToCart } = useContext(CartContext);
   const [liked, setLiked] = useState(false);
-  const API = import.meta.env.VITE_API_BASE_URL;
 
   const toggleLike = () => setLiked(!liked);
 
@@ -43,7 +42,9 @@ const AllJewellery = () => {
           query.push("sort=priceHighToLow");
       }
 
-      const res = await axios.get(`${API}/api/products/all?${query.join("&")}`);
+      const res = await axios.get(
+        `http://localhost:5000/api/products/all?${query.join("&")}`
+      );
       setProducts(res.data);
       setLoading(false);
     } catch (err) {
@@ -190,7 +191,7 @@ const AllJewellery = () => {
               <img
                 src={
                   prod.images?.[0]
-                    ? `${API}${prod.images[0]}`
+                    ? `http://localhost:5000${prod.images[0]}`
                     : "/default-product.jpg"
                 }
                 alt={prod.name}

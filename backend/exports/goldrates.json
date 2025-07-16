@@ -1,0 +1,26 @@
+[
+  {
+    "_id": "6856984648abc15509847717",
+    "metalType": "Silver",
+    "carat": "24K",
+    "ratePerGram": 6,
+    "source": "Manual",
+    "note": "test",
+    "date": "2025-06-21T11:32:22.745Z",
+    "__v": 0
+  },
+  {
+    "_id": "68569d9e64c8071dbcdc4224",
+    "metalType": "Silver",
+    "carat": "22K",
+    "ratePerGram": 6,
+    "source": "MMTC-PAMP",
+    "note": "t4er",
+    "marketPrice": 6888,
+    "makingCharges": 56,
+    "autoApply": false,
+    "effectiveDate": "2025-06-11T00:00:00.000Z",
+    "date": "2025-06-21T11:55:10.496Z",
+    "__v": 0
+  }
+]

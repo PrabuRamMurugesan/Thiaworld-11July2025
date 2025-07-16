@@ -7,11 +7,11 @@ const HomeProductSection = () => {
   const [products, setProducts] = useState([]);
   const [liked, setLiked] = useState({});
   const { addToCart } = useContext(CartContext);
-  const API = import.meta.env.VITE_API_BASE_URL;
+
 
   useEffect(() => {
     axios
-      .get(`${API}/api/products`) // 🔁 Replace with your backend URL if different
+      .get("http://localhost:5000/api/products") // 🔁 Replace with your backend URL if different
       .then((res) => setProducts(res.data))
       .catch((err) => console.log(err));
   }, []);
@@ -22,9 +22,7 @@ const HomeProductSection = () => {
 
   return (
     <section className="py-5 px-4 bg-light">
-      <h2 className="text-center mb-5 font-serif text-3xl font-bold  ">
-        Top Trending Collections
-      </h2>
+      <h2 className="text-center mb-5 font-serif text-3xl font-bold  ">Top Trending Collections</h2>
       <div className="row justify-content-center g-4">
         {products.map((product) => {
           const currentPrice = product.price;
@@ -45,10 +43,9 @@ const HomeProductSection = () => {
                 style={{ borderRadius: "12px" }}
               >
                 {/* SALE Tag */}
-                <span
-                  className="position-absolute top-2 start-0 bg-danger text-white  py-1
+                <span className="position-absolute top-2 start-0 bg-danger text-white  py-1
                 rounded-end   w-[100px]  text-sm  font-serif align-items-center d-flex justify-center "
-                  style={{ width: "90px" }}
+                style={{ width: "90px" }}
                 >
                   {product.discount}% OFF
                 </span>
@@ -69,7 +66,7 @@ const HomeProductSection = () => {
                 <img
                   src={
                     product.images?.[0]
-                      ? `${API}${product.images[0]}`
+                      ? `http://localhost:5000${product.images[0]}`
                       : "/default-product.jpg"
                   }
                   className="w-100 h-[400px] object-contain  "

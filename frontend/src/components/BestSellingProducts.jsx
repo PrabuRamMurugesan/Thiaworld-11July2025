@@ -6,12 +6,13 @@ import { CartContext } from "../context/CartContext"; // ✅ adjust path if need
 const BestSellingProducts = () => {
   const [products, setProducts] = useState([]);
   const { addToCart } = useContext(CartContext);
-  const API = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     const fetchBestSelling = async () => {
       try {
-        const response = await axios.get(`${API}/api/products/best-selling`);
+        const response = await axios.get(
+          "http://localhost:5000/api/products/best-selling"
+        );
         setProducts(response.data);
       } catch (error) {
         console.error("Failed to fetch best selling products:", error);
@@ -33,7 +34,7 @@ const BestSellingProducts = () => {
               <img
                 src={
                   product.images?.[0]
-                    ? `${API}${product.images[0]}`
+                    ? `http://localhost:5000${product.images[0]}`
                     : "/default-product.jpg"
                 }
                 className="w-full h-100 object-cover group-hover:scale-105 transition duration-300"
@@ -44,27 +45,27 @@ const BestSellingProducts = () => {
           </div>
 
           <div className="p-4 ">
-            <div className="mt-2 min-h-[100px]">
-              <h3 className="text-base font-medium text-gray-800">
-                {product.name}
-              </h3>
-              <p className="text-sm text-gray-500 mt-1">
-                {product.shortDescription}
-              </p>
+           <div className="mt-2 min-h-[100px]">
+               <h3 className="text-base font-medium text-gray-800">
+              {product.name}
+            </h3>
+            <p className="text-sm text-gray-500 mt-1">
+              {product.shortDescription}
+            </p>
 
-              <div className="flex items-center text-yellow-500 text-sm mt-2">
-                {[...Array(5)].map((_, i) => (
-                  <FaStar
-                    key={i}
-                    className={
-                      i < (product.rating || 4)
-                        ? "text-yellow-500"
-                        : "text-gray-300"
-                    }
-                  />
-                ))}
-              </div>
+            <div className="flex items-center text-yellow-500 text-sm mt-2">
+              {[...Array(5)].map((_, i) => (
+                <FaStar
+                  key={i}
+                  className={
+                    i < (product.rating || 4)
+                      ? "text-yellow-500"
+                      : "text-gray-300"
+                  }
+                />
+              ))}
             </div>
+           </div>
 
             <div className=" d-flex justify-between align-items-center  gap-4 ">
               <button

@@ -1,0 +1,79 @@
+[
+  {
+    "_id": "685501051f74bf7eb1ed1313",
+    "cartItems": [
+      {
+        "productId": "6853e595d14f5abdc2af0f8f",
+        "productName": "Elegant Gold Ring",
+        "payNowAmount": 10000,
+        "quantity": 5,
+        "productImage": "https://via.placeholder.com/600x600.png?text=Gold+Ring+Front",
+        "_id": "6853fbcde705cf530033f7bc"
+      },
+      {
+        "productId": "6853be2ad14f5abdc2af0f87",
+        "productName": "Sample Gold Ring",
+        "payNowAmount": 10000,
+        "quantity": 1,
+        "productImage": "https://via.placeholder.com/300",
+        "_id": "6854e4f963b514c197d95373"
+      }
+    ],
+    "totalProductPrice": 60000,
+    "totalGST": 1800,
+    "grandTotal": 61800,
+    "paymentType": "full",
+    "paymentStatus": "pending",
+    "__v": 0
+  },
+  {
+    "_id": "6858fc17f994a379a790e585",
+    "cartItems": [],
+    "totalProductPrice": 25000,
+    "totalGST": 750,
+    "grandTotal": 25750,
+    "paymentType": "full",
+    "paymentStatus": "pending",
+    "__v": 0
+  },
+  {
+    "_id": "6858fc1cf994a379a790e587",
+    "cartItems": [],
+    "totalProductPrice": 0,
+    "totalGST": 0,
+    "grandTotal": 0,
+    "paymentType": "full",
+    "paymentStatus": "pending",
+    "__v": 0
+  },
+  {
+    "_id": "685900bef994a379a790e5c5",
+    "cartItems": [],
+    "totalProductPrice": 25000,
+    "totalGST": 750,
+    "grandTotal": 25750,
+    "paymentType": "full",
+    "paymentStatus": "pending",
+    "__v": 0
+  },
+  {
+    "_id": "68590113f994a379a790e5c9",
+    "cartItems": [],
+    "totalProductPrice": 25000,
+    "totalGST": 750,
+    "grandTotal": 25750,
+    "paymentType": "full",
+    "paymentStatus": "pending",
+    "__v": 0
+  },
+  {
+    "_id": "685916245ed15cde61e59096",
+    "cartItems": [],
+    "totalProductPrice": 33000,
+    "totalGST": 990,
+    "grandTotal": 33990,
+    "paymentType": "full",
+    "paymentStatus": "pending",
+    "__v": 0
+  }
+]

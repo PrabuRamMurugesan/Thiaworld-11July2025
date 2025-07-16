@@ -21,7 +21,6 @@ const GoldCollection = () => {
   // ✅ Pagination States - moved to top level
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
-  const API = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     fetchGoldProducts();
@@ -44,7 +43,7 @@ const GoldCollection = () => {
       }
 
       const res = await axios.get(
-        `${API}/api/products/gold?${query.join("&")}`
+        `http://localhost:5000/api/products/gold?${query.join("&")}`
       );
 
       setProducts(res.data);
@@ -82,7 +81,8 @@ const GoldCollection = () => {
   );
 
   if (loading) return <p className="text-center my-8">Loading...</p>;
-  if (error) return <p className="text-center text-danger my-8">{error}</p>;
+  if (error)
+    return <p className="text-center text-danger my-8">{error}</p>;
 
   return (
     <>
@@ -167,10 +167,7 @@ const GoldCollection = () => {
               <h4 className="m-0 text-gray-700 font-semibold">Purity :</h4>
               <div className="d-flex flex-row gap-3 text-gray-600">
                 {["18K", "22K", "24K"].map((purity) => (
-                  <label
-                    key={purity}
-                    className="d-flex align-items-center gap-1"
-                  >
+                  <label key={purity} className="d-flex align-items-center gap-1">
                     <input
                       type="checkbox"
                       checked={purityFilter.includes(purity)}
@@ -213,7 +210,7 @@ const GoldCollection = () => {
               </div>
               <Link to={`/product/${prod._id}`}>
                 <img
-                  src={`${API}${prod.images?.[0]}` || "/default-product.jpg"}
+                  src={`http://localhost:5000${prod.images?.[0]}` || "/default-product.jpg"}
                   alt={prod.name}
                   style={{ width: "250px", height: "250px" }}
                 />
@@ -292,9 +289,7 @@ const GoldCollection = () => {
             <button
               key={index}
               onClick={() => handlePageChange(index + 1)}
-              className={`filter-btn ${
-                currentPage === index + 1 ? "active" : ""
-              }`}
+              className={`filter-btn ${currentPage === index + 1 ? "active" : ""}`}
               style={{ width: "45px", height: "45px", fontWeight: "bold" }}
             >
               {index + 1}

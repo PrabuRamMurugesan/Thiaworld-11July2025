@@ -1,27 +1,26 @@
 // D:\Medun\Thia\front-end\src\pages\admin\AdminLogin.jsx
 
-import React, { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
-  const API = import.meta.env.VITE_API_BASE_URL;
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${API}/api/admin/login`, {
+      const res = await axios.post('http://localhost:5000/api/admin/login', {
         email,
         password,
       });
-      localStorage.setItem("adminToken", res.data.token);
-      navigate("/view-appointments");
+      localStorage.setItem('adminToken', res.data.token);
+      navigate('/view-appointments');
     } catch (err) {
-      setError("Invalid credentials");
+      setError('Invalid credentials');
     }
   };
 
@@ -46,9 +45,7 @@ const AdminLogin = () => {
         <button className="w-full bg-yellow-500 text-white py-2 rounded hover:bg-yellow-600">
           Login
         </button>
-        {error && (
-          <p className="text-red-500 text-sm mt-2 text-center">{error}</p>
-        )}
+        {error && <p className="text-red-500 text-sm mt-2 text-center">{error}</p>}
       </form>
     </div>
   );
