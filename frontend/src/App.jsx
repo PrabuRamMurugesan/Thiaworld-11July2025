@@ -32,11 +32,11 @@ import AllJewellery from "./components/Jewellery-page/AllJewellery";
 
 // ✅ Admin Pages & Layout
 import AdminLayout from "./components/AdminLayout";
-import DashboardHome from "./pages/Admin/DashboardHome";
-import ProductManager from "./pages/Admin/ProductManager";
-import GoldRateManager from "./pages/Admin/GoldRateManager";
-import OrdersManager from "./pages/Admin/OrdersManager";
-import CustomersManager from "./pages/Admin/CustomersManager";
+import DashboardHome from "./pages/admin/DashboardHome";
+import ProductManager from "./pages/admin/ProductManager";
+import GoldRateManager from "./pages/admin/GoldRateManager";
+import OrdersManager from "./pages/admin/OrdersManager";
+import CustomersManager from "./pages/admin/CustomersManager";
 
 import ContactMessages from "./pages/admin/ContactMessages";
 import ViewAppointments from "./components/ViewAppointments";
