@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 
 
-const {createContact, getAllContacts, updateContactStatus } = require("../controllers/contactcontroller");
+const {createContact, getAllContacts, updateContactStatus } = require("../controllers/contactController");
 
 
 router.post("/", createContact);
