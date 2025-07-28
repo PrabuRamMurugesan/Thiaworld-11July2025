@@ -25,13 +25,19 @@ app.use(cors());
 app.use(express.json());
 
 // DB Connection
-mongoose
-  .connect('mongodb://127.0.0.1:27017/thiaworld', { // ✅ Update MongoDB connection string
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+//mongoose
+  //.connect('mongodb://127.0.0.1:27017/thiaworld', { // ✅ Update MongoDB connection string
+    //useNewUrlParser: true,
+    //useUnifiedTopology: true
+ // })
+  //.then(() => console.log("✅ MongoDB connected"))
+  //.catch((err) => console.error("❌ MongoDB connection error:", err));
+
+const mongoURI = process.env.MONGO_URI; // or whatever key you use in .env
+
+mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // Routes
 app.use('/api/contact', contactRoutes);
