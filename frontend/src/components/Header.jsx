@@ -11,12 +11,21 @@ import {
   FaLinkedin,
   FaInstagram,
 } from "react-icons/fa";
+import {
+  Row,
+  Col,
+  Button,
+
+} from "react-bootstrap";
 import { BiSolidUserAccount } from "react-icons/bi";
 import { FaSquareXTwitter } from "react-icons/fa6";
 import ProductDetail from "./ProductDetail";
 import { useNavigate, Link } from "react-router-dom";
 import Select from "react-select";
 import { IoNotifications } from "react-icons/io5";
+import thia from '../../public/assets/thia.png'
+import bbscart from '../../public/assets/bbscart.png'
+import healthAccess from '../../public/assets/healthacess.png'
 const options = [
   {
     value: "IN",
@@ -90,15 +99,7 @@ const Header = () => {
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50 ">
       <div className="max-w-screen-xxl  flex flex-col md:flex-row items-center justify-between gap-4  ">
-        {/* <div className="max-w-screen-xl mx-auto px-4 sm:px-6 flex flex-wrap  items-center justify-between gap-4 py-2"> */}
-        {/* Logo */}
-        {/* <div className="flex items-center">
-          <img
-            src="/assets/logo1.png"
-            alt="Thiaworld Logo"
-            className="max-w-[180px] max-h-[100px]"
-          />
-        </div> */}
+   
      <h1
   style={{
     fontFamily: "Lucida Handwriting",
@@ -111,13 +112,14 @@ const Header = () => {
     textShadow: "1px 1px 1px rgba(0, 0, 0, 0.3)",
   }}
 >
-          BBSCART
-          <p style={{ fontSize: "10px", textAlign: "center", color: "black" }}>
-            online shopping
-          </p>
+           <img
+          src={thia}
+          alt="Thiaworld"
+          style={{ width: "80px", height: "80px"}}
+        />
+       
         </h1>
 
-        {/* Hamburger for Mobile */}
         <button
           className="md:hidden text-2xl text-gray-600"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -125,7 +127,6 @@ const Header = () => {
           {menuOpen ? <FaTimes /> : <FaBars />}
         </button>
 
-        {/* Search and Marquee (hidden on small screens) */}
         <div className="hidden md:flex flex-col md:flex-row items-center flex-1 gap-4">
           <div className="text-sm text-black overflow-hidden whitespace-nowrap w-full">
             <div className="animate-marquee inline-block">
@@ -144,7 +145,6 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Right icons */}
         <div className="hidden md:flex items-center gap-4">
           <button className="relative text-gray-600 hover:text-red-500">
             <FaHeart className="text-xl" />
@@ -164,7 +164,7 @@ const Header = () => {
           </button>
          </a>
 
-          <div style={{ width: "90px", height: "30px", border: "none" }}>
+          <div style={{ width: "90px", height: "30px", border: "none" ,marginRight:'20px'}}>
             <Select
               value={selectedOption}
               onChange={setSelectedOption}
@@ -173,9 +173,9 @@ const Header = () => {
             />
           </div>
         </div>
-        <ProductDetail />
+        {/* <ProductDetail /> */}
       </div>
-
+     
       {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden px-4 pb-4">
@@ -244,6 +244,41 @@ const Header = () => {
           </Link>
         </div>
       </div>
+<Row className="mb-3">
+  <Col className="d-flex justify-content-center gap-3 mt-3">
+    <Button
+      variant="outline-secondary"
+      size="sm"
+      style={{ color: "black" }}
+      onClick={() => (window.location.href = "https://bbscart.com/")}
+    >
+      <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <img
+          src={bbscart}
+          alt="BBSCart"
+          style={{ height: "30px", objectFit: "contain" }}
+        />
+        BBSCart Online Shopping
+      </span>
+    </Button>
+
+    <Button
+      variant="outline-secondary"
+      size="sm"
+      style={{ color: "black" }}
+      onClick={() => (window.location.href = "http://healthcare.bbscart.com/")}
+    >
+      <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <img
+          src={healthAccess}
+          alt="HealthAccess"
+          style={{ height: "30px", objectFit: "contain" }}
+        />
+        BBS Global Health Access
+      </span>
+    </Button>
+  </Col>
+</Row>
 
       <div className="flex items-center justify-end px-5 gap-2 p-2   ">
         <div className="flex items-center gap-5 justify-between">
