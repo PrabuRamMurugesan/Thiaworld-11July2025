@@ -1,11 +1,11 @@
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
+const express = require("express");
+const cors = require("cors");
+const mongoose = require("mongoose");
 require("dotenv").config();
 require("./cronJobs/fetchMMTCJob");
-const contactRoutes = require('./routes/contactRoutes');
-const appointmentRoutes = require('./routes/appointmentRoutes');
-const authRoutes = require('./routes/authRoutes'); // to be active in lanch
+const contactRoutes = require("./routes/contactRoutes");
+const appointmentRoutes = require("./routes/appointmentRoutes");
+const authRoutes = require("./routes/authRoutes"); // to be active in lanch
 const razorpayRoutes = require("./routes/razorpayRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const checkoutRoutes = require("./routes/checkoutRoutes");
@@ -31,12 +31,11 @@ mongoose
   .then(() => console.log("✅ Connected to bbshealthcare (Default DB)"))
   .catch((err) => console.error("❌ Main DB error:", err));
 
-app.use('/api/contact', contactRoutes);
-app.use('/api', appointmentRoutes);
+app.use("/api/contact", contactRoutes);
+app.use("/api", appointmentRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/checkout", checkoutRoutes);
 app.use("/api/goldrate", metalRateRoutes);
-app.use('/api', authRoutes);//to be active in lanch
 app.use("/api/products", productRoutes); // ✅ this must be exact
 app.use("/api/auth", authRoutes);
 
@@ -60,4 +59,3 @@ app.use("/api/razorpay", razorpayRoutes);
 
 app.use("/api/products", productRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
