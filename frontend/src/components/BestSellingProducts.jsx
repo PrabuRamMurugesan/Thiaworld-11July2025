@@ -14,6 +14,8 @@ const BestSellingProducts = () => {
           "http://localhost:5000/api/products/best-selling"
         );
         setProducts(response.data);
+        console.log(response.data, "best-selling");
+        
       } catch (error) {
         console.error("Failed to fetch best selling products:", error);
       }

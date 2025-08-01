@@ -79,13 +79,16 @@ import MediaLibraryPage from "./pages/admin/CMS/MediaLibrary";
 import SeoManagerPage from "./pages/admin/CMS/SeoManagerPage";
 import PreviewSchedulerPage from "./pages/admin/CMS/PreviewSchedulerPage";
 import CMSAdvancedAdminPanel from "./pages/admin/CMS/CMSAdvancedAdminPanel";
-
+import Login from "./pages/Login"
+import Signup from "./pages/Signup";
 
 export default function App() {
   return (
     <Routes>
       {/* ✅ PUBLIC SITE ROUTES */}
       <Route path="/" element={<ThiaHomePage />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
       <Route path="/virtual-jewelry-on" element={<VirtualJewelryOn />} />
       <Route
         path="/product-card"
@@ -97,27 +100,46 @@ export default function App() {
           />
         }
       />
-      <Route path="/thia-world-exclusive-storefront" element={<THIAWorldExclusiveStorefrontPage/>} />
-      <Route path="/gold-price-tracker" element={<GoldPriceTrackerPage/>} />
-      <Route path="/customer-jewelry" element={<CustomJewelryOrderPage/>} />
-       <Route path="/gold-certification" element={<GoldCertificationPage/>} />
-      <Route path="/golldex-wallet" element={<GolldexWalletPage/>} />
-      <Route path="/escrow-payment-release" element={<EscrowPaymentReleasePage/>} />
-      <Route path="/refund-and-payout-tracking" element={<RefundAndPayoutTrackingPage/>} />
+      <Route
+        path="/thia-world-exclusive-storefront"
+        element={<THIAWorldExclusiveStorefrontPage />}
+      />
+      <Route path="/gold-price-tracker" element={<GoldPriceTrackerPage />} />
+      <Route path="/customer-jewelry" element={<CustomJewelryOrderPage />} />
+      <Route path="/gold-certification" element={<GoldCertificationPage />} />
+      <Route path="/golldex-wallet" element={<GolldexWalletPage />} />
+      <Route
+        path="/escrow-payment-release"
+        element={<EscrowPaymentReleasePage />}
+      />
+      <Route
+        path="/refund-and-payout-tracking"
+        element={<RefundAndPayoutTrackingPage />}
+      />
       <Route path="/account-settings" element={<AccountSettingsPage />} />
       <Route path="/notifications" element={<NotificationsAlertsPage />} />
-      <Route path="/refer-earn" element={<ReferEarnPage/>} />
-      <Route path="/product-review" element={< ProductReviewPage/>} />
-      <Route path="/admin-sales-analytics" element={<AdminSalesAnalyticsPage />} />
-      <Route path="/customer-support-tickets" element={<CustomerSupportTicketsPage />} />
-      <Route path="/VendorPerformanceReport" element={<VendorPerformanceReportPage/>} />
+      <Route path="/refer-earn" element={<ReferEarnPage />} />
+      <Route path="/product-review" element={<ProductReviewPage />} />
+      <Route
+        path="/admin-sales-analytics"
+        element={<AdminSalesAnalyticsPage />}
+      />
+      <Route
+        path="/customer-support-tickets"
+        element={<CustomerSupportTicketsPage />}
+      />
+      <Route
+        path="/VendorPerformanceReport"
+        element={<VendorPerformanceReportPage />}
+      />
       <Route path="/product-moderation" element={<ProductModerationPage />} />
-      <Route path="/affiliate-marketing" element={<AffiliateMarketingPage/>} />
-     <Route path="/email-whatsapp-marketing" element={<EmailWhatsAppMarketingPage />} />
+      <Route path="/affiliate-marketing" element={<AffiliateMarketingPage />} />
+      <Route
+        path="/email-whatsapp-marketing"
+        element={<EmailWhatsAppMarketingPage />}
+      />
       <Route path="/seo-optimization" element={<SeoOptimizationPage />} />
       <Route path="/ads-retarget" element={<AdsRetargetingPage />} />
-
-
       <Route path="/book-an-appointment" element={<BookAnAppointment />} />
       <Route path="/checkout" element={<CheckoutPage />} />
       <Route path="/contact-page" element={<ContactPage />} />
@@ -147,7 +169,7 @@ export default function App() {
       <Route path="/pendant" element={<Pendant />} />
       <Route path="/goldrate" element={<GoldRateManager />} />
       <Route path="/uploadimage" element={<UploadImageCMS />} />
-      <Route path="/new-arrivals"  element={<RecentProducts/>}/>
+      <Route path="/new-arrivals" element={<RecentProducts />} />
       <Route path="/aboutus" element={<Aboutus />} />
       <Route path="/thia-secure" element={<ThiaSecure />} />
       24.06.2025
@@ -157,28 +179,23 @@ export default function App() {
       <Route path="/platinum-collection" element={<PlatinumCollection />} />
       <Route path="/diamond-collection" element={<DiamondCollection />} />
       <Route path="/festive-offers" element={<FestiveOffers />} />
-
-     
-       <Route path="/cms-panel-admin" element={<CMSAdvancedAdminPanel/>} /> 
-     
-
+      <Route path="/cms-panel-admin" element={<CMSAdvancedAdminPanel />} />
       {/* Admin Panel */}
       <Route path="/admin" element={<AdminLayout />}>
         <Route path="dashboard" element={<DashboardHome />} />
         <Route path="products" element={<ProductManager />} />
         <Route path="orders" element={<OrdersManager />} />
-        <Route path="customers" element={<CustomersManager />} /> 
-        
-        {/* created by medun */} 
-        <Route path="dragdrop" element={<DragDropBuilderPage />} /> 
-        <Route path="multi-language" element={<MultiLangSupport />} /> 
-        <Route path="geo-visibility" element={<GeoVisibilityToggle />} /> 
-         <Route path="roles-manager" element={<RoleManager/>} /> 
-         <Route path="media" element={<MediaLibraryPage/>} /> 
-         <Route path="seo-manager" element={<SeoManagerPage/>} /> 
-          <Route path="preview-scheduler" element={<PreviewSchedulerPage/>} /> 
-         <Route path="cms-panel-admin" element={<CMSAdvancedAdminPanel/>} /> 
-     
+        <Route path="customers" element={<CustomersManager />} />
+
+        {/* created by medun */}
+        <Route path="dragdrop" element={<DragDropBuilderPage />} />
+        <Route path="multi-language" element={<MultiLangSupport />} />
+        <Route path="geo-visibility" element={<GeoVisibilityToggle />} />
+        <Route path="roles-manager" element={<RoleManager />} />
+        <Route path="media" element={<MediaLibraryPage />} />
+        <Route path="seo-manager" element={<SeoManagerPage />} />
+        <Route path="preview-scheduler" element={<PreviewSchedulerPage />} />
+        <Route path="cms-panel-admin" element={<CMSAdvancedAdminPanel />} />
       </Route>
     </Routes>
   );
