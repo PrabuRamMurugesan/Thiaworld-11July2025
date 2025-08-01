@@ -29,7 +29,7 @@ const ProductDetailPage = () => {
   }, [id]);
 
   const fetchProduct = async () => {
-    const res = await axios.get(`http://localhost:5000/api/products/${id}`);
+    const res = await axios.get(`${import.meta.env.VITE_API_URI}/products/${id}`);
     const prod = res.data;
     prod.category = prod.category || prod.metalType;
     setProduct(prod);

@@ -23,7 +23,7 @@ const UploadImageCMS = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/products/upload-images",
+        `${import.meta.env.VITE_API_URI}/products/upload-images`,
         formData
       );
       alert("Upload Successful!");

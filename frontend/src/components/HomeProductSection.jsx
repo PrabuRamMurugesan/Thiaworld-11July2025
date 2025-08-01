@@ -11,7 +11,7 @@ const HomeProductSection = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/products") // 🔁 Replace with your backend URL if different
+      .get(`${import.meta.env.VITE_API_URI}/products`) // 🔁 Replace with your backend URL if different
       .then((res) => setProducts(res.data))
       .catch((err) => console.log(err));
   }, []);

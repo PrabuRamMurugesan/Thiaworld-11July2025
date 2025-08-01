@@ -5,7 +5,7 @@
 //   const [appointments, setAppointments] = useState([]);
 
 //   useEffect(() => {
-//     axios.get('http://localhost:5000/api/appointments')
+//     axios.get(`${import.meta.env.VITE_API_URI}/appointments`)
 //       .then(res => setAppointments(res.data))
 //       .catch(err => console.error('Error fetching:', err));
 //   }, []);
@@ -79,14 +79,14 @@ const ViewAppointments = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/appointments")
+      .get(`${import.meta.env.VITE_API_URI}/appointments`)
       .then((res) => setAppointments(res.data))
       .catch((err) => console.error("Error fetching:", err));
   }, [refresh]);
 
   const updateStatus = async (id, status) => {
     try {
-      await axios.put(`http://localhost:5000/api/appointments/${id}/status`, {
+      await axios.put(`${import.meta.env.VITE_API_URI}/appointments/${id}/status`, {
         status,
       });
       setRefresh(!refresh);
@@ -99,7 +99,7 @@ const ViewAppointments = () => {
     if (!window.confirm("Are you sure you want to delete this appointment?"))
       return;
     try {
-      await axios.delete(`http://localhost:5000/api/appointments/${id}`);
+      await axios.delete(`${import.meta.env.VITE_API_URI}/appointments/${id}`);
       setRefresh(!refresh);
     } catch (err) {
       alert("Failed to delete appointment");
@@ -109,7 +109,7 @@ const ViewAppointments = () => {
   const submitReschedule = async () => {
     try {
       await axios.put(
-        `http://localhost:5000/api/appointments/${reschedule._id}/reschedule`,
+        `${import.meta.env.VITE_API_URI}/appointments/${reschedule._id}/reschedule`,
         {
           appointmentDate: reschedule.newDate,
           appointmentTime: reschedule.newTime,
@@ -125,7 +125,7 @@ const ViewAppointments = () => {
   const submitFollowUp = async () => {
     try {
       await axios.put(
-        `http://localhost:5000/api/appointments/${followUp._id}/followup`,
+        `${import.meta.env.VITE_API_URI}/appointments/${followUp._id}/followup`,
         {
           followUpDate: followUp.followUpDate,
         }

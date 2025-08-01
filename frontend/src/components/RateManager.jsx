@@ -33,7 +33,7 @@ const RateManager = ({ metalType }) => {
   const fetchRates = async () => {
     setLoading(true);
     const res = await axios.get(
-      `http://localhost:5000/api/goldrate/all?metalType=${metalType}`
+      `${import.meta.env.VITE_API_URI}/goldrate/all?metalType=${metalType}`
     );
     setRates(res.data);
     setLoading(false);
@@ -52,12 +52,12 @@ const RateManager = ({ metalType }) => {
     try {
       if (editingId) {
         await axios.put(
-          `http://localhost:5000/api/goldrate/update/${editingId}`,
+          `${import.meta.env.VITE_API_URI}/goldrate/update/${editingId}`,
           { metalType, ...form }
         );
         setMessage("Updated successfully!");
       } else {
-        await axios.post(`http://localhost:5000/api/goldrate/create`, {
+        await axios.post(`${import.meta.env.VITE_API_URI}/goldrate/create`, {
           metalType,
           ...form,
         });
@@ -95,7 +95,7 @@ const RateManager = ({ metalType }) => {
 
   const handleDelete = async (id) => {
     if (window.confirm("Delete this rate?")) {
-      await axios.delete(`http://localhost:5000/api/goldrate/delete/${id}`);
+      await axios.delete(`${import.meta.env.VITE_API_URI}/goldrate/delete/${id}`);
       fetchRates();
     }
   };

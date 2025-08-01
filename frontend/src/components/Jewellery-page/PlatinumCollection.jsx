@@ -44,7 +44,7 @@ const PlatinumCollection = () => {
       }
 
       const res = await axios.get(
-        `http://localhost:5000/api/products/platinum?${query.join("&")}`
+        `${import.meta.env.VITE_API_URI}/products/platinum?${query.join("&")}`
       );
 
       setProducts(res.data);

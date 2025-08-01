@@ -12,7 +12,7 @@
 //   useEffect(() => {
 //     const fetchContacts = async () => {
 //       try {
-//         const res = await axios.get("http://localhost:5000/api/contact");
+//         const res = await axios.get(`${import.meta.env.VITE_API_URI}/contact`);
 //         setContacts(res.data);
 //       } catch (err) {
 //         console.error("Error loading contacts:", err);
@@ -140,7 +140,7 @@
 // //   const [contacts, setContacts] = useState([]);
 
 // //   useEffect(() => {
-// //     axios.get("http://localhost:5000/api/contact")
+// //     axios.get(`${import.meta.env.VITE_API_URI}/contact`)
 // //       .then(res => setContacts(res.data))
 // //       .catch(err => console.error("Error loading contacts:", err));
 // //   }, []);
@@ -186,7 +186,7 @@
 // //   const [search, setSearch] = useState('');
 
 // //   useEffect(() => {
-// //     axios.get("http://localhost:5000/api/contact")
+// //     axios.get(`${import.meta.env.VITE_API_URI}/contact`)
 // //       .then(res => {
 // //         setContacts(res.data);
 // //         setFiltered(res.data);
@@ -273,7 +273,7 @@
 //   useEffect(() => {
 //     const fetchContacts = async () => {
 //       try {
-//         const res = await axios.get("http://localhost:5000/api/contact");
+//         const res = await axios.get(`${import.meta.env.VITE_API_URI}/contact`);
 //         setContacts(res.data);
 //       } catch (err) {
 //         console.error("Error loading contacts:", err);
@@ -477,7 +477,7 @@ const ContactMessages = () => {
   useEffect(() => {
     const fetchContacts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/contact");
+        const res = await axios.get(`${import.meta.env.VITE_API_URI}/contact`);
         setContacts(res.data);
       } catch (err) {
         console.error("Error loading contacts:", err);
@@ -489,7 +489,7 @@ const ContactMessages = () => {
 
   const handleUpdateContact = async (id, updates) => {
     try {
-      const res = await axios.put(`http://localhost:5000/api/contact/${id}`, updates);
+      const res = await axios.put(`${import.meta.env.VITE_API_URI}/contact/${id}`, updates);
       setContacts(prev => prev.map(c => c._id === id ? res.data : c));
     } catch (err) {
       console.error("Error updating contact:", err);

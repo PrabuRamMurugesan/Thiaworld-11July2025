@@ -77,7 +77,7 @@ const [selectedImage, setSelectedImage] = useState("");
     try {
       // ✅ Save order in backend
       const saveRes = await axios.post(
-        "http://localhost:5000/api/checkout/submit",
+        `${import.meta.env.VITE_API_URI}/checkout/submit`,
         {
           shipping: form.shipping,
           billing: form.sameAsShipping ? form.shipping : form.billing,
@@ -95,7 +95,7 @@ const [selectedImage, setSelectedImage] = useState("");
 
       // ✅ Create Razorpay order
       const createOrderRes = await axios.post(
-        "http://localhost:5000/api/razorpay/create-order",
+        `${import.meta.env.VITE_API_URI}/razorpay/create-order`,
         {
           amount: paymentType === "full" ? fullTotal : partialTotal,
         }
@@ -111,7 +111,7 @@ const [selectedImage, setSelectedImage] = useState("");
         order_id: order.id,
         handler: async function (response) {
           await axios.post(
-            "http://localhost:5000/api/checkout/update-payment-status",
+            `${import.meta.env.VITE_API_URI}/checkout/update-payment-status`,
             {
               razorpay_order_id: order.id,
               razorpay_payment_id: response.razorpay_payment_id,

@@ -13,7 +13,7 @@ const RecentProducts = () => {
     const fetchNewArrivals = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/products/new-arrivals"
+          `${import.meta.env.VITE_API_URI}/products/new-arrivals`
         );
         console.log(res,"dsfgfghdfgfdg");
         

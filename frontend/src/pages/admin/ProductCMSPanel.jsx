@@ -30,7 +30,7 @@ const ProductCMSPanel = () => {
   // 🟡 Fetch all products
   const fetchProducts = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/products/all");
+      const res = await axios.get(`${import.meta.env.VITE_API_URI}/products/all`);
       setProducts(res.data);
     } catch (err) {
       alert("Failed to fetch products.");
@@ -45,12 +45,12 @@ const ProductCMSPanel = () => {
   const handleSubmit = async () => {
     try {
       if (editingProduct) {
-        await axios.put(`http://localhost:5000/api/products/update/${editingProduct._id}`, form, {
+        await axios.put(`${import.meta.env.VITE_API_URI}/products/update/${editingProduct._id}`, form, {
           headers: { Authorization: "Bearer adminkey123" },
         });
         alert("✅ Product updated!");
       } else {
-        await axios.post("http://localhost:5000/api/products/add", form, {
+        await axios.post(`${import.meta.env.VITE_API_URI}/products/add`, form, {
           headers: { Authorization: "Bearer adminkey123" },
         });
         alert("✅ Product added!");
@@ -67,7 +67,7 @@ const ProductCMSPanel = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this product?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/products/delete/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URI}/products/delete/${id}`, {
         headers: { Authorization: "Bearer adminkey123" },
       });
       alert("✅ Deleted!");

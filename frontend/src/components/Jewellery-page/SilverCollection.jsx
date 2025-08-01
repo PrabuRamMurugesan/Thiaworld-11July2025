@@ -41,7 +41,7 @@ const SilverCollection = () => {
       }
 
       const res = await axios.get(
-        `http://localhost:5000/api/products/silver?${query.join("&")}`
+        `${import.meta.env.VITE_API_URI}/products/silver?${query.join("&")}`
       );
 
       setProducts(res.data);
