@@ -11,21 +11,16 @@ import {
   FaLinkedin,
   FaInstagram,
 } from "react-icons/fa";
-import {
-  Row,
-  Col,
-  Button,
-
-} from "react-bootstrap";
+import { Row, Col, Button } from "react-bootstrap";
 import { BiSolidUserAccount } from "react-icons/bi";
 import { FaSquareXTwitter } from "react-icons/fa6";
-import ProductDetail from "./ProductDetail";
 import { useNavigate, Link } from "react-router-dom";
 import Select from "react-select";
 import { IoNotifications } from "react-icons/io5";
-import thia from '../../public/assets/thia.png'
-import bbscart from '../../public/assets/bbscart.png'
-import healthAccess from '../../public/assets/healthacess.png'
+import thia from "../../public/assets/thia.png";
+import bbscart from "../../public/assets/bbscart.png";
+import healthAccess from "../../public/assets/healthacess.png";
+
 const options = [
   {
     value: "IN",
@@ -67,15 +62,55 @@ const options = [
     ),
   },
 ];
+
 const Header = () => {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(options[0]);
-
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef();
 
-  // Close dropdown if clicked outside
+  const [user, setUser] = useState(null);
+
+  // Load user on mount and listen for changes
+  useEffect(() => {
+    const storedUser = localStorage.getItem("bbsUser");
+    if (storedUser) {
+      try {
+        const parsed = JSON.parse(storedUser);
+        setUser(parsed.user || parsed);
+      } catch (err) {
+        console.error("Invalid user data in localStorage", err);
+      }
+    }
+
+    const handleStorageUpdate = () => {
+      const updatedUser = localStorage.getItem("bbsUser");
+      if (updatedUser) {
+        const parsed = JSON.parse(updatedUser);
+        setUser(parsed.user || parsed);
+      } else {
+        setUser(null);
+      }
+    };
+
+    window.addEventListener("storageUpdate", handleStorageUpdate);
+    window.addEventListener("storage", handleStorageUpdate);
+
+    return () => {
+      window.removeEventListener("storageUpdate", handleStorageUpdate);
+      window.removeEventListener("storage", handleStorageUpdate);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("bbsUser");
+    setUser(null);
+    navigate("/login");
+    window.dispatchEvent(new Event("storageUpdate"));
+  };
+
+  // Close notification dropdown if clicked outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -96,28 +131,27 @@ const Header = () => {
     { id: 3, type: "Flash Sale", message: "Flash Sale starts in 30 minutes!" },
     { id: 4, type: "Flash Sale", message: "Flash Sale starts in 30 minutes!" },
   ];
+
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50 ">
       <div className="max-w-screen-xxl  flex flex-col md:flex-row items-center justify-between gap-4  ">
-   
-     <h1
-  style={{
-    fontFamily: "Lucida Handwriting",
-    fontSize: "30px",
-    padding: "20px",
-    textAlign: "center",
-    background: "linear-gradient(to right, red, yellow, green)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-    textShadow: "1px 1px 1px rgba(0, 0, 0, 0.3)",
-  }}
->
-           <img
-          src={thia}
-          alt="Thiaworld"
-          style={{ width: "80px", height: "80px"}}
-        />
-       
+        <h1
+          style={{
+            fontFamily: "Lucida Handwriting",
+            fontSize: "30px",
+            padding: "20px",
+            textAlign: "center",
+            background: "linear-gradient(to right, red, yellow, green)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            textShadow: "1px 1px 1px rgba(0, 0, 0, 0.3)",
+          }}
+        >
+          <img
+            src={thia}
+            alt="Thiaworld"
+            style={{ width: "80px", height: "80px" }}
+          />
         </h1>
 
         <button
@@ -157,14 +191,37 @@ const Header = () => {
             </span>
           </button>
 
-         <a href="">
-           <button className="text-sm text-gray-700 hover:text-yellow-600 flex items-center">
-            <FaUserAlt className="mr-2 text-xl" />
-            Login
-          </button>
-         </a>
+          {/* --- Show login or profile/logout --- */}
+          {user ? (
+            <div className="flex items-center gap-2">
+              <span className="text-gray-700 font-semibold">
+                {user.name || "Profile"}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 text-white px-2 py-1 rounded-md text-sm"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <button
+              className="text-sm text-gray-700 hover:text-yellow-600 flex items-center"
+              onClick={() => navigate("/login")}
+            >
+              <FaUserAlt className="mr-2 text-xl" />
+              Login
+            </button>
+          )}
 
-          <div style={{ width: "90px", height: "30px", border: "none" ,marginRight:'20px'}}>
+          <div
+            style={{
+              width: "90px",
+              height: "30px",
+              border: "none",
+              marginRight: "20px",
+            }}
+          >
             <Select
               value={selectedOption}
               onChange={setSelectedOption}
@@ -173,26 +230,7 @@ const Header = () => {
             />
           </div>
         </div>
-        {/* <ProductDetail /> */}
       </div>
-     
-      {/* Mobile Menu */}
-      {menuOpen && (
-        <div className="md:hidden px-4 pb-4">
-          <div className="flex flex-col gap-3">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
-            />
-            <div className="flex gap-6 justify-around">
-              <button onClick={() => navigate("/")}>Home</button>
-              <button>About</button>
-              <button onClick={() => navigate("/contact-page")}>Contact</button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Navigation Bar */}
       <div
@@ -206,7 +244,6 @@ const Header = () => {
             Home
           </span>
           <span onClick={() => navigate("/aboutus")} className="cursor-pointer">
-            {" "}
             About Us
           </span>
           <span
@@ -244,239 +281,44 @@ const Header = () => {
           </Link>
         </div>
       </div>
-<Row className="mb-3">
-  <Col className="d-flex justify-content-center gap-3 mt-3">
-    <Button
-      variant="outline-secondary"
-      size="sm"
-      style={{ color: "black" }}
-      onClick={() => (window.location.href = "https://bbscart.com/")}
-    >
-      <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <img
-          src={bbscart}
-          alt="BBSCart"
-          style={{ height: "30px", objectFit: "contain" }}
-        />
-        BBSCart Online Shopping
-      </span>
-    </Button>
 
-    <Button
-      variant="outline-secondary"
-      size="sm"
-      style={{ color: "black" }}
-      onClick={() => (window.location.href = "http://healthcare.bbscart.com/")}
-    >
-      <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <img
-          src={healthAccess}
-          alt="HealthAccess"
-          style={{ height: "30px", objectFit: "contain" }}
-        />
-        BBS Global Health Access
-      </span>
-    </Button>
-  </Col>
-</Row>
+      <Row className="mb-3">
+        <Col className="d-flex justify-content-center gap-3 mt-3">
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            style={{ color: "black" }}
+            onClick={() => (window.location.href = "https://bbscart.com/")}
+          >
+            <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <img
+                src={bbscart}
+                alt="BBSCart"
+                style={{ height: "30px", objectFit: "contain" }}
+              />
+              BBSCart Online Shopping
+            </span>
+          </Button>
 
-      <div className="flex items-center justify-end px-5 gap-2 p-2   ">
-        <div className="flex items-center gap-5 justify-between">
-          <div className="flex items-center   gap-2">
-            <div
-              style={{ position: "relative", display: "inline-block" }}
-              ref={dropdownRef}
-            >
-              {/* Icon Button */}
-              <button
-                onClick={() => setOpen(!open)}
-                style={{
-                  color: "orange",
-                  padding: "2px ",
-                  borderRadius: "4px",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: "30px",
-
-                  fontSize: "18px",
-                }}
-                title="Notifications"
-              >
-                <IoNotifications size={18} />
-              </button>
-
-              {/* Dropdown Box */}
-              {open && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "34px",
-                    left: "-60px",
-                    width: "220px",
-                    backgroundColor: "white",
-                    border: "1px solid #ccc",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-                    zIndex: 9999,
-                    padding: "10px",
-                    maxHeight: "250px",
-                    overflowY: "auto",
-                    scrollbarWidth: "thin", // For Firefox
-                    WebkitOverflowScrolling: "touch", // For smoother scrolling on mobile
-                  }}
-                >
-                  <h6
-                    style={{
-                      marginBottom: "10px",
-                      textAlign: "center",
-                      fontSize: "14px",
-                      fontWeight: "bold",
-                      borderBottom: "1px solid #ccc",
-                      paddingBottom: "5px",
-                    }}
-                  >
-                    Notifications & Alerts
-                  </h6>
-
-                  {notifications.length === 0 ? (
-                    <p style={{ fontSize: "14px" }}>No new notifications</p>
-                  ) : (
-                    <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                      {notifications.map((note) => (
-                        <li
-                          key={note.id}
-                          style={{ margin: "9px 10px", fontSize: "12px" }}
-                        >
-                          <strong>{note.type}:</strong> {note.message}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
-                  <a
-                    href="/notifications"
-                    style={{
-                      display: "block",
-                      textAlign: "center",
-                      marginTop: "10px",
-                      fontSize: "14px",
-                      color: "#007bff",
-                      textDecoration: "none",
-                      cursor: "pointer", 
-                  
-                      
-                    }}
-                  >
-                    View All Alerts
-                  </a>
-                </div>
-              )}
-            </div>
-
-            <a
-              href="/account-settings"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "black",
-                color: "white",
-                padding: "2px",
-                borderRadius: "4px",
-                textDecoration: "none",
-                height: "18px",
-                width: "18px",
-              }}
-            >
-              <BiSolidUserAccount size={18} />
-            </a>
-          </div>
-          <div className="flex items-center gap-2">
-            <a
-              href="https://www.facebook.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "rgba(24, 119, 242, 1)", // Facebook blue
-                color: "white",
-                padding: "2px",
-                borderRadius: "4px",
-                textDecoration: "none",
-                height: "18px",
-                width: "18px",
-              }}
-            >
-              <FaFacebookSquare size={18} />
-            </a>
-
-            <a
-              href="https://www.instagram.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background:
-                  "linear-gradient(45deg, rgba(245, 133, 41, 1), rgba(221, 42, 123, 1), rgba(129, 52, 175, 1), rgba(81, 91, 212, 1))",
-                color: "white",
-                padding: "2px",
-                borderRadius: "4px",
-                textDecoration: "none",
-                height: "18px",
-                width: "18px",
-              }}
-            >
-              <FaInstagram size={18} />
-            </a>
-
-            <a
-              href="https://x.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "white",
-                backgroundColor: "rgba(0, 0, 0, 1)",
-                padding: "0px",
-                borderRadius: "4px",
-                textDecoration: "none",
-                // padding: "2px",
-                height: "18px",
-                width: "18px",
-              }}
-            >
-              <FaSquareXTwitter size={18} />
-            </a>
-
-            <a
-              href="https://www.linkedin.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "rgba(10, 102, 194, 1)", // LinkedIn blue
-                color: "white",
-                padding: "2px",
-                borderRadius: "4px",
-                textDecoration: "none",
-                height: "18px",
-                width: "18px",
-              }}
-            >
-              <FaLinkedin size={18} />
-            </a>
-          </div>
-        </div>
-      </div>
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            style={{ color: "black" }}
+            onClick={() =>
+              (window.location.href = "http://healthcare.bbscart.com/")
+            }
+          >
+            <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <img
+                src={healthAccess}
+                alt="HealthAccess"
+                style={{ height: "30px", objectFit: "contain" }}
+              />
+              BBS Global Health Access
+            </span>
+          </Button>
+        </Col>
+      </Row>
     </header>
   );
 };
