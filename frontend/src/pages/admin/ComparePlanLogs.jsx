@@ -6,7 +6,7 @@ const ComparePlanLogs = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/compareplan/all", {
+      .get(`${import.meta.env.VITE_API_URI}/compareplan/all`, {
         headers: {
           Authorization: "Bearer adminkey123", // secured admin middleware
         },

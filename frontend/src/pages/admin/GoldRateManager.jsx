@@ -54,7 +54,7 @@ const GoldRateManager = () => {
 
   const fetchGroups = async () => {
     const res = await axios.get(
-      "http://localhost:5000/api/goldrate/grouped?metalType=Gold"
+      `${import.meta.env.VITE_API_URI}/goldrate/grouped?metalType=Gold`
     );
     setGroups(res.data);
   };
@@ -69,7 +69,7 @@ const GoldRateManager = () => {
       return;
     }
     try {
-      await axios.post(`http://localhost:5000/api/goldrate/create`, {
+      await axios.post(`${import.meta.env.VITE_API_URI}/goldrate/create`, {
         metalType: "Gold",
         source,
         marketPrice,
@@ -92,21 +92,21 @@ const GoldRateManager = () => {
     try {
       // Update all 3
       await axios.put(
-        `http://localhost:5000/api/goldrate/update/${editingData._id24}`,
+        `${import.meta.env.VITE_API_URI}/goldrate/update/${editingData._id24}`,
         {
           marketPrice: editingData.marketPrice,
           ratePerGram: editingData.rate24,
         }
       );
       await axios.put(
-        `http://localhost:5000/api/goldrate/update/${editingData._id22}`,
+        `${import.meta.env.VITE_API_URI}/goldrate/update/${editingData._id22}`,
         {
           marketPrice: editingData.marketPrice,
           ratePerGram: editingData.rate22,
         }
       );
       await axios.put(
-        `http://localhost:5000/api/goldrate/update/${editingData._id18}`,
+        `${import.meta.env.VITE_API_URI}/goldrate/update/${editingData._id18}`,
         {
           marketPrice: editingData.marketPrice,
           ratePerGram: editingData.rate18,
@@ -129,13 +129,13 @@ const GoldRateManager = () => {
   const handleDelete = async (group) => {
     if (window.confirm("Delete entire block?")) {
       await axios.delete(
-        `http://localhost:5000/api/goldrate/delete/${group._id24}`
+        `${import.meta.env.VITE_API_URI}/goldrate/delete/${group._id24}`
       );
       await axios.delete(
-        `http://localhost:5000/api/goldrate/delete/${group._id22}`
+        `${import.meta.env.VITE_API_URI}/goldrate/delete/${group._id22}`
       );
       await axios.delete(
-        `http://localhost:5000/api/goldrate/delete/${group._id18}`
+        `${import.meta.env.VITE_API_URI}/goldrate/delete/${group._id18}`
       );
       fetchGroups();
     }

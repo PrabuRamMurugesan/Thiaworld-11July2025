@@ -19,7 +19,7 @@ const ProductImageUploader = ({ productId, currentImage }) => {
 
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/products/${productId}/upload-image`,
+        `${import.meta.env.VITE_API_URI}/products/${productId}/upload-image`,
         formData
       );
       alert("Upload successful!");

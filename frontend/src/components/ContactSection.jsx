@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 const ContactSection = () => {
  
   useEffect(() => {
-    fetch('http://localhost:5000/api/contact', {
+    fetch(`${import.meta.env.VITE_API_URI}/contact`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

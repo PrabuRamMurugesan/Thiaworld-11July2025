@@ -35,7 +35,7 @@ const ThiaHomePage = () => {
     const fetchBestSelling = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/products/best-selling"
+          `${import.meta.env.VITE_API_URI}/products/best-selling`
         );
         setBestSellingProducts(res.data);
         console.log(res.data, "dsagsgtsgtger");

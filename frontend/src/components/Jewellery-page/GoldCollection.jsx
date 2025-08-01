@@ -43,7 +43,7 @@ const GoldCollection = () => {
       }
 
       const res = await axios.get(
-        `http://localhost:5000/api/products/gold?${query.join("&")}`
+        `${import.meta.env.VITE_API_URI}/products/gold?${query.join("&")}`
       );
 
       setProducts(res.data);

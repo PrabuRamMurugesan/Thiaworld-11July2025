@@ -31,7 +31,7 @@ const ThiaSecurePlanPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/api/secureplan/submit", {
+      const response = await axios.post(`${import.meta.env.VITE_API_URI}/secureplan/submit`, {
         ...formData,
         monthlyInstallment: monthlyEMI,
       });
@@ -179,7 +179,7 @@ const ThiaSecurePlanPage = () => {
                   <p>Total Payable: ₹{total.toFixed(2)}</p>
                   <button
                     onClick={() => {
-                      axios.post("http://localhost:5000/api/compareplan/save", {
+                      axios.post(`${import.meta.env.VITE_API_URI}/compareplan/save`, {
                         planTitle: plan.title,
                         totalPrice: plan.totalPrice,
                         downPayment: plan.downPayment,

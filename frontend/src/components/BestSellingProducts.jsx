@@ -11,7 +11,7 @@ const BestSellingProducts = () => {
     const fetchBestSelling = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/products/best-selling"
+          `${import.meta.env.VITE_API_URI}/products/best-selling`
         );
         setProducts(response.data);
         console.log(response.data, "best-selling");
