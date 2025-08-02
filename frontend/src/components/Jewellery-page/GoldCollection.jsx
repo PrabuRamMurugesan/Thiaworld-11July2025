@@ -5,7 +5,7 @@ import { CartContext } from "../../context/CartContext";
 import Header from "../Header";
 import Footer from "../Footer";
 import { IoHeart, IoStar } from "react-icons/io5";
-import api from "../utils/api"; 
+import api from "../../utils/api"; 
 const GoldCollection = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
