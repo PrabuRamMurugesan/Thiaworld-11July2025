@@ -32,30 +32,13 @@ mongoose
   .catch((err) => console.error("❌ Main DB error:", err));
 
 app.use("/api/contact", contactRoutes);
-app.use("/api", appointmentRoutes);
+app.use("/api/appointments", appointmentRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/checkout", checkoutRoutes);
 app.use("/api/goldrate", metalRateRoutes);
 app.use("/api/products", productRoutes); // ✅ this must be exact
 app.use("/api/auth", authRoutes);
-
-// app.use('/api/contact', require('./routes/contactRoutes'));
-// app.use('/api/appointments', require('./routes/appointmentRoutes'));
-// app.use('/api/checkout', require('./routes/checkoutRoutes'));
-// app.use('/api/products', require('./routes/productRoutes'));
-// app.use('/api/home/videos', require('./routes/videoRoutes'));
-// app.use('/api/banners', require('./routes/bannerRoutes'));
-// app.use('/api/testimonials', require('./routes/testimonialRoutes'));
-// app.use('/api/home', require('./routes/contentRoutes'));
-// app.use('/api/contact', require('./routes/contactRoutes'));cks
-
-// Start Server
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-
 app.use("/api/export", exportRoutes);
-app.use("/api/checkout", checkoutRoutes);
-
 app.use("/api/razorpay", razorpayRoutes);
-
-app.use("/api/products", productRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
