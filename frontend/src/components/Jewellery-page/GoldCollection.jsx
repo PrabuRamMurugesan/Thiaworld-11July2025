@@ -5,7 +5,7 @@ import { CartContext } from "../../context/CartContext";
 import Header from "../Header";
 import Footer from "../Footer";
 import { IoHeart, IoStar } from "react-icons/io5";
-
+import api from "../utils/api"; 
 const GoldCollection = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,9 +42,7 @@ const GoldCollection = () => {
         else if (sortOption === "New Arrivals") query.push("sort=newest");
       }
 
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_URI}/products/gold?${query.join("&")}`
-      );
+     const res = await api.get(`products/gold?${query}`);
 
       setProducts(res.data);
       setLoading(false);
