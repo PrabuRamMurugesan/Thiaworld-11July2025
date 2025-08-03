@@ -26,33 +26,37 @@ const GoldCollection = () => {
     fetchGoldProducts();
   }, [search, categoryFilter, purityFilter, sortOption]);
 
-  const fetchGoldProducts = async () => {
-    try {
-      let query = [];
+const fetchGoldProducts = async () => {
+  try {
+    const query = [];
 
-      if (search) query.push(`name=${encodeURIComponent(search)}`);
-      if (categoryFilter.length)
-        query.push(`category=${categoryFilter.join(",")}`);
-      if (purityFilter.length) query.push(`purity=${purityFilter.join(",")}`);
-      if (sortOption) {
-        if (sortOption === "Price: Low to High")
-          query.push("sort=priceLowHigh");
-        else if (sortOption === "Price: High to Low")
-          query.push("sort=priceHighLow");
-        else if (sortOption === "New Arrivals") query.push("sort=newest");
-      }
-
-     const res = await api.get(`products/gold?${query}`);
-
-      setProducts(res.data);
-      setLoading(false);
-      setCurrentPage(1); // Reset to page 1 on filter/search change
-    } catch (err) {
-      console.error("❌ Error fetching gold products:", err);
-      setError("Failed to load products.");
-      setLoading(false);
+    if (search) query.push(`name=${encodeURIComponent(search)}`);
+    if (categoryFilter.length)
+      query.push(`category=${categoryFilter.join(",")}`);
+    if (purityFilter.length)
+      query.push(`purity=${purityFilter.join(",")}`);
+    if (sortOption) {
+      if (sortOption === "Price: Low to High") query.push("sort=priceLowHigh");
+      else if (sortOption === "Price: High to Low") query.push("sort=priceHighLow");
+      else if (sortOption === "New Arrivals") query.push("sort=newest");
     }
-  };
+
+    // ✅ Build query string correctly
+    const queryString = query.length ? `?${query.join("&")}` : "";
+
+    // ✅ Always use leading slash for axios baseURL
+    const res = await api.get(`/products/gold${queryString}`);
+
+    setProducts(res.data);
+    setLoading(false);
+    setCurrentPage(1);
+  } catch (err) {
+    console.error("❌ Error fetching gold products:", err.message || err);
+    setError("Failed to load products.");
+    setLoading(false);
+  }
+};
+
 
   const toggleCategory = (cat) => {
     setCategoryFilter((prev) =>
