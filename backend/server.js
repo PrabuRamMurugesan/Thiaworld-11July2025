@@ -13,7 +13,9 @@ const productRoutes = require("./routes/productRoutes");
 const metalRateRoutes = require("./routes/metalRateRoutes");
 
 const path = require("path");
-
+app.get("/", (req, res) => {
+  res.send("Backend is working");
+});
 const app = express();
 const exportRoutes = require("./routes/exportRoutes");
 
