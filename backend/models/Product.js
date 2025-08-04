@@ -1,109 +1,148 @@
-// const mongoose = require("mongoose");
+const mongoose = require("mongoose");
 
-// // ✅ Reviews remain same
-// const reviewSchema = new mongoose.Schema({
-//   user: { type: String, required: true },
-//   rating: { type: Number, default: 0 },
-//   comment: { type: String },
-//   date: { type: Date, default: Date.now },
-// });
+const productSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    slug: {
+      type: String,
+      unique: true,
+    },
+    description: {
+      type: String,
+    },
+    longDescription: {
+      type: String,
+    },
+    category: {
+      type: String,
+      required: true,
+    },
+    isNewArrival: { type: Boolean, default: false },
+    isFeatured: { type: Boolean, default: false },
+    subCategory: {
+      type: String,
+    },
+    metalType: {
+      type: String,
+      enum: ["Gold", "Silver", "Diamond", "Platinum"],
+    },
+    metalColor: {
+      type: String,
+      enum: ["Yellow", "Rose", "White"],
+    },
+    purity: {
+      type: String,
+    },
+    netWeight: {
+      type: Number,
+    },
+    grossWeight: {
+      type: Number,
+    },
+    price: {
+      type: Number,
+      required: true,
+    },
+    discount: {
+      type: Number,
+      default: 0,
+    },
+    bestSelling: {
+      type: Boolean,
+      default: false,
+    },
+    finalPrice: {
+      type: Number,
+    },
+    makingCharges: {
+      type: Number,
+      default: 0,
+    },
+    gst: {
+      type: Number,
+      default: 0,
+    },
+    totalPayable: {
+      type: Number,
+    },
+    images: [
+      {
+        type: String,
+      },
+    ],
+    thumbnail: {
+      type: String,
+    },
+    videoUrl: {
+      type: String,
+    },
+    isCombo: {
+      type: Boolean,
+      default: false,
+    },
+    comboGroupId: {
+      type: String,
+    },
+    tags: [
+      {
+        type: String,
+      },
+    ],
+    isAvailable: {
+      type: Boolean,
+      default: true,
+    },
+    isSecurePlanEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    isPartialPaymentEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    isVirtualTryOnEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    similarIds: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+      },
+    ],
+    aiRelatedTags: [
+      {
+        type: String,
+      },
+    ],
+    showInHomepage: {
+      type: Boolean,
+      default: false,
+    },
+    priorityRanking: {
+      type: Number,
+      default: 99,
+    },
+    reviews: [
+      {
+        user: String,
+        rating: Number,
+        comment: String,
+        date: { type: Date, default: Date.now },
+      },
+    ],
+    rating: {
+      type: Number,
+      default: 0,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-// // ✅ Custom Attribute: your advanced flexible pair
-// const customAttributeSchema = new mongoose.Schema({
-//   key: String,
-//   value: String,
-// });
-
-// // ✅ Advanced Attributes: your new global system
-// const attributeSchema = new mongoose.Schema({
-//   name: String,
-//   values: [String],
-//   visible: Boolean,
-//   global: Boolean,
-// });
-
-// // ✅ Unified Product Schema
-// const productSchema = new mongoose.Schema(
-//   {
-//     productId: String,
-//     sku: { type: String, unique: true },
-//     type: { type: String, default: "simple" },
-//     name: { type: String, required: true },
-//     shortDescription: String,
-//     description: String,
-//     isPublished: { type: Boolean, default: true },
-//     isFeatured: { type: Boolean, default: false },
-//     visibility: { type: String, default: "catalog" },
-
-//     saleStartDate: Date,
-//     saleEndDate: Date,
-
-//     taxStatus: { type: String, default: "taxable" },
-//     taxClass: { type: String, default: "standard" },
-
-//     inStock: { type: Boolean, default: true },
-//     stockQty: { type: Number, default: 0 },
-//     lowStockQty: { type: Number, default: 0 },
-//     allowBackorders: { type: Boolean, default: false },
-//     soldIndividually: { type: Boolean, default: false },
-
-//     weight: Number,
-//     length: Number,
-//     width: Number,
-//     height: Number,
-
-//     allowReviews: { type: Boolean, default: true },
-//     purchaseNote: String,
-
-//     salePrice: Number,
-//     regularPrice: Number,
-
-//     categories: [String],
-//     tags: [String],
-//     shippingClass: String,
-
-//     images: [String],
-
-//     downloadLimit: Number,
-//     downloadExpiryDays: Number,
-
-//     parentProductId: String,
-//     groupedProducts: [String],
-//     upsells: [String],
-//     crossSells: [String],
-
-//     externalUrl: String,
-//     buttonText: String,
-//     position: Number,
-
-//     attributes: [attributeSchema],
-//     customAttributes: [customAttributeSchema],
-
-//     meta_lastEditor: String,
-//     meta_template: String,
-//     meta_pageview: Number,
-//     meta_posVisibility: Boolean,
-
-//     makingCharges: { type: Number, default: 0 },
-//     makingChargesDiscount: { type: Number, default: 0 },
-
-//     metalType: String, // Gold, Silver, Diamond
-//     metalCarat: String, // 24K, 22K, etc.
-//     autoUpdatePrice: { type: Boolean, default: false },
-
-//     isCombo: { type: Boolean, default: false },
-//     comboGroupId: String,
-
-//     isSecurePlanEnabled: { type: Boolean, default: false },
-//     isPartialPaymentEnabled: { type: Boolean, default: false },
-
-//     price: { type: Number, required: true },
-//     discount: { type: Number, default: 0 },
-//     gst: { type: Number, default: 3 },
-
-//     reviews: [reviewSchema],
-//   },
-//   { timestamps: true }
-// );
-
-// module.exports = mongoose.model("Product", productSchema);
+module.exports=mongoose.models.Product || mongoose.model("Product", productSchema);
+ 
