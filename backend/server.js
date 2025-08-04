@@ -13,9 +13,7 @@ const productRoutes = require("./routes/productRoutes");
 const metalRateRoutes = require("./routes/metalRateRoutes");
 
 const path = require("path");
-app.get("/", (req, res) => {
-  res.send("Backend is working");
-});
+
 const app = express();
 const exportRoutes = require("./routes/exportRoutes");
 
@@ -43,4 +41,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/export", exportRoutes);
 app.use("/api/razorpay", razorpayRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.get("/", (req, res) => {
+  res.send("Backend is working");
+});
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

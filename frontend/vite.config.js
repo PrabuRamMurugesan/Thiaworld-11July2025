@@ -6,4 +6,9 @@ export default defineConfig({
   define: {
     "process.env": process.env,
   },
+  server: {
+    proxy: {
+      "/api": "http://localhost:5000", // Proxy API to Node backend
+    },
+  },
 });
