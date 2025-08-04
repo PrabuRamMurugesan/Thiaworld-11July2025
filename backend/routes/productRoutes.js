@@ -3,7 +3,6 @@
 const express = require("express");
 const router = express.Router();
 const productController = require("../controllers/productController");
-const Product = require("../models/productModel");
 const upload = require("../middleware/upload");
 
 router.post("/add", productController.addProduct);
