@@ -29,5 +29,4 @@ router.post(
   productController.uploadProductImages
 );
 router.get("/:id", productController.getProductById); // ✅ Place dynamic route last
-router.get("/", productController.getAllProducts); // ✅ Keep as last catch-all
 module.exports = router;
