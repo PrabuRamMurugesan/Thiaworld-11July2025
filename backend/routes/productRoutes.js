@@ -23,15 +23,12 @@ router.get("/platinum", productController.getPlatinumProducts);
 router.get("/combo/:comboGroupId", productController.getComboProducts);
 router.get("/related/:id", productController.getRelatedProducts);
 
-router.get("/:id", productController.getProductById);  // ✅ Place dynamic route last
-router.get("/", productController.getAllProducts);    // ✅ Keep as last catch-all
-
-
 // Add this new route
 router.post(
   "/upload-images",
   upload.array("images"),
   productController.uploadProductImages
 );
-
+router.get("/:id", productController.getProductById); // ✅ Place dynamic route last
+router.get("/", productController.getAllProducts); // ✅ Keep as last catch-all
 module.exports = router;
