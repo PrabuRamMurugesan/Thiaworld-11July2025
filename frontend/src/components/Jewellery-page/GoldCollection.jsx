@@ -5,7 +5,7 @@ import { CartContext } from "../../context/CartContext";
 import Header from "../Header";
 import Footer from "../Footer";
 import { IoHeart, IoStar } from "react-icons/io5";
-import api from "../../utils/api"; 
+import api from "../../utils/api";
 const GoldCollection = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,37 +26,37 @@ const GoldCollection = () => {
     fetchGoldProducts();
   }, [search, categoryFilter, purityFilter, sortOption]);
 
-const fetchGoldProducts = async () => {
-  try {
-    const query = [];
+  const fetchGoldProducts = async () => {
+    try {
+      const query = [];
 
-    if (search) query.push(`name=${encodeURIComponent(search)}`);
-    if (categoryFilter.length)
-      query.push(`category=${categoryFilter.join(",")}`);
-    if (purityFilter.length)
-      query.push(`purity=${purityFilter.join(",")}`);
-    if (sortOption) {
-      if (sortOption === "Price: Low to High") query.push("sort=priceLowHigh");
-      else if (sortOption === "Price: High to Low") query.push("sort=priceHighLow");
-      else if (sortOption === "New Arrivals") query.push("sort=newest");
+      if (search) query.push(`name=${encodeURIComponent(search)}`);
+      if (categoryFilter.length)
+        query.push(`category=${categoryFilter.join(",")}`);
+      if (purityFilter.length) query.push(`purity=${purityFilter.join(",")}`);
+      if (sortOption) {
+        if (sortOption === "Price: Low to High")
+          query.push("sort=priceLowHigh");
+        else if (sortOption === "Price: High to Low")
+          query.push("sort=priceHighLow");
+        else if (sortOption === "New Arrivals") query.push("sort=newest");
+      }
+
+      // ✅ Build query string correctly
+      const queryString = query.length ? `?${query.join("&")}` : "";
+
+      // ✅ Always use leading slash for axios baseURL
+      // const res = await api.get(`/products/gold${queryString}`);
+      const res = await api.get(`products/gold${queryString}`);
+      setProducts(res.data);
+      setLoading(false);
+      setCurrentPage(1);
+    } catch (err) {
+      console.error("❌ Error fetching gold products:", err.message || err);
+      setError("Failed to load products.");
+      setLoading(false);
     }
-
-    // ✅ Build query string correctly
-    const queryString = query.length ? `?${query.join("&")}` : "";
-
-    // ✅ Always use leading slash for axios baseURL
-    const res = await api.get(`/products/gold${queryString}`);
-
-    setProducts(res.data);
-    setLoading(false);
-    setCurrentPage(1);
-  } catch (err) {
-    console.error("❌ Error fetching gold products:", err.message || err);
-    setError("Failed to load products.");
-    setLoading(false);
-  }
-};
-
+  };
 
   const toggleCategory = (cat) => {
     setCategoryFilter((prev) =>
@@ -83,8 +83,7 @@ const fetchGoldProducts = async () => {
   );
 
   if (loading) return <p className="text-center my-8">Loading...</p>;
-  if (error)
-    return <p className="text-center text-danger my-8">{error}</p>;
+  if (error) return <p className="text-center text-danger my-8">{error}</p>;
 
   return (
     <>
@@ -169,7 +168,10 @@ const fetchGoldProducts = async () => {
               <h4 className="m-0 text-gray-700 font-semibold">Purity :</h4>
               <div className="d-flex flex-row gap-3 text-gray-600">
                 {["18K", "22K", "24K"].map((purity) => (
-                  <label key={purity} className="d-flex align-items-center gap-1">
+                  <label
+                    key={purity}
+                    className="d-flex align-items-center gap-1"
+                  >
                     <input
                       type="checkbox"
                       checked={purityFilter.includes(purity)}
@@ -212,7 +214,10 @@ const fetchGoldProducts = async () => {
               </div>
               <Link to={`/product/${prod._id}`}>
                 <img
-                  src={`http://localhost:5000${prod.images?.[0]}` || "/default-product.jpg"}
+                  src={
+                    `http://localhost:5000${prod.images?.[0]}` ||
+                    "/default-product.jpg"
+                  }
                   alt={prod.name}
                   style={{ width: "250px", height: "250px" }}
                 />
@@ -291,7 +296,9 @@ const fetchGoldProducts = async () => {
             <button
               key={index}
               onClick={() => handlePageChange(index + 1)}
-              className={`filter-btn ${currentPage === index + 1 ? "active" : ""}`}
+              className={`filter-btn ${
+                currentPage === index + 1 ? "active" : ""
+              }`}
               style={{ width: "45px", height: "45px", fontWeight: "bold" }}
             >
               {index + 1}
