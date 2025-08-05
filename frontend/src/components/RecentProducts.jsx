@@ -32,7 +32,6 @@ const RecentProducts = () => {
   return (
     <>
     {location.pathname !== "/" && <Header />}
-    <h2 className="text-xl font-semibold font-serif mb-4  text-center text-dark px-5 py-2" style={{ backgroundColor: "rgb(250, 222, 124)" }} >New Arrivals </h2> 
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 p-8 m-5">
       
       {recentProducts.map((product) => (
