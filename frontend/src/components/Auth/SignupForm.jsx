@@ -33,7 +33,7 @@ const SignupForm = () => {
     try {
       await signupUser(form); // POST to /api/auth/register (shared)
       setSuccess("Signup successful! Redirecting to login...");
-      setTimeout(() => navigate("/"), 2000);
+      setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
       setError(err.response?.data?.message || "Signup failed");
     }
