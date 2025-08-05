@@ -36,7 +36,9 @@ const BestSellingProducts = () => {
               <img
                 src={
                   product.images?.[0]
-                    ? `http://localhost:5000${product.images[0]}`
+                    ? `${import.meta.env.VITE_API_URI.replace("/api", "")}${
+                        product.images[0]
+                      }`
                     : "/default-product.jpg"
                 }
                 className="w-full h-100 object-cover group-hover:scale-105 transition duration-300"
@@ -47,27 +49,27 @@ const BestSellingProducts = () => {
           </div>
 
           <div className="p-4 ">
-           <div className="mt-2 min-h-[100px]">
-               <h3 className="text-base font-medium text-gray-800">
-              {product.name}
-            </h3>
-            <p className="text-sm text-gray-500 mt-1">
-              {product.shortDescription}
-            </p>
+            <div className="mt-2 min-h-[100px]">
+              <h3 className="text-base font-medium text-gray-800">
+                {product.name}
+              </h3>
+              <p className="text-sm text-gray-500 mt-1">
+                {product.shortDescription}
+              </p>
 
-            <div className="flex items-center text-yellow-500 text-sm mt-2">
-              {[...Array(5)].map((_, i) => (
-                <FaStar
-                  key={i}
-                  className={
-                    i < (product.rating || 4)
-                      ? "text-yellow-500"
-                      : "text-gray-300"
-                  }
-                />
-              ))}
+              <div className="flex items-center text-yellow-500 text-sm mt-2">
+                {[...Array(5)].map((_, i) => (
+                  <FaStar
+                    key={i}
+                    className={
+                      i < (product.rating || 4)
+                        ? "text-yellow-500"
+                        : "text-gray-300"
+                    }
+                  />
+                ))}
+              </div>
             </div>
-           </div>
 
             <div className=" d-flex justify-between align-items-center  gap-4 ">
               <button
