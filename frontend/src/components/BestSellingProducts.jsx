@@ -15,7 +15,6 @@ const BestSellingProducts = () => {
         );
         setProducts(response.data);
         console.log(response.data, "best-selling");
-        
       } catch (error) {
         console.error("Failed to fetch best selling products:", error);
       }
@@ -36,9 +35,7 @@ const BestSellingProducts = () => {
               <img
                 src={
                   product.images?.[0]
-                    ? `${import.meta.env.VITE_API_URI.replace("/api", "")}${
-                        product.images[0]
-                      }`
+                    ? `http://localhost:5000${product.images[0]}`
                     : "/default-product.jpg"
                 }
                 className="w-full h-100 object-cover group-hover:scale-105 transition duration-300"
