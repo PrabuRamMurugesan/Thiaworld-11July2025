@@ -9,7 +9,7 @@ import {
   FaFileAlt,
   FaShoppingCart,
   FaUsers,
-  FaDragon 
+  FaDragon,
 } from "react-icons/fa";
 import { IoLanguage } from "react-icons/io5";
 import { BsFillGeoFill } from "react-icons/bs";
@@ -22,26 +22,66 @@ const AdminSidebar = () => {
 
   const navItems = [
     { icon: <FaHome />, label: "Dashboard", path: "/admin/dashboard" },
-    { icon: <FaBoxOpen />, label: "Products", path: "/admin/products" },
-    { icon: <FaCoins />, label: "Gold Rates", path: "/admin/goldrate" },
-    { icon: <FaFileAlt />, label: "CMS Pages", path: "/admin/cms-pages" },
+    { icon: <FaBoxOpen />, label: "Products", path: "/admin/products/bulk" },
+    { icon: <FaCoins />, label: "Gold Rates", path: "/goldrate" },
+    { icon: <FaFileAlt />, label: "CMS Pages", path: "/cms-panel-admin" },
     { icon: <FaShoppingCart />, label: "Orders", path: "/admin/orders" },
     { icon: <FaUsers />, label: "Customers", path: "/admin/customers" },
-    { icon: <FaDragon />, label: "Drag & Drop", path: "/admin/dragdrop" },
-    { icon: <IoLanguage />, label: "Multi-Language", path: "/admin/multi-language" },
-    { icon: <BsFillGeoFill />, label: "Geo Visibility", path: "/admin/geo-visibility" },
-    { icon: <MdManageAccounts />, label: "Role Manager", path: "/admin/roles-manager" },
-    { icon: <MdManageAccounts />, label: "Media Library", path: "/admin/media" },
+    // { icon: <FaDragon />, label: "Drag & Drop", path: "/admin/dragdrop" },
+    {
+      icon: <IoLanguage />,
+      label: "Multi-Language",
+      path: "/admin/multi-language",
+    },
+    {
+      icon: <BsFillGeoFill />,
+      label: "Geo Visibility",
+      path: "/admin/geo-visibility",
+    },
+    {
+      icon: <MdManageAccounts />,
+      label: "Role Manager",
+      path: "/admin/roles-manager",
+    },
+    {
+      icon: <MdManageAccounts />,
+      label: "Media Library",
+      path: "/admin/media",
+    },
     { icon: <TbSeo />, label: "Seo Manager", path: "/admin/seo-manager" },
-    { icon: <TbSeo />, label: "Preview Scheduler", path: "/admin/preview-scheduler" },
-    { icon: <SiDecapcms />, label: "CMS Panel", path: "/admin/cms-panel-admin" },
+    {
+      icon: <TbSeo />,
+      label: "Preview Scheduler",
+      path: "/admin/preview-scheduler",
+    },
+    {
+      icon: <SiDecapcms />,
+      label: "CMS Panel",
+      path: "/admin/cms-panel-admin",
+    },
   ];
 
   return (
-    <div className={`sidebar bg-dark text-white p-3 ${collapsed ? "collapsed" : ""}`} style={{ minHeight: "100vh", width: collapsed ? "70px" : "240px", transition: "width 0.3s" }}>
+    <div
+      className={`sidebar bg-dark text-white p-3 ${
+        collapsed ? "collapsed" : ""
+      }`}
+      style={{
+        minHeight: "100vh",
+        width: collapsed ? "70px" : "240px",
+        transition: "width 0.3s",
+      }}
+    >
       {/* Toggle Button */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        {!collapsed && <h5 className="text-warning m-0"> <a href="/" target="_blank">✨ BBSCART</a></h5>}
+        {!collapsed && (
+          <h5 className="text-warning m-0">
+            {" "}
+            <a href="/" target="_blank">
+              ✨ BBSCART
+            </a>
+          </h5>
+        )}
         <button
           className="btn btn-sm btn-outline-light ms-auto"
           onClick={() => setCollapsed(!collapsed)}
@@ -56,7 +96,9 @@ const AdminSidebar = () => {
             <Nav.Link
               as={Link}
               to={item.path}
-              className={`d-flex align-items-center gap-2 text-white sidebar-link ${location.pathname === item.path ? "active" : ""}`}
+              className={`d-flex align-items-center gap-2 text-white sidebar-link ${
+                location.pathname === item.path ? "active" : ""
+              }`}
               style={{ paddingLeft: "10px", fontSize: "0.95rem" }}
             >
               {item.icon}

@@ -17,16 +17,19 @@ const CustomersManager = () => {
   }, []);
 
   const fetchCustomers = async () => {
-    const res = await axios.get("/api/customer/all");
+    const res = await axios.get(`${import.meta.env.VITE_API_URI}/api/customer/all`);
     setCustomers(res.data);
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
     if (editingId) {
-      await axios.put(`/api/customer/${editingId}`, form);
+      await axios.put(
+        `${import.meta.env.VITE_API_URI}/api/customer/${editingId}`,
+        form
+      );
     } else {
-      await axios.post("/api/customer/create", form);
+      await axios.post(`${import.meta.env.VITE_API_URI}/api/customer/create`, form);
     }
     setShowModal(false);
     setForm({ name: "", email: "", phone: "" });
@@ -42,7 +45,7 @@ const CustomersManager = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm("Delete this customer?")) {
-      await axios.delete(`/api/customer/${id}`);
+      await axios.delete(`${import.meta.env.VITE_API_URI}/api/customer/${id}`);
       fetchCustomers();
     }
   };

@@ -12,7 +12,7 @@ const OrdersManager = () => {
   }, []);
 
   const fetchOrders = async () => {
-    const res = await axios.get("/api/order/all");
+    const res = await axios.get(`${import.meta.env.VITE_API_URI}/api/order/all`);
     setOrders(res.data);
   };
 

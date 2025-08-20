@@ -5,8 +5,8 @@ import { IoCartOutline } from "react-icons/io5";
 function BestSelling() {
   const [quantity, setQuantity] = useState(0);
 
-  const increment = () => setQuantity(prev => prev + 1);
-  const decrement = () => setQuantity(prev => (prev > 0 ? prev - 1 : 0));
+  const increment = () => setQuantity((prev) => prev + 1);
+  const decrement = () => setQuantity((prev) => (prev > 0 ? prev - 1 : 0));
 
   return (
     <>
@@ -15,169 +15,189 @@ function BestSelling() {
           <h1>Best Selling Jewellery</h1>
           <div className="best-selling-filters">
             <span>New</span>
-           <a href="/necklace"><span>Necklaces</span></a>
-           <a href="/bangle"> <span>Bracelets</span></a>
+            <a href="/necklace">
+              <span>Necklaces</span>
+            </a>
+            <a href="/bangle">
+              {" "}
+              <span>Bracelets</span>
+            </a>
           </div>
         </div>
 
-       <div className="all-best-selling-products">
-       <div className="best-selling-product">
-          <div className="best-selling-product-title">
-            <span className="selling-red">Sale</span>
-            <span className="selling-green">New</span>
-            <img
-              src="/assets/R.png"
-              alt=""
-              className="selling-product-image"
-            />
-          </div>
-
-          <div className="best-selling-products">
-            <h1>Sculpted Necklace</h1>
-
-            <div className="best-selling-product-price">
-              <span className="selling-price line-through">
-                <TbCurrencyRupee /> 1,00,000
-              </span>
-              <span
-                className="selling-price"
-                style={{ color: "#ff6600", fontWeight: "bold" }}
-              >
-                <TbCurrencyRupee /> 1,00,000 only
-              </span>
+        <div className="all-best-selling-products">
+          <div className="best-selling-product">
+            <div className="best-selling-product-title">
+              <span className="selling-red">Sale</span>
+              <span className="selling-green">New</span>
+              <img
+                src="/assets/R.png"
+                alt=""
+                className="selling-product-image"
+              />
             </div>
 
-            <div className="best-selling-product-rating">
-              <div>
-                <span className="box-best-sell" onClick={decrement}>-</span>
-                <span className="box-best-sell">{quantity}</span>
-                <span className="box-best-sell" onClick={increment}>+</span>
+            <div className="best-selling-products">
+              <h1>Sculpted Necklace</h1>
+
+              <div className="best-selling-product-price">
+                <span className="selling-price line-through">
+                  <TbCurrencyRupee /> 1,00,000
+                </span>
+                <span
+                  className="selling-price"
+                  style={{ color: "#ff6600", fontWeight: "bold" }}
+                >
+                  <TbCurrencyRupee /> 1,00,000 only
+                </span>
               </div>
-              <button className="best-selling-product-button">
-                <IoCartOutline /> View More
-              </button>
-            </div>
-          </div>
-        </div>
-        
-        <div className="best-selling-product">
-          <div className="best-selling-product-title">
-            <span className="selling-red">Sale</span>
-            <span className="selling-green">New</span>
-            <img
-              src="/assets/ring.png"
-              alt=""
-              className="selling-product-image"
-            />
-          </div>
 
-          <div className="best-selling-products">
-            <h1>Gold Ring</h1>
-
-            <div className="best-selling-product-price">
-              <span className="selling-price line-through">
-                <TbCurrencyRupee /> 1,00,000
-              </span>
-              <span
-                className="selling-price"
-                style={{ color: "#ff6600", fontWeight: "bold" }}
-              >
-                <TbCurrencyRupee /> 1,00,000 only
-              </span>
-            </div>
-
-            <div className="best-selling-product-rating">
-              <div>
-                <span className="box-best-sell" onClick={decrement}>-</span>
-                <span className="box-best-sell">{quantity}</span>
-                <span className="box-best-sell" onClick={increment}>+</span>
+              <div className="best-selling-product-rating">
+                <div>
+                  <span className="box-best-sell" onClick={decrement}>
+                    -
+                  </span>
+                  <span className="box-best-sell">{quantity}</span>
+                  <span className="box-best-sell" onClick={increment}>
+                    +
+                  </span>
+                </div>
+                <button className="best-selling-product-button">
+                  <IoCartOutline /> View More
+                </button>
               </div>
-              <button className="best-selling-product-button">
-                <IoCartOutline /> View More
-              </button>
             </div>
           </div>
-        </div>
 
-        <div className="best-selling-product">
-          <div className="best-selling-product-title">
-            <span className="selling-red">Sale</span>
-            <span className="selling-green">New</span>
-            <img
-              src="/assets/gold-1.png"
-              alt=""
-              className="selling-product-image"
-            />
-          </div>
-
-          <div className="best-selling-products">
-            <h1>Bangles</h1>
-
-            <div className="best-selling-product-price">
-              <span className="selling-price line-through">
-                <TbCurrencyRupee /> 1,00,000
-              </span>
-              <span
-                className="selling-price"
-                style={{ color: "#ff6600", fontWeight: "bold" }}
-              >
-                <TbCurrencyRupee /> 1,00,000 only
-              </span>
+          <div className="best-selling-product">
+            <div className="best-selling-product-title">
+              <span className="selling-red">Sale</span>
+              <span className="selling-green">New</span>
+              <img
+                src="/assets/ring.png"
+                alt=""
+                className="selling-product-image"
+              />
             </div>
 
-            <div className="best-selling-product-rating">
-              <div>
-                <span className="box-best-sell" onClick={decrement}>-</span>
-                <span className="box-best-sell">{quantity}</span>
-                <span className="box-best-sell" onClick={increment}>+</span>
+            <div className="best-selling-products">
+              <h1>Gold Ring</h1>
+
+              <div className="best-selling-product-price">
+                <span className="selling-price line-through">
+                  <TbCurrencyRupee /> 1,00,000
+                </span>
+                <span
+                  className="selling-price"
+                  style={{ color: "#ff6600", fontWeight: "bold" }}
+                >
+                  <TbCurrencyRupee /> 1,00,000 only
+                </span>
               </div>
-              <button className="best-selling-product-button">
-                <IoCartOutline /> View More
-              </button>
-            </div>
-          </div>
-        </div>
 
-        <div className="best-selling-product">
-          <div className="best-selling-product-title">
-            <span className="selling-red">Sale</span>
-            <span className="selling-green">New</span>
-            <img
-              src="/assets/earring.png"
-              alt=""
-              className="selling-product-image"
-            />
-          </div>
-
-          <div className="best-selling-products">
-            <h1>Earring</h1>
-
-            <div className="best-selling-product-price">
-              <span className="selling-price line-through">
-                <TbCurrencyRupee /> 1,00,000
-              </span>
-              <span
-                className="selling-price"
-                style={{ color: "#ff6600", fontWeight: "bold" }}
-              >
-                <TbCurrencyRupee /> 1,00,000 only
-              </span>
-            </div>
-
-            <div className="best-selling-product-rating">
-              <div>
-                <span className="box-best-sell" onClick={decrement}>-</span>
-                <span className="box-best-sell">{quantity}</span>
-                <span className="box-best-sell" onClick={increment}>+</span>
+              <div className="best-selling-product-rating">
+                <div>
+                  <span className="box-best-sell" onClick={decrement}>
+                    -
+                  </span>
+                  <span className="box-best-sell">{quantity}</span>
+                  <span className="box-best-sell" onClick={increment}>
+                    +
+                  </span>
+                </div>
+                <button className="best-selling-product-button">
+                  <IoCartOutline /> View More
+                </button>
               </div>
-              <button className="best-selling-product-button">
-                <IoCartOutline /> View More
-              </button>
+            </div>
+          </div>
+
+          <div className="best-selling-product">
+            <div className="best-selling-product-title">
+              <span className="selling-red">Sale</span>
+              <span className="selling-green">New</span>
+              <img
+                src="/assets/gold-1.png"
+                alt=""
+                className="selling-product-image"
+              />
+            </div>
+
+            <div className="best-selling-products">
+              <h1>Bangles</h1>
+
+              <div className="best-selling-product-price">
+                <span className="selling-price line-through">
+                  <TbCurrencyRupee /> 1,00,000
+                </span>
+                <span
+                  className="selling-price"
+                  style={{ color: "#ff6600", fontWeight: "bold" }}
+                >
+                  <TbCurrencyRupee /> 1,00,000 only
+                </span>
+              </div>
+
+              <div className="best-selling-product-rating">
+                <div>
+                  <span className="box-best-sell" onClick={decrement}>
+                    -
+                  </span>
+                  <span className="box-best-sell">{quantity}</span>
+                  <span className="box-best-sell" onClick={increment}>
+                    +
+                  </span>
+                </div>
+                <button className="best-selling-product-button">
+                  <IoCartOutline /> View More
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="best-selling-product">
+            <div className="best-selling-product-title">
+              <span className="selling-red">Sale</span>
+              <span className="selling-green">New</span>
+              <img
+                src="/assets/earring.png"
+                alt=""
+                className="selling-product-image"
+              />
+            </div>
+
+            <div className="best-selling-products">
+              <h1>Earring</h1>
+
+              <div className="best-selling-product-price">
+                <span className="selling-price line-through">
+                  <TbCurrencyRupee /> 1,00,000
+                </span>
+                <span
+                  className="selling-price"
+                  style={{ color: "#ff6600", fontWeight: "bold" }}
+                >
+                  <TbCurrencyRupee /> 1,00,000 only
+                </span>
+              </div>
+
+              <div className="best-selling-product-rating">
+                <div>
+                  <span className="box-best-sell" onClick={decrement}>
+                    -
+                  </span>
+                  <span className="box-best-sell">{quantity}</span>
+                  <span className="box-best-sell" onClick={increment}>
+                    +
+                  </span>
+                </div>
+                <button className="best-selling-product-button">
+                  <IoCartOutline /> View More
+                </button>
+              </div>
             </div>
           </div>
         </div>
-
-       </div>
 
         <style>
           {`

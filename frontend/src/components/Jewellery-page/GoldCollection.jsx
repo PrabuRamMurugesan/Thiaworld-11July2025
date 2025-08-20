@@ -47,7 +47,9 @@ const GoldCollection = () => {
 
       // ✅ Always use leading slash for axios baseURL
       // const res = await api.get(`/products/gold${queryString}`);
-      const res = await api.get(`products/gold${queryString}`);
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URI}/products/gold${queryString}`
+      );
       setProducts(res.data);
       setLoading(false);
       setCurrentPage(1);

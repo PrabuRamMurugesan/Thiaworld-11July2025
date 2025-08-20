@@ -42,9 +42,10 @@ const DiamondCollection = () => {
           query.push("sort=priceHighLow");
         else if (sortOption === "New Arrivals") query.push("sort=newest");
       }
+      const queryString = query.length ? `?${query.join("&")}` : "";
 
       const res = await axios.get(
-        `${import.meta.env.VITE_API_URI}/products/diamond?${query.join("&")}`
+        `${import.meta.env.VITE_API_URI}/products/diamond?${queryString}`
       );
 
       setProducts(res.data);
