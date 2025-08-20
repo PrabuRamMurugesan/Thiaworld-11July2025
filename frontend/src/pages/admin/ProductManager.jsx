@@ -27,12 +27,12 @@ const ProductManager = () => {
   }, []);
 
   const fetchProducts = async () => {
-    const res = await axios.get("/api/product/all");
+    const res = await axios.get(`${import.meta.env.VITE_API_URI}/product/all`);
     setProducts(res.data);
   };
 
   const fetchGoldRates = async () => {
-    const res = await axios.get("/api/goldrate/all");
+    const res = await axios.get(`${import.meta.env.VITE_API_URI}/goldrate/all`);
     setGoldRates(res.data);
   };
 
@@ -78,9 +78,12 @@ const ProductManager = () => {
     e.preventDefault();
     try {
       if (editingId) {
-        await axios.put(`/api/product/${editingId}`, form);
+        await axios.put(
+          `${import.meta.env.VITE_API_URI}/product/${editingId}`,
+          form
+        );
       } else {
-        await axios.post("/api/product/create", form);
+        await axios.post(`${import.meta.env.VITE_API_URI}/products/add`, form);
       }
       alert("✅ Product saved/updated!");
       setShowModal(false);
@@ -113,7 +116,7 @@ const ProductManager = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm("Delete this product?")) {
-      await axios.delete(`/api/product/${id}`);
+      await axios.delete(`${import.meta.env.VITE_API_URI}/product/${id}`);
       fetchProducts();
     }
   };

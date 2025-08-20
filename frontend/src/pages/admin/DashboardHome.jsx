@@ -21,10 +21,10 @@ const DashboardHome = () => {
 
   const fetchCounts = async () => {
     const [products, orders, customers, goldRates] = await Promise.all([
-      axios.get("/api/products/count"),
-      axios.get("/api/orders/count"),
-      axios.get("/api/customers/count"),
-      axios.get("/api/goldrate/latest"),
+      axios.get(`${import.meta.env.VITE_API_URI}/api/products/count`),
+      axios.get(`${import.meta.env.VITE_API_URI}/api/orders/count`),
+      axios.get(`${import.meta.env.VITE_API_URI}/api/customers/count`),
+      axios.get(`${import.meta.env.VITE_API_URI}/api/goldrate/latest`),
     ]);
     setCounts({
       products: products.data.count,
@@ -36,8 +36,8 @@ const DashboardHome = () => {
 
   const fetchLatest = async () => {
     const [orders, customers] = await Promise.all([
-      axios.get("/api/orders/latest"),
-      axios.get("/api/customers/latest"),
+      axios.get(`${import.meta.env.VITE_API_URI}/api/orders/latest`),
+      axios.get(`${import.meta.env.VITE_API_URI}/api/customers/latest`),
     ]);
     setLatestOrders(orders.data);
     setLatestCustomers(customers.data);

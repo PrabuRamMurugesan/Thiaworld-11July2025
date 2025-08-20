@@ -1,14 +1,26 @@
+// controllers/productController.js
 const Product = require("../models/Product");
 const mongoose = require("mongoose");
+
+// ===== Bulk upload deps =====
+const fs = require("fs");
+const path = require("path");
+const XLSX = require("xlsx");
+const slugify = require("slugify");
 
 // 🔹 ADD NEW PRODUCT
 const addProduct = async (req, res) => {
   try {
     const newProduct = new Product(req.body);
     newProduct.finalPrice = calculateFinalPrice(req.body);
-    newProduct.totalPayable = newProduct.finalPrice + (req.body.makingCharges || 0) + (req.body.gst || 0);
+    newProduct.totalPayable =
+      (newProduct.finalPrice || 0) +
+      (req.body.makingCharges || 0) +
+      (req.body.gst || 0);
     await newProduct.save();
-    res.status(201).json({ message: "Product added successfully", product: newProduct });
+    res
+      .status(201)
+      .json({ message: "Product added successfully", product: newProduct });
   } catch (err) {
     console.error("Add Product Error:", err);
     res.status(500).json({ error: "Failed to add product" });
@@ -18,15 +30,19 @@ const addProduct = async (req, res) => {
 // 🔹 UPDATE PRODUCT
 const updateProduct = async (req, res) => {
   try {
-    const updated = await Product.findByIdAndUpdate(
-      req.params.id,
-      {
-        ...req.body,
-        finalPrice: calculateFinalPrice(req.body),
-        totalPayable: (req.body.finalPrice || 0) + (req.body.makingCharges || 0) + (req.body.gst || 0),
-      },
-      { new: true }
-    );
+    const computedFinal = calculateFinalPrice(req.body);
+    const payload = {
+      ...req.body,
+      finalPrice: computedFinal,
+      totalPayable:
+        (computedFinal || 0) +
+        (req.body.makingCharges || 0) +
+        (req.body.gst || 0),
+    };
+
+    const updated = await Product.findByIdAndUpdate(req.params.id, payload, {
+      new: true,
+    });
     res.status(200).json({ message: "Product updated", product: updated });
   } catch (err) {
     console.error("Update Error:", err);
@@ -68,7 +84,6 @@ const getAllProducts = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch products" });
   }
 };
-
 
 // 🔹 GET SINGLE PRODUCT BY ID
 const getProductById = async (req, res) => {
@@ -130,30 +145,19 @@ const searchProducts = async (req, res) => {
     res.status(500).json({ error: "Search failed" });
   }
 };
-// ✅ Add inside productController.js
 
-
-
-// 🔹 CALCULATE FINAL PRICE (before saving)
-// const calculateFinalPrice = (data) => {
-//   if (!data.price || !data.discount) return data.price;
-//   return Math.round(data.price - (data.price * data.discount) / 100);
-// };
-// ✅ REPLACE your existing calculateFinalPrice helper with this:
-
+// ===== PRICE HELPER (kept consistent with your code) =====
 const calculateFinalPrice = (data) => {
   const metal = data.metalType || data.category;
 
   if (metal === "Gold") {
-    // Example: suppose you pass 24K rate manually in price field
-    const rate = data.price; // price field stores base rate/gm
+    const rate = data.price;
     const purity = parseInt(data.purity) || 24;
     const derivedRate = rate * (purity / 24);
     return Math.round((data.netWeight || 0) * derivedRate);
   }
 
   if (metal === "Platinum") {
-    // Same logic: use price as base 100% rate per gram
     const rate = data.price;
     const purity = parseInt(data.purity) || 100;
     const derivedRate = rate * (purity / 100);
@@ -161,43 +165,39 @@ const calculateFinalPrice = (data) => {
   }
 
   if (metal === "Diamond" || metal === "Silver") {
-    // For Diamond & Silver, use the given price directly
     return data.price;
   }
 
-  return data.price; // fallback
+  return data.price;
 };
+
+// ===== EXTRA LIST ENDPOINTS (as in your file) =====
 const getGoldProducts = async (req, res) => {
   try {
-    console.log("🚀 Fetching gold products...");
     const goldProducts = await Product.find({
-      metalType: { $regex: /gold/i }, // case-insensitive
+      metalType: { $regex: /gold/i },
       isPublished: true,
     });
-
-    console.log(`✅ Found ${goldProducts.length} gold products`);
     res.status(200).json(goldProducts);
   } catch (error) {
     console.error("❌ Error in getGoldProducts:", error.message);
     res.status(500).json({ message: "Server error fetching gold products" });
   }
 };
-// 👇 Add this function below other product handlers
-// ✅ Fetch Silver Products (filtered by metalType)
+
 const getSilverProducts = async (req, res) => {
-    try {
-      const silverProducts = await Product.find({
-        metalType: "Silver",
-        isPublished: true,
-      });
-      res.json(silverProducts);
-    } catch (error) {
-      console.error("❌ Error fetching silver products:", error);
-      res.status(500).json({ message: "Server Error" });
-    }
+  try {
+    const silverProducts = await Product.find({
+      metalType: "Silver",
+      isPublished: true,
+    });
+    res.json(silverProducts);
+  } catch (error) {
+    console.error("❌ Error fetching silver products:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
 };
 
-// ✅ Add at bottom of controller
 const getDiamondProducts = async (req, res) => {
   try {
     const diamondProducts = await Product.find({
@@ -206,11 +206,12 @@ const getDiamondProducts = async (req, res) => {
       visibility: "catalog",
     }).sort({ createdAt: -1 });
 
-    console.log("💎 Fetching diamond products...");
     res.status(200).json(diamondProducts);
   } catch (error) {
     console.error("❌ Error fetching diamond products:", error.message);
-    res.status(500).json({ message: "Server Error: Unable to fetch diamond products." });
+    res
+      .status(500)
+      .json({ message: "Server Error: Unable to fetch diamond products." });
   }
 };
 
@@ -222,7 +223,6 @@ const getPlatinumProducts = async (req, res) => {
       visibility: "catalog",
     }).sort({ createdAt: -1 });
 
-    console.log("🔷 Fetching platinum products...");
     res.status(200).json(platinumProducts);
   } catch (error) {
     console.error("❌ Error fetching platinum products:", error.message);
@@ -231,6 +231,7 @@ const getPlatinumProducts = async (req, res) => {
       .json({ message: "Server Error: Unable to fetch platinum products." });
   }
 };
+
 const uploadProductImages = async (req, res) => {
   try {
     const { productId } = req.body;
@@ -246,7 +247,7 @@ const uploadProductImages = async (req, res) => {
     const updated = await Product.findByIdAndUpdate(
       productId,
       { $set: { images: imagePaths } },
-      { new: true, runValidators: false } // 🔥 this avoids category validation error
+      { new: true, runValidators: false }
     );
 
     if (!updated) {
@@ -262,7 +263,7 @@ const uploadProductImages = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-// controllers/productController.js
+
 const getNewArrivals = async (req, res) => {
   try {
     const products = await Product.find({
@@ -276,6 +277,7 @@ const getNewArrivals = async (req, res) => {
     res.status(500).json({ error: "Failed to get product" });
   }
 };
+
 const getFeaturedProducts = async (req, res) => {
   try {
     const products = await Product.find({
@@ -288,7 +290,8 @@ const getFeaturedProducts = async (req, res) => {
     res.status(500).json({ error: "Failed to get featured products" });
   }
 };
- const getBestSellingProducts = async (req, res) => {
+
+const getBestSellingProducts = async (req, res) => {
   try {
     const products = await Product.find({
       isPublished: true,
@@ -299,6 +302,270 @@ const getFeaturedProducts = async (req, res) => {
     console.error("Error fetching best selling products:", error);
     res.status(500).json({ error: "Failed to get best selling products" });
   }
+};
+
+// ===== BULK UPLOAD (CSV/XLSX) =====
+
+// flexible header mapping → model fields
+const FIELD_MAP = {
+  name: "name",
+  category: "category",
+  categoryname: "category", // CSV: categoryName → category
+  price: "price",
+  sku: "sku", // <-- add this
+  ispublished: "isPublished",
+
+  slug: "slug",
+  shortdescription: "description", // CSV: shortDescription → description
+  description: "description",
+  longdescription: "longDescription",
+  metaltype: "metalType",
+  metalcolor: "metalColor",
+  purity: "purity",
+  metalcarat: "purity", // CSV: metalCarat (e.g., 22) → purity
+  netweight: "netWeight",
+  grossweight: "grossWeight",
+  discount: "discount",
+  makingcharges: "makingCharges",
+  gst: "gst",
+  tags: "tags",
+  images: "images",
+  isnewarrival: "isNewArrival",
+  isfeatured: "isFeatured",
+  bestselling: "bestSelling",
+  showinhomepage: "showInHomepage",
+  priorityranking: "priorityRanking",
+  // extras not in schema are ignored
+};
+
+
+function normalizeRow(raw) {
+  const rec = {};
+  const imgs = [];
+
+  // map known columns and collect image-like columns
+  for (const key of Object.keys(raw)) {
+    const val = raw[key];
+    if (val === undefined || val === null || val === "") continue;
+
+    const clean = String(key).trim();
+    const lk = clean.toLowerCase().replace(/\s+/g, "");
+
+    // gather various image columns: image, image1, image2, images[0], imageUrl, etc.
+    if (/^images?(\[\d+\]|\d+)?$/.test(lk) || /^imageurl$/.test(lk)) {
+      imgs.push(String(val).trim());
+      continue;
+    }
+
+    const mapped = FIELD_MAP[lk];
+    if (mapped) rec[mapped] = val;
+  }
+
+  // attach collected images if "images" was not provided
+  if (!rec.images && imgs.length) rec.images = imgs;
+
+  // split list fields
+  if (typeof rec.tags === "string") {
+    rec.tags = rec.tags
+      .split(/[,|]/)
+      .map((t) => t.trim())
+      .filter(Boolean);
+  }
+  if (typeof rec.images === "string") {
+    rec.images = rec.images
+      .split(/[,|]/)
+      .map((t) => t.trim())
+      .filter(Boolean);
+  }
+
+  // numeric coercion
+  [
+    "price",
+    "discount",
+    "makingCharges",
+    "gst",
+    "netWeight",
+    "grossWeight",
+    "priorityRanking",
+  ].forEach((n) => {
+    if (rec[n] !== undefined && rec[n] !== null && rec[n] !== "") {
+      rec[n] = Number(rec[n]);
+    }
+  });
+
+  // booleans
+[
+  "isNewArrival",
+  "isFeatured",
+  "bestSelling",
+  "showInHomepage",
+  "isPublished",
+].forEach((b) => {
+  if (typeof rec[b] === "string") rec[b] = /^(1|true|yes)$/i.test(rec[b]);
+});
+
+
+
+  // fallbacks for missing category
+  if (!rec.category && raw.categoryName)
+    rec.category = String(raw.categoryName).trim();
+  if (!rec.category && rec.metalType) rec.category = rec.metalType;
+
+  // slug
+  if (!rec.slug && rec.name) {
+    rec.slug = slugify(rec.name, { lower: true, strict: true });
+  }
+
+  return rec;
+}
+
+function upsertFilter(doc) {
+  return doc.slug ? { slug: doc.slug } : { name: doc.name };
+}
+
+const bulkUploadProducts = async (req, res) => {
+  try {
+    const dryRun = String(req.query.dryRun || "false").toLowerCase() === "true";
+    if (!req.file) return res.status(400).json({ error: "file is required" });
+
+    // Parse from memory buffer (no filesystem dependency)
+    let workbook;
+    try {
+      if (req.file.buffer) {
+        workbook = XLSX.read(req.file.buffer, { type: "buffer" });
+      } else if (req.file.path) {
+        // fallback if disk storage is ever used
+        workbook = XLSX.readFile(req.file.path);
+      } else {
+        return res.status(400).json({ error: "Invalid upload payload" });
+      }
+    } catch (e) {
+      return res
+        .status(400)
+        .json({ error: "Unable to read spreadsheet. Use CSV/XLS/XLSX." });
+    }
+
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+    if (!rows.length) {
+      return res.status(400).json({ error: "No rows found in file" });
+    }
+
+    const errors = [];
+    const results = [];
+    const ops = [];
+    let failed = 0;
+
+    for (let i = 0; i < rows.length; i++) {
+      const raw = rows[i];
+      const rowNum = i + 2; // header is row 1
+      const doc = normalizeRow(raw);
+
+      const missing = [];
+      if (!doc.name) missing.push("name");
+      if (!doc.category) missing.push("category");
+      if (doc.price === undefined || doc.price === null || doc.price === "")
+        missing.push("price");
+
+      if (missing.length) {
+        failed++;
+        errors.push({
+          row: rowNum,
+          reason: `Missing required: ${missing.join(", ")}`,
+        });
+        continue;
+      }
+
+      doc.finalPrice = calculateFinalPrice(doc);
+      doc.totalPayable =
+        (doc.finalPrice || 0) + (doc.makingCharges || 0) + (doc.gst || 0);
+
+      if (dryRun) {
+        results.push({
+          row: rowNum,
+          action: "validate",
+          ok: true,
+          name: doc.name,
+        });
+        continue;
+      }
+
+      ops.push({
+        updateOne: {
+          filter: upsertFilter(doc),
+          update: { $set: doc },
+          upsert: true,
+        },
+      });
+      results.push({ row: rowNum, action: "upsert", name: doc.name });
+    }
+
+    let inserted = 0;
+    let updated = 0;
+
+    if (!dryRun && ops.length) {
+      const bulk = await Product.bulkWrite(ops, { ordered: false });
+      inserted = bulk.upsertedCount || 0;
+      updated = bulk.modifiedCount || 0;
+    }
+
+    return res.json({
+      summary: {
+        totalRows: rows.length,
+        inserted,
+        updated,
+        failed,
+        dryRun,
+      },
+      errors,
+      sample: results.slice(0, 10),
+    });
+  } catch (err) {
+    console.error("Bulk upload error:", err);
+    return res
+      .status(500)
+      .json({ error: err?.message || "Bulk upload failed" });
+  }
+};
+
+const getBulkTemplate = async (req, res) => {
+  const header = [
+    "name",
+    "category",
+    "price",
+    "description",
+    "longDescription",
+    "metalType",
+    "metalColor",
+    "purity",
+    "netWeight",
+    "grossWeight",
+    "discount",
+    "makingCharges",
+    "gst",
+    "tags",
+    "images",
+    "isNewArrival",
+    "isFeatured",
+    "bestSelling",
+    "showInHomepage",
+    "priorityRanking",
+  ];
+  const ws = XLSX.utils.aoa_to_sheet([header]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Template");
+  const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+
+  res.setHeader(
+    "Content-Disposition",
+    "attachment; filename=thiaworld-products-template.xlsx"
+  );
+  res.setHeader(
+    "Content-Type",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  );
+  res.send(buf);
 };
 
 module.exports = {
@@ -318,4 +585,8 @@ module.exports = {
   uploadProductImages,
   getNewArrivals,
   getFeaturedProducts,
+
+  // bulk
+  bulkUploadProducts,
+  getBulkTemplate,
 };

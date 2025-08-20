@@ -31,7 +31,7 @@ const FeaturedProducts = () => {
         >
           {/* Product Image */}
           <div className="overflow-hidden">
-            <a href={`/products/${product.slug}`}>
+            <a href={`/product/${product._id}`}>
               <img
                 src={
                   product.images?.[0]

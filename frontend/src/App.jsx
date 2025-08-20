@@ -81,6 +81,7 @@ import PreviewSchedulerPage from "./pages/admin/CMS/PreviewSchedulerPage";
 import CMSAdvancedAdminPanel from "./pages/admin/CMS/CMSAdvancedAdminPanel";
 import Login from "./pages/Login"
 import Signup from "./pages/Signup";
+import ProductBulkUploadAdmin from "./pages/admin/ProductBulkUploadAdmin";
 
 export default function App() {
   return (
@@ -183,7 +184,11 @@ export default function App() {
       {/* Admin Panel */}
       <Route path="/admin" element={<AdminLayout />}>
         <Route path="dashboard" element={<DashboardHome />} />
-        <Route path="products" element={<ProductManager />} />
+        {/* <Route path="products" element={<ProductManager />} /> */}
+        <Route
+          path="/admin/products/bulk"
+          element={<ProductBulkUploadAdmin />}
+        />
         <Route path="orders" element={<OrdersManager />} />
         <Route path="customers" element={<CustomersManager />} />
 

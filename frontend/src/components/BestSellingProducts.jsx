@@ -31,7 +31,7 @@ const BestSellingProducts = () => {
           className="bg-white shadow rounded-lg overflow-hidden hover:shadow-md transition duration-300 group"
         >
           <div className="overflow-hidden">
-            <a href={`/products/${product.slug}`}>
+            <a href={`/product/${product._id}`}>
               <img
                 src={
                   product.images?.[0]
