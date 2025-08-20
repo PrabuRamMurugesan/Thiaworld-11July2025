@@ -43,7 +43,7 @@ const AllJewellery = () => {
       }
 
       const res = await axios.get(
-        `${import.meta.env.VITE_API_URI}/products/all?${query.join("&")}`
+        `${import.meta.env.VITE_API_URI}/products/all${query.join("&")}`
       );
       setProducts(res.data);
       setLoading(false);
