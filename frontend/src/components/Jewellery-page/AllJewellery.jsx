@@ -43,7 +43,7 @@ const AllJewellery = () => {
       }
 
       const res = await axios.get(
-        `${import.meta.env.VITE_API_URI}/products/all${query.join("&")}`
+        `${import.meta.env.VITE_API_URI}/products/all?${query.join("&")}`
       );
       setProducts(res.data);
       setLoading(false);
@@ -191,12 +191,14 @@ const AllJewellery = () => {
               <img
                 src={
                   prod.images?.[0]
-                    ? `http://localhost:5000${prod.images[0]}`
+                    ? prod.images[0] // ✅ use as-is
                     : "/default-product.jpg"
                 }
+                style={{ width: "400px", height: "300px" }}
                 alt={prod.name}
                 onError={(e) => (e.target.src = "/default-product.jpg")}
               />
+
               <h1>{prod.name}</h1>
               <p>₹ {Number(prod.price).toLocaleString("en-IN")}</p>
               <button

@@ -35,7 +35,7 @@ const BestSellingProducts = () => {
               <img
                 src={
                   product.images?.[0]
-                    ? `http://localhost:5000${product.images[0]}`
+                    ? product.images[0] // ✅ use as-is
                     : "/default-product.jpg"
                 }
                 className="w-full h-100 object-cover group-hover:scale-105 transition duration-300"
