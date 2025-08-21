@@ -35,7 +35,7 @@ const FeaturedProducts = () => {
               <img
                 src={
                   product.images?.[0]
-                    ? `http://localhost:5000${product.images[0]}`
+                    ? product.images[0] // ✅ use as-is
                     : "/default-product.jpg"
                 }
                 className="w-100 h-[400px] object-contain group-hover:scale-105 transition duration-300"
@@ -48,26 +48,26 @@ const FeaturedProducts = () => {
           {/* Product Info */}
           <div className="p-4">
             <div className="mt-2 min-h-[100px]">
-               <h3 className="text-base font-medium text-gray-800">
-              {product.name}
-            </h3>
-            <p className="text-sm text-gray-500 mt-1">
-              {product.shortDescription}
-            </p>
+              <h3 className="text-base font-medium text-gray-800">
+                {product.name}
+              </h3>
+              <p className="text-sm text-gray-500 mt-1">
+                {product.shortDescription}
+              </p>
 
-            {/* Star Rating */}
-            <div className="flex items-center text-yellow-500 text-sm mt-2">
-              {[...Array(5)].map((_, i) => (
-                <FaStar
-                  key={i}
-                  className={
-                    i < (product.rating || 4)
-                      ? "text-yellow-500"
-                      : "text-gray-300"
-                  }
-                />
-              ))}
-            </div>
+              {/* Star Rating */}
+              <div className="flex items-center text-yellow-500 text-sm mt-2">
+                {[...Array(5)].map((_, i) => (
+                  <FaStar
+                    key={i}
+                    className={
+                      i < (product.rating || 4)
+                        ? "text-yellow-500"
+                        : "text-gray-300"
+                    }
+                  />
+                ))}
+              </div>
             </div>
 
             {/* Buttons */}

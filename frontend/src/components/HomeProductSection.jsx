@@ -10,7 +10,7 @@ const HomeProductSection = () => {
 
   useEffect(() => {
     axios
-      .get(`${import.meta.env.VITE_API_URI}/products`) // 🔁 Replace with your backend URL if different
+      .get(`${import.meta.env.VITE_API_URI}/products/new-arrivals`) // 🔁 Replace with your backend URL if different
       .then((res) => setProducts(res.data))
       .catch((err) => console.log(err));
   }, []);
@@ -68,7 +68,7 @@ const HomeProductSection = () => {
                 <img
                   src={
                     product.images?.[0]
-                      ? `http://localhost:5000${product.images[0]}`
+                      ? product.images[0] // ✅ use as-is
                       : "/default-product.jpg"
                   }
                   className="w-100 h-[400px] object-contain  "

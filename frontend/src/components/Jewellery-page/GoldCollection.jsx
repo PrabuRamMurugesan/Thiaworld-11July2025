@@ -217,8 +217,9 @@ const GoldCollection = () => {
               <Link to={`/product/${prod._id}`}>
                 <img
                   src={
-                    `http://localhost:5000${prod.images?.[0]}` ||
-                    "/default-product.jpg"
+                    prod.images?.[0]
+                      ? prod.images[0] // ✅ use as-is
+                      : "/default-product.jpg"
                   }
                   alt={prod.name}
                   style={{ width: "250px", height: "250px" }}
