@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import { RiSecurePaymentLine } from "react-icons/ri";
 import {
   FaHeart,
@@ -7,9 +7,7 @@ import {
   FaSearch,
   FaBars,
   FaTimes,
-  FaFacebookSquare,
-  FaLinkedin,
-  FaInstagram,
+  FaSignOutAlt,
 } from "react-icons/fa";
 import { Row, Col, Button } from "react-bootstrap";
 import { BiSolidUserAccount } from "react-icons/bi";
@@ -20,6 +18,7 @@ import { IoNotifications } from "react-icons/io5";
 import thia from "../../public/assets/thia.png";
 import bbscart from "../../public/assets/bbscart.png";
 import healthAccess from "../../public/assets/healthacess.png";
+import { CartContext } from "../context/CartContext"; // adjust path if different
 
 const options = [
   {
@@ -69,10 +68,9 @@ const Header = () => {
   const [selectedOption, setSelectedOption] = useState(options[0]);
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef();
+const { cartCount } = useContext(CartContext);
 
   const [user, setUser] = useState(null);
-
-  // Load user on mount and listen for changes
   useEffect(() => {
     const storedUser = localStorage.getItem("bbsUser");
     if (storedUser) {
@@ -180,40 +178,7 @@ const Header = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-4">
-          <button className="relative text-gray-600 hover:text-red-500">
-            <FaHeart className="text-xl" />
-          </button>
-
-          <button className="relative text-gray-600 hover:text-yellow-600">
-            <FaShoppingCart className="text-xl" />
-            <span className="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs rounded-full px-1">
-              1
-            </span>
-          </button>
-
-          {/* --- Show login or profile/logout --- */}
-          {user ? (
-            <div className="flex items-center gap-2">
-              <span className="text-gray-700 font-semibold">
-                {user.name || "Profile"}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 text-white px-2 py-1 rounded-md text-sm"
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
-            <button
-              className="text-sm text-gray-700 hover:text-yellow-600 flex items-center"
-              onClick={() => navigate("/login")}
-            >
-              <FaUserAlt className="mr-2 text-xl" />
-              Login
-            </button>
-          )}
-
+       
           <div
             style={{
               width: "90px",
@@ -232,51 +197,83 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Navigation Bar */}
+      {/* NAVBAR WRAPPER */}
       <div
-        className="hidden md:flex justify-between items-center p-3 "
+        className="hidden md:flex items-center justify-between px-6 py-3"
         style={{ backgroundColor: "rgba(13,88,102)", color: "white" }}
       >
-        <div className="w-1/3" />
-
-        <div className="d-flex flex-row flex justify-center align-items-center column-gap-4 w-100 ">
-          <span onClick={() => navigate("/")} className="cursor-pointer">
-            Home
-          </span>
-          <span onClick={() => navigate("/aboutus")} className="cursor-pointer">
-            About Us
-          </span>
-          <span
-            className="flex items-center gap-2 cursor-pointer"
-            onClick={() => navigate("/thia-secure")}
-          >
-            <RiSecurePaymentLine />
-            Thia-Secure Plan
-          </span>
-          <span
-            onClick={() => navigate("/contact-page")}
-            className="cursor-pointer"
-          >
-            Contact
-          </span>
-
-          <Link to="/goldrate" className="  ">
-            Admin
-          </Link>
+        {/* LEFT: Logo (optional, or leave empty space) */}
+        <div className="w-1/4 flex items-center">
+         
         </div>
 
-        <div className="w-full md:w-1/3 flex justify-center md:justify-end px-4">
-          <a href="" target="_blank" rel="noreferrer">
-            <span className="px-3">More Pro </span>
-          </a>
+        {/* CENTER: NAV LINKS */}
+        <div className="w-2/4 flex justify-center">
+          <nav className="flex gap-6 text-sm items-center">
+            <span
+              onClick={() => navigate("/")}
+              className="cursor-pointer hover:underline"
+            >
+              Home
+            </span>
+            <span
+              onClick={() => navigate("/aboutus")}
+              className="cursor-pointer hover:underline"
+            >
+              About Us
+            </span>
+            <span
+              className="flex items-center gap-2 cursor-pointer hover:underline"
+              onClick={() => navigate("/thia-secure")}
+            >
+              <RiSecurePaymentLine />
+              Thia-Secure Plan
+            </span>
+            <span
+              onClick={() => navigate("/contact-page")}
+              className="cursor-pointer hover:underline"
+            >
+              Contact
+            </span>
+            <Link to="/goldrate" className="cursor-pointer hover:underline">
+              Admin
+            </Link>
+          </nav>
+        </div>
+
+        {/* RIGHT: USER + CART */}
+        <div className="w-1/4 flex justify-end items-center gap-4">
+          {user ? (
+            <div className="flex items-center gap-3 whitespace-nowrap">
+              <span className="text-white font-semibold">
+                Welcome, {user.name || "Profile"}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="bg-gray-800 hover:bg-gray-900 text-white flex items-center gap-2 px-3 py-1 rounded-md text-sm"
+              >
+                <FaSignOutAlt className="text-white text-base" />
+                Logout
+              </button>
+            </div>
+          ) : (
+            <button
+              className="text-sm text-gray-700 hover:text-yellow-600 flex items-center"
+              onClick={() => navigate("/login")}
+            >
+              <FaUserAlt className="mr-2 text-xl" />
+              Login
+            </button>
+          )}
+
           <Link
             to="/cart"
-            className="flex items-center gap-1 text-white hover:text-yellow-300 relative"
+            className="relative flex items-center gap-2 text-white hover:text-yellow-300"
           >
             <FaShoppingCart className="text-lg" />
-            <span className="">Cart</span>
-            <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full px-1">
-              0
+            <span className="hidden sm:inline">Cart</span>
+            <span className="absolute -top-2 -right-0 bg-red-500 text-white text-xs rounded-full px-1.5">
+              {cartCount}
             </span>
           </Link>
         </div>

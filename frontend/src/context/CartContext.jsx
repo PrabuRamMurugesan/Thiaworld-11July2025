@@ -1,5 +1,5 @@
 // ✅ src/context/CartContext.jsx
-import React, { createContext, useState } from "react";
+import React, { createContext, useEffect, useMemo, useState } from "react";
 
 export const CartContext = createContext();
 
@@ -9,9 +9,19 @@ export const CartProvider = ({ children }) => {
   const [diamondCart, setDiamondCart] = useState([]);
   const [platinumCart, setPlatinumCart] = useState([]);
 
+  // helper: write merged cart to localStorage + notify
+  const persist = (next) => {
+    try {
+      localStorage.setItem("cart", JSON.stringify(next));
+      // inform listeners like Header
+      window.dispatchEvent(new Event("storageUpdate"));
+    } catch {}
+  };
+
   const addToCart = (product) => {
     console.log("✅ Adding to cart:", product);
 
+    // normalize category
     const cat = product.category || product.metalType;
     if (cat === "Gold") setGoldCart((prev) => [...prev, product]);
     else if (cat === "Silver") setSilverCart((prev) => [...prev, product]);
@@ -21,14 +31,13 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeFromCart = (id, category) => {
-    if (category === "Gold")
-      setGoldCart((prev) => prev.filter((p) => p._id !== id));
+    if (category === "Gold") setGoldCart((p) => p.filter((x) => x._id !== id));
     else if (category === "Silver")
-      setSilverCart((prev) => prev.filter((p) => p._id !== id));
+      setSilverCart((p) => p.filter((x) => x._id !== id));
     else if (category === "Diamond")
-      setDiamondCart((prev) => prev.filter((p) => p._id !== id));
+      setDiamondCart((p) => p.filter((x) => x._id !== id));
     else if (category === "Platinum")
-      setPlatinumCart((prev) => prev.filter((p) => p._id !== id));
+      setPlatinumCart((p) => p.filter((x) => x._id !== id));
   };
 
   const clearCart = (category) => {
@@ -37,6 +46,21 @@ export const CartProvider = ({ children }) => {
     else if (category === "Diamond") setDiamondCart([]);
     else if (category === "Platinum") setPlatinumCart([]);
   };
+
+  // merged cart + count
+  const mergedCart = useMemo(
+    () => [...goldCart, ...silverCart, ...diamondCart, ...platinumCart],
+    [goldCart, silverCart, diamondCart, platinumCart]
+  );
+  const cartCount = useMemo(
+    () => mergedCart.reduce((sum, item) => sum + (item.quantity || 1), 0),
+    [mergedCart]
+  );
+
+  // persist whenever the cart changes
+  useEffect(() => {
+    persist(mergedCart);
+  }, [mergedCart]);
 
   return (
     <CartContext.Provider
@@ -48,10 +72,11 @@ export const CartProvider = ({ children }) => {
         addToCart,
         removeFromCart,
         clearCart,
+        cartCount, // <-- expose this
+        mergedCart, // optional, if needed elsewhere
       }}
     >
       {children}
     </CartContext.Provider>
   );
 };
-
