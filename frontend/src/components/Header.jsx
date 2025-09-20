@@ -178,7 +178,6 @@ const { cartCount } = useContext(CartContext);
         </div>
 
         <div className="hidden md:flex items-center gap-4">
-       
           <div
             style={{
               width: "90px",
@@ -203,19 +202,14 @@ const { cartCount } = useContext(CartContext);
         style={{ backgroundColor: "rgba(13,88,102)", color: "white" }}
       >
         {/* LEFT: Logo (optional, or leave empty space) */}
-        <div className="w-1/4 flex items-center">
-         
-        </div>
+        <div className="w-1/4 flex items-center"></div>
 
         {/* CENTER: NAV LINKS */}
         <div className="w-2/4 flex justify-center">
           <nav className="flex gap-6 text-sm items-center">
-            <span
-              onClick={() => navigate("/")}
-              className="cursor-pointer hover:underline"
-            >
-              Home
-            </span>
+           <a href="/" className="cursor-pointer hover:underline">Home
+</a>
+
             <span
               onClick={() => navigate("/aboutus")}
               className="cursor-pointer hover:underline"
