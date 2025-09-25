@@ -187,48 +187,103 @@ const getGoldProducts = async (req, res) => {
 
 const getSilverProducts = async (req, res) => {
   try {
-    const silverProducts = await Product.find({
-      metalType: "Silver",
+    const { name, category, purity, sort } = req.query;
+
+    const filter = {
+      metalType: { $regex: /silver/i }, // case-insensitive
       isPublished: true,
-    });
-    res.json(silverProducts);
+    };
+    if (category) filter.category = { $in: String(category).split(",") };
+    if (purity) filter.purity = { $in: String(purity).split(",") };
+    if (name) filter.name = { $regex: String(name), $options: "i" };
+
+    let q = Product.find(filter);
+
+    if (sort === "priceLowHigh") q = q.sort({ price: 1 });
+    if (sort === "priceHighLow") q = q.sort({ price: -1 });
+    if (sort === "newest") q = q.sort({ createdAt: -1 });
+
+    const items = await q;
+    res.status(200).json(items);
   } catch (error) {
     console.error("❌ Error fetching silver products:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };
 
+
 const getDiamondProducts = async (req, res) => {
   try {
-    const diamondProducts = await Product.find({
-      metalType: "Diamond",
-      isPublished: true,
-      visibility: "catalog",
-    }).sort({ createdAt: -1 });
+    const { name, category, purity, sort } = req.query;
 
-    res.status(200).json(diamondProducts);
+    const filter = {
+      metalType: { $regex: /diamond/i },
+      isPublished: true,
+    };
+
+    if (category) filter.category = { $in: String(category).split(",") };
+    if (name) filter.name = { $regex: String(name), $options: "i" };
+
+    // accept purity as "VVS1" type strings OR numeric scales if you use numbers
+    // if your diamond purity is textual (VVS1, VS, SI), this block still works (string branch).
+    let orPurity = null;
+    if (purity) {
+      const list = String(purity).split(",");
+      const nums = list.map((p) => Number(p)).filter((n) => !Number.isNaN(n));
+      orPurity = [];
+      if (list.length) orPurity.push({ purity: { $in: list } }); // strings
+      if (nums.length) orPurity.push({ purity: { $in: nums } }); // numbers
+    }
+
+    let q = Product.find(orPurity ? { ...filter, $or: orPurity } : filter);
+
+    if (sort === "priceLowHigh") q = q.sort({ price: 1 });
+    if (sort === "priceHighLow") q = q.sort({ price: -1 });
+    if (sort === "newest") q = q.sort({ createdAt: -1 });
+
+    const items = await q;
+    res.status(200).json(items);
   } catch (error) {
-    console.error("❌ Error fetching diamond products:", error.message);
-    res
-      .status(500)
-      .json({ message: "Server Error: Unable to fetch diamond products." });
+    console.error("❌ Error fetching diamond products:", error);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
+
+// PLATINUM
 const getPlatinumProducts = async (req, res) => {
   try {
-    const platinumProducts = await Product.find({
-      metalType: "Platinum",
-      isPublished: true,
-      visibility: "catalog",
-    }).sort({ createdAt: -1 });
+    const { name, category, purity, sort } = req.query;
 
-    res.status(200).json(platinumProducts);
+    const filter = {
+      metalType: { $regex: /platinum/i },
+      isPublished: true,
+    };
+
+    if (category) filter.category = { $in: String(category).split(",") };
+    if (name) filter.name = { $regex: String(name), $options: "i" };
+
+    // handle purity as "950" or 950
+    let orPurity = null;
+    if (purity) {
+      const list = String(purity).split(",");
+      const nums = list.map((p) => Number(p)).filter((n) => !Number.isNaN(n));
+      orPurity = [];
+      if (list.length) orPurity.push({ purity: { $in: list } }); // strings
+      if (nums.length) orPurity.push({ purity: { $in: nums } }); // numbers
+    }
+
+    let q = Product.find(orPurity ? { ...filter, $or: orPurity } : filter);
+
+    if (sort === "priceLowHigh") q = q.sort({ price: 1 });
+    if (sort === "priceHighLow") q = q.sort({ price: -1 });
+    if (sort === "newest")       q = q.sort({ createdAt: -1 });
+
+    const items = await q;
+    res.status(200).json(items);
   } catch (error) {
-    console.error("❌ Error fetching platinum products:", error.message);
-    res
-      .status(500)
-      .json({ message: "Server Error: Unable to fetch platinum products." });
+    console.error("❌ Error fetching platinum products:", error);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
