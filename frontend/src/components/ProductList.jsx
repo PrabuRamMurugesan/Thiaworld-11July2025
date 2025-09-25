@@ -84,7 +84,9 @@ const ProductList = () => {
     <div className="bg-white min-h-screen p-4">
       {/* Breadcrumb */}
       <div className="text-sm text-gray-500 mb-2">
-        Home / Jewellery /{" "}
+     <Link to="/" className="text-black-600 hover:underline">
+                Home/
+              </Link>{" "}
         <span className="text-yellow-600 font-medium">Products</span>
       </div>
 

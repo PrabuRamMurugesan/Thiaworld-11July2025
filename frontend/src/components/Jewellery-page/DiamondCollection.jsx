@@ -42,10 +42,10 @@ const DiamondCollection = () => {
           query.push("sort=priceHighLow");
         else if (sortOption === "New Arrivals") query.push("sort=newest");
       }
-      const queryString = query.length ? `?${query.join("&")}` : "";
+const qs = query.length ? `?${query.join("&")}` : "";
 
       const res = await axios.get(
-        `${import.meta.env.VITE_API_URI}/products/diamond?${queryString}`
+        `${import.meta.env.VITE_API_URI}/products/diamond${qs}`
       );
 
       setProducts(res.data);
@@ -94,7 +94,9 @@ const DiamondCollection = () => {
             fontFamily: "'Times New Roman', Times, serif",
           }}
         >
-          Home / Jewellery /{" "}
+           <Link to="/" className="text-black-600 hover:underline">
+                      Home/
+                    </Link>{" "}
           <span className="text-pink-600 font-medium">Diamond Collection</span>
         </div>
 
@@ -178,7 +180,7 @@ const DiamondCollection = () => {
 
         {/* Product Grid */}
         <section className="d-flex flex-row flex-wrap justify-start gap-4 p-4 m-5">
-          {products.map((prod) => (
+          {paginatedProducts.map((prod) => (
             <div
               key={prod._id}
               className="border rounded shadow-sm bg-white hover:shadow-md transition duration-200 position-relative p-5"
@@ -207,8 +209,9 @@ const DiamondCollection = () => {
               <Link to={`/product/${prod._id}`}>
                 <img
                   src={
-                    `http://localhost:5000${prod.images?.[0]}` ||
-                    "/default-product.jpg"
+                    prod.images?.[0]
+                      ? prod.images[0] // ✅ use as-is
+                      : "/default-product.jpg"
                   }
                   alt={prod.name}
                   style={{ width: "250px", height: "250px" }}

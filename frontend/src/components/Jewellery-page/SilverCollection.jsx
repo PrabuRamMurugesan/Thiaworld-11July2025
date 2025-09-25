@@ -41,9 +41,10 @@ const SilverCollection = () => {
       }
       const queryString = query.length ? `?${query.join("&")}` : "";
 
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_URI}/products/silver?${queryString}`
-      );
+    const res = await axios.get(
+      `${import.meta.env.VITE_API_URI}/products/silver${queryString}`
+    );
+console.log(res.data,"resdata");
 
       setProducts(res.data);
       setLoading(false);
@@ -59,7 +60,9 @@ const SilverCollection = () => {
       prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
     );
   };
-
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
   const togglePurity = (purity) => {
     setPurityFilter((prev) =>
       prev.includes(purity)
@@ -97,13 +100,17 @@ const SilverCollection = () => {
             fontFamily: "'Times New Roman', Times, serif",
           }}
         >
-          Home / Jewellery /{" "}
+         <Link to="/" className="text-black-600 hover:underline">
+                    Home/
+                  </Link>{" "}
           <span className="text-yellow-600 ">Silver Collection</span>
         </div>
 
         {/* Header */}
-        <div className="d-flex justify-between align-items-center my-4 mb-5"
-          style={{ padding: "0 10%" }}>
+        <div
+          className="d-flex justify-between align-items-center my-4 mb-5"
+          style={{ padding: "0 10%" }}
+        >
           <h1 className="text-2xl font-bold text-gray-700">
             Silver Collection
           </h1>
@@ -136,9 +143,10 @@ const SilverCollection = () => {
 
         {/* Filters */}
         <aside className="mb-4">
-          <div  className="bg-gray-50 border-gray-200 shadow-sm d-flex flex-row align-items-center justify-around flex-wrap gap-4"
+          <div
+            className="bg-gray-50 border-gray-200 shadow-sm d-flex flex-row align-items-center justify-around flex-wrap gap-4"
             style={{ fontFamily: "'Times New Roman', serif" }}
-         >
+          >
             <h3 className="text-lg m-0 me-3 font-bold font-serif">Filters :</h3>
 
             {/* Category */}
@@ -146,7 +154,7 @@ const SilverCollection = () => {
               <h4 className="m-0 text-gray-700 font-semibold">Category :</h4>
               <div className="d-flex flex-row gap-3 text-gray-600">
                 {["Bracelets", "Pooja Items", "Coins"].map((cat) => (
-                  <label key={cat}className="d-flex align-items-center gap-1">
+                  <label key={cat} className="d-flex align-items-center gap-1">
                     <input
                       type="checkbox"
                       checked={categoryFilter.includes(cat)}
@@ -163,7 +171,10 @@ const SilverCollection = () => {
               <h4 className="m-0 text-gray-700 font-semibold">Purity :</h4>
               <div className="d-flex flex-row gap-3 text-gray-600">
                 {["800", "900", "925"].map((purity) => (
-                  <label key={purity} className="d-flex align-items-center gap-1">
+                  <label
+                    key={purity}
+                    className="d-flex align-items-center gap-1"
+                  >
                     <input
                       type="checkbox"
                       checked={purityFilter.includes(purity)}
@@ -179,7 +190,7 @@ const SilverCollection = () => {
 
         {/* Product Grid */}
         <section className="d-flex flex-row flex-wrap justify-start gap-4 p-4 m-5">
-          {products.map((prod) => (
+          {paginatedProducts.map((prod) => (
             <div
               key={prod._id}
               className="border rounded shadow-sm bg-white hover:shadow-md transition duration-200 position-relative p-5"
@@ -207,19 +218,19 @@ const SilverCollection = () => {
               <Link to={`/product/${prod._id}`}>
                 <img
                   src={
-                    `http://localhost:5000${prod.images?.[0]}` ||
-                    "/default-product.jpg"
+                    (prod.images?.[0]?.startsWith("http")
+                      ? prod.images[0]
+                      : `${import.meta.env.VITE_API_URI}${
+                          prod.images?.[0] || ""
+                        }`) || "/default-product.jpg"
                   }
                   alt={prod.name}
-                   style={{ width: "250px", height: "250px" }}
-                  
+                  style={{ width: "250px", height: "250px" }}
                 />
               </Link>
 
               <div className="mt-2">
-                <h3 className="my-2 font-medium text-gray-800">
-                  {prod.name}
-                </h3>
+                <h3 className="my-2 font-medium text-gray-800">{prod.name}</h3>
                 <p className="my-2 text-gray-500">
                   Net: {prod.netWeight}g | Gross: {prod.grossWeight}g
                 </p>
@@ -268,7 +279,7 @@ const SilverCollection = () => {
             </div>
           ))}
         </section>
-            {/* Pagination Controls */}
+        {/* Pagination Controls */}
         <div className="d-flex justify-content-center my-4 gap-2 align-items-center">
           <button
             onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
@@ -291,7 +302,9 @@ const SilverCollection = () => {
             <button
               key={index}
               onClick={() => handlePageChange(index + 1)}
-              className={`filter-btn ${currentPage === index + 1 ? "active" : ""}`}
+              className={`filter-btn ${
+                currentPage === index + 1 ? "active" : ""
+              }`}
               style={{ width: "45px", height: "45px", fontWeight: "bold" }}
             >
               {index + 1}

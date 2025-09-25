@@ -50,6 +50,8 @@ const GoldCollection = () => {
       const res = await axios.get(
         `${import.meta.env.VITE_API_URI}/products/gold${queryString}`
       );
+      console.log(res.data, "resdata");
+      
       setProducts(res.data);
       setLoading(false);
       setCurrentPage(1);
@@ -101,7 +103,9 @@ const GoldCollection = () => {
             fontFamily: "'Times New Roman', Times, serif",
           }}
         >
-          Home / Jewellery /{" "}
+       <Link to="/" className="text-black-600 hover:underline">
+                  Home/
+                </Link>{" "}
           <span className="text-yellow-600">Gold Collection</span>
         </div>
 
