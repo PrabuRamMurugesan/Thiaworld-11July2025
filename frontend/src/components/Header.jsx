@@ -137,7 +137,6 @@ const { cartCount } = useContext(CartContext);
           style={{
             fontFamily: "Lucida Handwriting",
             fontSize: "30px",
-            padding: "20px",
             textAlign: "center",
             background: "linear-gradient(to right, red, yellow, green)",
             WebkitBackgroundClip: "text",
@@ -148,7 +147,7 @@ const { cartCount } = useContext(CartContext);
           <img
             src={thia}
             alt="Thiaworld"
-            style={{ width: "80px", height: "80px" }}
+            style={{ width: "70px", height: "70px" }}
           />
         </h1>
 
@@ -207,8 +206,9 @@ const { cartCount } = useContext(CartContext);
         {/* CENTER: NAV LINKS */}
         <div className="w-2/4 flex justify-center">
           <nav className="flex gap-6 text-sm items-center">
-           <a href="/" className="cursor-pointer hover:underline">Home
-</a>
+            <a href="/" className="cursor-pointer hover:underline">
+              Home
+            </a>
 
             <span
               onClick={() => navigate("/aboutus")}
@@ -229,47 +229,63 @@ const { cartCount } = useContext(CartContext);
             >
               Contact
             </span>
-            <Link to="/goldrate" className="cursor-pointer hover:underline">
-              Admin
-            </Link>
           </nav>
         </div>
 
         {/* RIGHT: USER + CART */}
         <div className="w-1/4 flex justify-end items-center gap-4">
-          {user ? (
-            <div className="flex items-center gap-3 whitespace-nowrap">
-              <span className="text-white font-semibold">
-                Welcome, {user.name || "Profile"}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="bg-gray-800 hover:bg-gray-900 text-white flex items-center gap-2 px-3 py-1 rounded-md text-sm"
-              >
-                <FaSignOutAlt className="text-white text-base" />
-                Logout
-              </button>
-            </div>
-          ) : (
-            <button
-              className="text-sm text-gray-700 hover:text-yellow-600 flex items-center"
-              onClick={() => navigate("/login")}
-            >
-              <FaUserAlt className="mr-2 text-xl" />
-              Login
-            </button>
-          )}
+          {/* RIGHT: USER + CART */}
+          <div className="w-1/4 flex justify-end items-center gap-4">
+            {user ? (
+              <div className="flex items-center gap-3 whitespace-nowrap">
+                <span className="text-white font-semibold">
+                  Welcome, {user.name || "Profile"}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="bg-gray-800 hover:bg-gray-900 text-white flex items-center gap-2 px-3 py-1 rounded-md text-sm"
+                >
+                  <FaSignOutAlt className="text-white text-base" />
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="relative group">
+                {/* User Icon */}
+                <button className="text-sm text-gray-700 flex items-center">
+                  <FaUserAlt className="mr-2 text-xl" />
+                  <span className="hidden sm:inline">Account</span>
+                </button>
 
-          <Link
-            to="/cart"
-            className="relative flex items-center gap-2 text-white hover:text-yellow-300"
-          >
-            <FaShoppingCart className="text-lg" />
-            <span className="hidden sm:inline">Cart</span>
-            <span className="absolute -top-2 -right-0 bg-red-500 text-white text-xs rounded-full px-1.5">
-              {cartCount}
-            </span>
-          </Link>
+                {/* Hover Dropdown */}
+                <div className="absolute right-0 mt-2 w-32 bg-white text-black shadow-lg rounded-lg hidden group-hover:block z-50">
+                  <Link
+                    to="/login"
+                    className="block px-3 py-2 hover:bg-orange-100 rounded-t"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="block px-3 py-2 hover:bg-orange-100 rounded-b"
+                  >
+                    Register
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            <Link
+              to="/cart"
+              className="relative flex items-center gap-2 text-white hover:text-yellow-300"
+            >
+              <FaShoppingCart className="text-lg" />
+              <span className="hidden sm:inline">Cart</span>
+              <span className="absolute -top-2 -right-0 bg-red-500 text-white text-xs rounded-full px-1.5">
+                {cartCount}
+              </span>
+            </Link>
+          </div>
         </div>
       </div>
 
