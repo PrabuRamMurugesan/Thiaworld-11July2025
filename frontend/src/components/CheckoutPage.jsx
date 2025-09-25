@@ -371,24 +371,7 @@ const [selectedImage, setSelectedImage] = useState("");
             : partialTotal.toFixed(2)}
         </p>
 
-        <div className="my-4">
-          <label className="mr-4">
-            <input
-              type="radio"
-              checked={paymentType === "full"}
-              onChange={() => setPaymentType("full")}
-            />{" "}
-            Full Payment
-          </label>
-          <label>
-            <input
-              type="radio"
-              checked={paymentType === "partial"}
-              onChange={() => setPaymentType("partial")}
-            />{" "}
-            Partial Payment
-          </label>
-        </div>
+  
 
         <button
           onClick={handleSubmit}
