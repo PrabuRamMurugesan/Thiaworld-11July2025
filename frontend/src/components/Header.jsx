@@ -206,9 +206,9 @@ const { cartCount } = useContext(CartContext);
         {/* CENTER: NAV LINKS */}
         <div className="w-2/4 flex justify-center">
           <nav className="flex gap-6 text-sm items-center">
-            <a href="/" className="cursor-pointer hover:underline">
-              Home
-            </a>
+             <Link to="/" className="text-black-600 hover:underline">
+                                 Home
+                               </Link>{" "}
 
             <span
               onClick={() => navigate("/aboutus")}
