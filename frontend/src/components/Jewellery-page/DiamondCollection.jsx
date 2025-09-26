@@ -47,6 +47,7 @@ const qs = query.length ? `?${query.join("&")}` : "";
       const res = await axios.get(
         `${import.meta.env.VITE_API_URI}/products/diamond${qs}`
       );
+console.log(res.data, "resdata");
 
       setProducts(res.data);
       setLoading(false);

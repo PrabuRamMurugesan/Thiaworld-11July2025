@@ -47,6 +47,7 @@ const PlatinumCollection = () => {
       const res = await axios.get(
         `${import.meta.env.VITE_API_URI}/products/platinum${queryString}`
       );
+console.log("✅ Fetched platinum products:", res.data);
 
       setProducts(res.data);
       setLoading(false);
