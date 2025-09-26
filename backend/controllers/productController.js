@@ -218,7 +218,7 @@ const getDiamondProducts = async (req, res) => {
 
     const filter = {
       metalType: { $regex: /diamond/i },
-      isPublished: true,
+      isPublished: { $in: [true, "true", 1] },
     };
 
     if (category) filter.category = { $in: String(category).split(",") };
@@ -257,7 +257,7 @@ const getPlatinumProducts = async (req, res) => {
 
     const filter = {
       metalType: { $regex: /platinum/i },
-      isPublished: true,
+      isPublished: { $in: [true, "true", 1] },
     };
 
     if (category) filter.category = { $in: String(category).split(",") };
