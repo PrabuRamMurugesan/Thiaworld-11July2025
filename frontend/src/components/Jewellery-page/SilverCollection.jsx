@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { CartContext } from "../../context/CartContext";
@@ -75,13 +75,9 @@ console.log(res.data,"resdata");
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+  const { addToCart } = useContext(CartContext);
 
-  const addToCart = (product) => {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const updatedCart = [...cart, { ...product, quantity: 1 }];
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-    alert("Added to cart!");
-  };
+ 
 
   if (loading) return <p className="text-center my-8">Loading...</p>;
   if (error) return <p className="text-center text-red-500 my-8">{error}</p>;

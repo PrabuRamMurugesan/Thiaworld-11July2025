@@ -2,6 +2,8 @@
 import React, { useContext, useState } from "react";
 import { CartContext } from "../context/CartContext";
 import { Link } from "react-router-dom";
+import Header from "./Header";
+import Footer from "./Footer";
 
 const CartPage = () => {
   const {
@@ -22,6 +24,7 @@ const CartPage = () => {
 
   return (
     <>
+    <Header/>
       <div className="container mx-auto my-8 p-5 border h-100 ">
         <h2
           className=" font-bold mb-6 text-center "
@@ -254,6 +257,7 @@ const CartPage = () => {
           </button>
         </div>
       </div>
+     <Footer/>
     </>
   );
 };
