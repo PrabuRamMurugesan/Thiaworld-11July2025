@@ -5,6 +5,7 @@ import { IoMdArrowDropright } from "react-icons/io";
 import { TiFilter } from "react-icons/ti";
 import { CartContext } from "../../context/CartContext";
 import { IoHeart, IoStar } from "react-icons/io5";
+import { Link } from "react-router-dom";
 
 const AllJewellery = () => {
   const [products, setProducts] = useState([]);
@@ -85,7 +86,10 @@ const AllJewellery = () => {
       <Header />
       <div className="necklace-location">
         <span className="d-flex align-items-center" style={{ color: "black" }}>
-          Home <IoMdArrowDropright /> All Jewellery
+          <Link to="/" className="text-black-600 hover:underline">
+                      Home
+                    </Link>
+                     <IoMdArrowDropright /> All Jewellery
         </span>
       </div>
 

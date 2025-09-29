@@ -121,7 +121,7 @@ const ThiaHomePage = () => {
         </button>
       </div>
 
-      <Footer />
+      <Footer/>
     </div>
   );
 };

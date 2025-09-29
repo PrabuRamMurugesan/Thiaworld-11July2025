@@ -83,6 +83,7 @@ import Login from "./pages/Login"
 import Signup from "./pages/Signup";
 import ProductBulkUploadAdmin from "./pages/admin/ProductBulkUploadAdmin";
 import ForgotPasswordPage from "./components/Auth/ForgotPassword";
+import UserSettings from "./components/UserSetting";
 
 export default function App() {
   return (
@@ -93,6 +94,7 @@ export default function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/virtual-jewelry-on" element={<VirtualJewelryOn />} />
+      <Route path="/user-settings" element={<UserSettings/>} />
       <Route
         path="/product-card"
         element={

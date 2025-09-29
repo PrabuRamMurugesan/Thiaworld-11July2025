@@ -43,155 +43,113 @@ const SignupForm = () => {
 
   return (
     <>
-      <div className=" mt-5 bg-orange-400 border-[20px] rounded-[20px]  w-[500px] mx-auto">
-        <div className="mt-5">
-          <div className="flex justify-center">
-            <Link
-              to="/"
-              style={{
-                textDecoration: "none",
-                color: "inherit",
-                textAlign: "center",
-              }}
-            >
-              <FaHome
-                className="text-center my-3"
-                style={{
-                  marginRight: "10px",
-                  fontSize: "20px",
-                  color: "white",
-                  cursor: "pointer",
-                }}
+      <div className="mt-4 bg-[rgb(134,178,165)] rounded-xl border-3 border-black w-full max-w-xl mx-auto p-5 sm:p-4">
+        <div className="flex justify-center mb-3">
+          <Link to="/" className="text-white">
+            <FaHome className="text-xl cursor-pointer" />
+          </Link>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+          <h3 className="text-center italic font-bold text-xl mb-2">
+            Create Account
+          </h3>
+
+          {error && <div className="alert alert-danger text-sm">{error}</div>}
+          {success && (
+            <div className="alert alert-success text-sm">{success}</div>
+          )}
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label htmlFor="name" className="text-sm font-semibold mb-1">
+                Name
+              </label>
+              <input
+                className="form-control px-2 rounded text-sm"
+                name="name"
+                placeholder="Full Name"
+                onChange={handleChange}
+                required
               />
+            </div>
+            <div>
+              <label htmlFor="email" className="text-sm font-semibold mb-1">
+                E-mail
+              </label>
+              <input
+                className="form-control px-2 rounded text-sm"
+                name="email"
+                type="email"
+                placeholder="Email Address"
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+
+          <label htmlFor="password" className="text-sm font-semibold mb-1">
+            Password
+          </label>
+     
+         <div className="grid grid-cols-2 gap-2">
+           <div className="relative">
+            <input
+              className="form-control px-2 rounded w-full text-sm"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              onChange={handleChange}
+              required
+            />
+            <span
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute top-1/2 right-2 transform -translate-y-1/2 cursor-pointer text-gray-600 text-sm"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </span>
+          </div>
+
+          <div className="relative">
+            <input
+              className="form-control px-2 rounded w-full text-sm"
+              name="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Confirm Password"
+              onChange={handleChange}
+              required
+            />
+            <span
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute top-1/2 right-2 transform -translate-y-1/2 cursor-pointer text-gray-600 text-sm"
+            >
+              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+            </span>
+          </div>
+         </div>
+
+          <label htmlFor="phone" className="text-sm font-semibold mb-1">
+            Phone Number
+          </label>
+          <input
+            className="form-control px-2 rounded text-sm"
+            name="phone"
+            type="tel"
+            placeholder="Phone Number"
+            onChange={handleChange}
+            required
+          />
+
+          <button className="w-full bg-white text-orange-500 font-semibold py-1.5 my-2 rounded hover:bg-orange-100 text-sm">
+            Signup
+          </button>
+
+          <div className="text-center mt-2 text-xs">
+            Already have an account?{" "}
+            <Link to="/login" className="font-bold underline">
+              Login
             </Link>
           </div>
-          <form
-            onSubmit={handleSubmit}
-            className="p-5 "
-            style={{ width: "450px", margin: "auto" }}
-          >
-            <h3
-              className="mb-4 text-center"
-              style={{
-                fontStyle: "italic",
-                fontWeight: "bold",
-                fontSize: "30px",
-              }}
-            >
-              Create Your Account
-            </h3>
-
-            {error && <div className="alert alert-danger">{error}</div>}
-            {success && <div className="alert alert-success">{success}</div>}
-
-            <label className="form-label">Full Name</label>
-            <input
-              className="form-control my-2"
-              name="name"
-              placeholder="Enter your name"
-              onChange={handleChange}
-              required
-            />
-
-            <label className="form-label">Email Address</label>
-            <input
-              className="form-control my-2"
-              name="email"
-              type="email"
-              placeholder="Enter your email"
-              onChange={handleChange}
-              required
-            />
-
-            <label className="form-label">Password</label>
-            <div className="position-relative my-2">
-              <input
-                className="form-control"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="Create a password"
-                onChange={handleChange}
-                required
-              />
-              <span
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  right: "10px",
-                  transform: "translateY(-50%)",
-                  cursor: "pointer",
-                  color: "#555",
-                }}
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </span>
-            </div>
-
-            {/* Confirm Password */}
-            <div className="position-relative my-2">
-              <input
-                className="form-control"
-                name="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
-                placeholder="Confirm password"
-                onChange={handleChange}
-                required
-              />
-              <span
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  right: "10px",
-                  transform: "translateY(-50%)",
-                  cursor: "pointer",
-                  color: "#555",
-                }}
-              >
-                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
-              </span>
-            </div>
-
-            <label className="form-label">Phone Number</label>
-            <input
-              className="form-control my-2"
-              name="phone"
-              type="tel"
-              placeholder="Enter phone number"
-              onChange={handleChange}
-              required
-            />
-
-            {/* <label className="form-label">Select Role</label>
-        <select
-          className="form-control my-2"
-          name="role"
-          value={form.role}
-          onChange={handleChange}
-          required
-        >
-          <option value="">-- Choose Role --</option>
-          <option value="user">User</option>
-          <option value="admin">Admin</option>
-          <option value="ngo">NGO</option>
-          <option value="corporate">Corporate</option>
-        </select> */}
-
-            <button className="w-full bg-white text-orange-500 font-semibold py-2 rounded hover:bg-orange-100">
-              Signup
-            </button>
-
-            <div className="text-center mt-4">
-              <span>
-                Already have an account?{" "}
-                <Link to="/login" className="fw-bold text-decoration-none">
-                  Login
-                </Link>
-              </span>
-            </div>
-          </form>
-        </div>
+        </form>
       </div>
     </>
   );

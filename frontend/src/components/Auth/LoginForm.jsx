@@ -26,97 +26,61 @@ const LoginForm = () => {
 
   return (
     <>
-      <div className=" mt-5 bg-orange-400 border-[20px] rounded-[20px]  w-[500px] mx-auto">
-        <div className="flex justify-center">
-          <Link
-            to="/"
-            style={{
-              textDecoration: "none",
-              color: "inherit",
-              textAlign: "center",
-            }}
-          >
-            <FaHome
-              className="text-center my-3"
-              style={{ fontSize: "20px", color: "white", cursor: "pointer" }}
-            />
-          </Link>
-        </div>
-        <form
-          onSubmit={handleSubmit}
-          className="p-5"
-          style={{ width: "450px", margin: "auto" }}
-        >
-          <h3
-            className="mb-4"
-            style={{
-              fontWeight: "bold",
-              fontSize: "35px",
-              textAlign: "center",
-            }}
-          >
-            Login
-          </h3>
+    <div className="mt-5 bg-[rgb(134,178,165)] rounded-xl border-3 border-black w-full max-w-xl mx-auto p-4 px-5">
+  <div className="flex justify-center mb-3">
+    <Link to="/">
+      <FaHome className="text-white text-lg cursor-pointer" />
+    </Link>
+  </div>
 
-          {error && <div className="alert alert-danger">{error}</div>}
+  <form onSubmit={handleSubmit} className="flex flex-col items-start">
+    <h3 className="text-2xl font-bold text-center w-full mb-3">Login</h3>
 
-          <label
-            htmlFor="email"
-            className="form-label"
-            style={{ fontSize: "20px" }}
-          >
-            E-mail
-          </label>
-          <input
-            className="form-control my-2"
-            name="email"
-            type="email"
-            placeholder="Email"
-            onChange={handleChange}
-            required
-          />
+    {error && <div className="text-red-600 text-sm mb-2">{error}</div>}
 
-          <label
-            htmlFor="password"
-            className="form-label"
-            style={{ fontSize: "20px" }}
-          >
-            Password
-          </label>
-          <input
-            className="form-control my-2"
-            name="password"
-            type="password"
-            placeholder="Password"
-            onChange={handleChange}
-            required
-          />
+    <label htmlFor="email" className="text-sm font-semibold mb-1">
+      E-mail
+    </label>
+    <input
+      className="w-full mb-2 p-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
+      name="email"
+      type="email"
+      placeholder="Email"
+      onChange={handleChange}
+      required
+    />
 
-          <button className="w-full bg-white text-orange-500 font-semibold py-2 rounded hover:bg-orange-100">
-            Login
-          </button>
+    <label htmlFor="password" className="text-sm font-semibold mb-1">
+      Password
+    </label>
+    <input
+      className="w-full mb-2 p-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
+      name="password"
+      type="password"
+      placeholder="Password"
+      onChange={handleChange}
+      required
+    />
 
-          <div className="text-center mt-4">
-            <span style={{ fontSize: "16px" }}>
-              Don't have an account?{" "}
-              <Link to="/signup" className="text-decoration-none fw-bold">
-                Sign Up
-              </Link>
-            </span>
-          </div>
+    <button className="w-full bg-white text-orange-500 font-semibold py-1.5 my-2 rounded hover:bg-orange-100 text-sm mb-2">
+      Login
+    </button>
 
-          <div className="text-center mt-4">
-            <span style={{ fontSize: "16px" }}>
-              <Link
-                to="/forgot-password"
-                className="text-decoration-none fw-bold"
-              >
-                Forgot Password
-              </Link>
-            </span>
-          </div>
-        </form>
-      </div>
+    <div className="text-center w-full text-xs mt-2">
+      Don't have an account?{" "}
+      <Link to="/signup" className="font-bold underline">
+        Sign Up
+      </Link>
+    </div>
+
+    <div className="text-center w-full text-xs mt-2">
+      <Link to="/forgot-password" className="font-bold underline">
+        Forgot Password
+      </Link>
+    </div>
+  </form>
+</div>
+
     </>
   );
 };
