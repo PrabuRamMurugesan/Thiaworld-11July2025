@@ -84,6 +84,7 @@ import Signup from "./pages/Signup";
 import ProductBulkUploadAdmin from "./pages/admin/ProductBulkUploadAdmin";
 import ForgotPasswordPage from "./components/Auth/ForgotPassword";
 import UserSettings from "./components/UserSetting";
+import WriteTestimonial from "./pages/WriteTestimonial";
 
 export default function App() {
   return (
@@ -94,7 +95,7 @@ export default function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/virtual-jewelry-on" element={<VirtualJewelryOn />} />
-      <Route path="/user-settings" element={<UserSettings/>} />
+      <Route path="/user-settings" element={<UserSettings />} />
       <Route
         path="/product-card"
         element={
@@ -125,6 +126,10 @@ export default function App() {
       <Route path="/notifications" element={<NotificationsAlertsPage />} />
       <Route path="/refer-earn" element={<ReferEarnPage />} />
       <Route path="/product-review" element={<ProductReviewPage />} />
+      <Route
+        path="/write-testimonial/:productId"
+        element={<WriteTestimonial />}
+      />
       <Route
         path="/admin-sales-analytics"
         element={<AdminSalesAnalyticsPage />}
@@ -195,7 +200,6 @@ export default function App() {
         />
         <Route path="orders" element={<OrdersManager />} />
         <Route path="customers" element={<CustomersManager />} />
-
         {/* created by medun */}
         <Route path="dragdrop" element={<DragDropBuilderPage />} />
         <Route path="multi-language" element={<MultiLangSupport />} />
@@ -205,6 +209,7 @@ export default function App() {
         <Route path="seo-manager" element={<SeoManagerPage />} />
         <Route path="preview-scheduler" element={<PreviewSchedulerPage />} />
         <Route path="cms-panel-admin" element={<CMSAdvancedAdminPanel />} />
+        // in your app router
       </Route>
     </Routes>
   );

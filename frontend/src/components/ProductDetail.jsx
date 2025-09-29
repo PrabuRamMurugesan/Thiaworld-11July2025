@@ -14,6 +14,7 @@ import {
 import { CartContext } from "../context/CartContext";
 import Footer from "./Footer";
 // import Header from "./Header"; // kept commented as in your file
+import { Link } from "react-router-dom";
 
 function apiOrigin() {
   const base = import.meta.env.VITE_API_URI || "";
@@ -156,7 +157,12 @@ useEffect(() => {
           <div>
             <h1 className="text-2xl font-bold mb-2">{product.name}</h1>
             <p className="text-sm text-gray-500 mb-2">{product.description}</p>
-
+            <Link
+              to={`/write-testimonial/${product._id}`}
+              className="btn btn-primary"
+            >
+              Write a Testimonial
+            </Link>
             <div className="text-yellow-700 text-3xl font-bold mb-2">
               ₹{payableBase}
               {strike ? (
