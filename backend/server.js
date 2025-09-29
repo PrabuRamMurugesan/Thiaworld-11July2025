@@ -11,7 +11,7 @@ const cartRoutes = require("./routes/cartRoutes");
 const checkoutRoutes = require("./routes/checkoutRoutes");
 const productRoutes = require("./routes/productRoutes");
 const metalRateRoutes = require("./routes/metalRateRoutes");
-const testimonialRoutes = require("./routes/testimonialRoutes");
+
 const path = require("path");
 
 const app = express();
@@ -20,45 +20,8 @@ const exportRoutes = require("./routes/exportRoutes");
 const PORT = process.env.PORT || 5000; // ✅ Use PORT from environment variables
 
 // Middleware
+app.use(cors());
 app.use(express.json());
-
-const allowedOrigins = [
-  process.env.CLIENT_URL_DEV || "http://localhost:5173",
-  "https://thiaworld.bbscart.com",
-  "https://bbscart.com",
-  "https://www.bbscart.com",
-];
-const corsCfg = {
-  origin(origin, cb) {
-    if (!origin) return cb(null, true); // allow non-browser tools
-    if (allowedOrigins.includes(origin)) return cb(null, true);
-    return cb(new Error("Not allowed by CORS"));
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Pincode", "X-Guest-Key"],
-};
-app.use(cors(corsCfg));
-app.options(/.*/, cors(corsCfg));
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      return callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "X-Pincode",
-      "X-Guest-Key",
-    ],
-  })
-);
-
 
 mongoose
   .connect(process.env.THIAWORLD_URI, {
@@ -77,9 +40,6 @@ app.use("/api/products", productRoutes); // ✅ this must be exact
 app.use("/api/auth", authRoutes);
 app.use("/api/export", exportRoutes);
 app.use("/api/razorpay", razorpayRoutes);
-app.use("/api/testimonials", testimonialRoutes);
-
-
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.get("/", (req, res) => {
   res.send("Backend is working");
