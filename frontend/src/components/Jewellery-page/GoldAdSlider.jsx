@@ -2,90 +2,72 @@ import React, { useState, useEffect, useRef } from "react";
 
 const products = [
   { title: "Royal Gold Necklace", image: "/assets/Banner1.jpg" },
-  { title: "Elegant Gold Ring", image: "/assets/Banner3.jpg" },
+  { title: "Elegant Gold Ring",   image: "/assets/Banner3.jpg" },
   { title: "Luxury Gold Bracelet", image: "/assets/Banner2.jpg" },
 ];
 
 function GoldAdSlider() {
   const [current, setCurrent] = useState(0);
+  const [paused, setPaused]   = useState(false);
   const slideRef = useRef(null);
 
-  const slides = [...products, ...products]; // ✅ Duplicate array for continuous loop
+  const slides = [...products, ...products]; // duplicate for seamless loop
 
   useEffect(() => {
+    if (paused) return;                 // stop sliding when paused
     const interval = setInterval(() => {
       setCurrent((prev) => (prev + 1) % slides.length);
-    }, 3000); // slide every 3 seconds
-
+    }, 3000); // slide every 3s
     return () => clearInterval(interval);
-  }, [slides.length]);
+  }, [slides.length, paused]);
 
   return (
     <div
-      style={{
-        width: "100%",
-        height: "600px",
-        position: "relative",
-        overflow: "hidden",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-      }}
+      ref={slideRef}
+      // pause on hover/focus
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      className="
+        relative overflow-hidden w-full
+        h-[30vh] sm:h-[50vh] md:h-[50vh] lg:h-[500px]
+        shadow-lg
+      "
     >
       <div
-        ref={slideRef}
-        style={{
-          display: "flex",
-          height: "100%",
-          transform: `translateX(-${current * 100}%)`,
-          transition: "transform 1s ease-in-out",
-        }}
+        className="flex h-full transition-transform duration-1000 ease-in-out"
+        style={{ transform: `translateX(-${current * 100}%)` }}
       >
         {slides.map((product, index) => (
           <div
             key={index}
-            style={{
-              flex: "0 0 100%",
-              backgroundImage: `url(${product.image})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#fff",
-              fontWeight: "bold",
-              fontSize: "24px",
-              flexDirection: "column",
-            }}
+            className="
+              flex-shrink-0 w-full h-full bg-cover bg-center
+              flex flex-col justify-center items-start
+              px-6 sm:px-10 md:px-16
+            "
+            style={{ backgroundImage: `url(${product.image})` }}
           >
-            <div className="d-flex justify-content-start flex-column align-items-start w-100 p-5">
-              <div
-                style={{
-                  padding: "10px 20px",
-                  borderRadius: "5px",
-                  color: "gold",
-                  fontWeight: "bold",
-                  fontSize: "55px",
-                  fontFamily: "Arial, sans-serif",
-                  textShadow: "10px -10px 8px rgba(0, 0, 0, 0.5)",
-                }}
-              >
-                {product.title}
-              </div>
-              <button
-                style={{
-                  backgroundColor: "rgba(13,88,102)",
-                  boxShadow: "0 2px 2px rgba(0,0,0,0.3)",
-                  padding: "5px 25px",
-                  borderRadius: "50px",
-                  color: "#fff",
-                  fontWeight: "bold",
-                  fontSize: "14px",
-                  cursor: "pointer",
-                  marginLeft: "16%",
-                }}
-              >
-                Shop Now
-              </button>
-            </div>
+            <h2
+              className="
+                text-gold font-bold
+                text-2xl sm:text-3xl md:text-5xl lg:text-6xl
+                drop-shadow-[0_4px_6px_rgba(0,0,0,0.5)]
+              "
+              style={{ color: "gold" }}
+            >
+              {product.title}
+            </h2>
+            <a
+              href="/product-card"
+              className="
+                mt-6 inline-block rounded-full
+                bg-[rgb(13,88,102)] text-white font-semibold
+                text-sm sm:text-base md:text-lg
+                px-6 py-2 shadow-md hover:shadow-lg
+              "
+            >
+              Shop Now
+            </a>
           </div>
         ))}
       </div>
