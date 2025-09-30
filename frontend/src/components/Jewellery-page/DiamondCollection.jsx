@@ -6,11 +6,13 @@ import { CartContext } from "../../context/CartContext";
 import Header from "../Header";
 import Footer from "../Footer";
 import { IoHeart, IoStar } from "react-icons/io5";
+import { useWishlist } from "../../context/WishlistContext";
 
 const DiamondCollection = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+const { isWished, toggle } = useWishlist();
 
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState([]);
@@ -202,13 +204,40 @@ console.log(res.data, "resdata");
                 position: "relative",
               }}
             >
-              <div
-                className="d-flex justify-content-between position-absolute top-0 start-0 end-0 px-4 mt-4"
-                style={{ zIndex: "1" }}
-              >
-                <IoStar style={{ color: "gray", fontSize: "25px" }} />
-                <IoHeart style={{ color: "gray", fontSize: "25px" }} />
-              </div>
+         
+   <div
+                  className="d-flex justify-content-between position-absolute top-0 start-0 end-0 px-4 mt-4"
+                  style={{ zIndex: 1 }}
+                >
+                  <IoStar style={{ color: "gray", fontSize: 25 }} />
+
+                  <button
+                    aria-label="Toggle wishlist"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toggle(prod._id);
+                    }}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: 0,
+                    }}
+                    title={
+                      isWished(prod._id)
+                        ? "Remove from wishlist"
+                        : "Add to wishlist"
+                    }
+                  >
+                    <IoHeart
+                      style={{
+                        fontSize: 25,
+                        color: isWished(prod._id) ? "#e03131" : "gray", // red if wished
+                        transition: "color 120ms ease",
+                      }}
+                    />
+                  </button>
+                </div>              
 
               <Link to={`/product/${prod._id}`}>
                 <img

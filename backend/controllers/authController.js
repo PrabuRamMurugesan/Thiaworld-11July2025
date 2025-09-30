@@ -3,11 +3,7 @@ const jwt = require("jsonwebtoken");
 
 const generateToken = (user) => {
   return jwt.sign(
-    {
-      _id: user._id,
-      email: user.email,
-      roleTags: user.roleTags,
-    },
+    { _id: user._id, email: user.email, roleTags: user.roleTags },
     process.env.JWT_SECRET,
     { expiresIn: "7d" }
   );
@@ -29,9 +25,18 @@ exports.register = async (req, res) => {
       createdFrom,
     });
 
-    res.status(201).json({
+    // set cookie
+    const token = generateToken(newUser);
+    const isProd = process.env.NODE_ENV === "production";
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProd, // false for localhost (HTTP)
+      sameSite: isProd ? "none" : "lax", // lax for localhost
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    res.json({
       message: "User created",
-      token: generateToken(newUser),
+      token,
       user: {
         name: newUser.name,
         email: newUser.email,
@@ -41,7 +46,7 @@ exports.register = async (req, res) => {
     });
   } catch (err) {
     console.error("Register Error:", err);
-    res.status(500).json({ message: "Server Error" });
+    return res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -57,9 +62,20 @@ exports.login = async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: "Invalid email or password" });
 
-    res.status(200).json({
+    // create token FIRST
+    const token = generateToken(user);
+
+    // set cookie
+    const isProd = process.env.NODE_ENV === "production";
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProd, // false for localhost (HTTP)
+      sameSite: isProd ? "none" : "lax", // lax for localhost
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    res.json({
       message: "Login success",
-      token: generateToken(user),
+      token,
       user: {
         name: user.name,
         email: user.email,
@@ -69,6 +85,6 @@ exports.login = async (req, res) => {
     });
   } catch (err) {
     console.error("Login Error:", err);
-    res.status(500).json({ message: "Server Error" });
+    return res.status(500).json({ message: "Server Error" });
   }
 };

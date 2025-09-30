@@ -6,11 +6,13 @@ import { CartContext } from "../../context/CartContext";
 import Header from "../Header";
 import Footer from "../Footer";
 import { IoHeart, IoStar } from "react-icons/io5";
+import { useWishlist } from "../../context/WishlistContext";
 
 const PlatinumCollection = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { isWished, toggle } = useWishlist();
 
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState([]);
@@ -20,9 +22,9 @@ const PlatinumCollection = () => {
   const { addToCart } = useContext(CartContext);
 
   // ✅ Pagination States - moved to top level
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 8;
-  
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
   useEffect(() => {
     fetchPlatinumProducts();
   }, [search, categoryFilter, purityFilter, sortOption]);
@@ -47,7 +49,7 @@ const PlatinumCollection = () => {
       const res = await axios.get(
         `${import.meta.env.VITE_API_URI}/products/platinum${queryString}`
       );
-console.log("✅ Fetched platinum products:", res.data);
+      console.log("✅ Fetched platinum products:", res.data);
 
       setProducts(res.data);
       setLoading(false);
@@ -208,10 +210,36 @@ console.log("✅ Fetched platinum products:", res.data);
             >
               <div
                 className="d-flex justify-content-between position-absolute top-0 start-0 end-0 px-4 mt-4"
-                style={{ zIndex: "1" }}
+                style={{ zIndex: 1 }}
               >
-                <IoStar style={{ color: "gray", fontSize: "25px" }} />
-                <IoHeart style={{ color: "gray", fontSize: "25px" }} />
+                <IoStar style={{ color: "gray", fontSize: 25 }} />
+
+                <button
+                  aria-label="Toggle wishlist"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggle(prod._id);
+                  }}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: 0,
+                  }}
+                  title={
+                    isWished(prod._id)
+                      ? "Remove from wishlist"
+                      : "Add to wishlist"
+                  }
+                >
+                  <IoHeart
+                    style={{
+                      fontSize: 25,
+                      color: isWished(prod._id) ? "#e03131" : "gray", // red if wished
+                      transition: "color 120ms ease",
+                    }}
+                  />
+                </button>
               </div>
               <Link to={`/product/${prod._id}`}>
                 <img
