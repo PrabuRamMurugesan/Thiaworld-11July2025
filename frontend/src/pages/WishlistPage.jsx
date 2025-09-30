@@ -51,10 +51,13 @@ const WishlistPage = () => {
             <Link to={`/product/${it.product._id}`}>
               <img
                 src={
-                  resolveImg(it.product.images?.[0]) || "/default-product.jpg"
+                  it.product.images?.[0]
+                    ? it.product.images[0]
+                    : "/default-product.jpg"
                 }
                 alt={it.product.name}
                 style={{ width: 240, height: 240, objectFit: "cover" }}
+                onError={(e) => (e.target.src = "/default-product.jpg")}
               />
             </Link>
             <div className="mt-2">
@@ -79,6 +82,7 @@ const WishlistPage = () => {
             </div>
           </div>
         ))}
+
         {!items.length && <div>No items yet.</div>}
       </div>
     </div>
