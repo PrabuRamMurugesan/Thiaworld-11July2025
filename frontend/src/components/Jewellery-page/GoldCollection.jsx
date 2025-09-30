@@ -211,11 +211,7 @@ const { isWished, toggle } = useWishlist();
               className="position-relative border rounded p-3"
               style={{ width: 270 }}
             >
-              <div
-                className="d-flex justify-content-between position-absolute top-0 start-0 end-0 px-4 mt-4"
-                style={{ zIndex: 1 }}
-              >
-                <IoStar style={{ color: "gray", fontSize: 25 }} />
+    
                 <div
                   className="d-flex justify-content-between position-absolute top-0 start-0 end-0 px-4 mt-4"
                   style={{ zIndex: 1 }}
@@ -249,7 +245,7 @@ const { isWished, toggle } = useWishlist();
                     />
                   </button>
                 </div>
-              </div>
+       
 
               <Link to={`/product/${prod._id}`}>
                 <img
