@@ -85,6 +85,7 @@ import ProductBulkUploadAdmin from "./pages/admin/ProductBulkUploadAdmin";
 import ForgotPasswordPage from "./components/Auth/ForgotPassword";
 import UserSettings from "./components/UserSetting";
 import WriteTestimonial from "./pages/WriteTestimonial";
+import WishlistPage from "./pages/WishlistPage";
 
 export default function App() {
   return (
@@ -114,6 +115,7 @@ export default function App() {
       <Route path="/customer-jewelry" element={<CustomJewelryOrderPage />} />
       <Route path="/gold-certification" element={<GoldCertificationPage />} />
       <Route path="/golldex-wallet" element={<GolldexWalletPage />} />
+      <Route path="/wishlist" element={<WishlistPage />} />
       <Route
         path="/escrow-payment-release"
         element={<EscrowPaymentReleasePage />}
