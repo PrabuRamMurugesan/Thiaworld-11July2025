@@ -99,10 +99,13 @@ console.log("✅ Fetched platinum products:", res.data);
             fontFamily: "'Times New Roman', Times, serif",
           }}
         >
-          <Link to="/" className="text-black-600 hover:underline">
-            Home/
-          </Link>{" "}
-          <span className="text-blue-600 ">Platinum Collection</span>
+          <div className="text-sm text-muted mb-2">
+            <Link to="/" className="text-black-600 hover:no-underline">
+              Home
+            </Link>
+            <span className="mx-2">›</span>
+            <span className="text-gray-600">Platinum Collection</span>
+          </div>
         </div>
 
         {/* Header */}

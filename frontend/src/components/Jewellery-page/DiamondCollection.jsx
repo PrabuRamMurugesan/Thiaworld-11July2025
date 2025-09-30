@@ -95,10 +95,13 @@ console.log(res.data, "resdata");
             fontFamily: "'Times New Roman', Times, serif",
           }}
         >
-           <Link to="/" className="text-black-600 hover:underline">
-                      Home/
-                    </Link>{" "}
-          <span className="text-pink-600 font-medium">Diamond Collection</span>
+          <div className="text-sm text-muted mb-2">
+            <Link to="/" className="text-black-600 hover:no-underline">
+              Home
+            </Link>
+            <span className="mx-2">›</span>
+            <span className="text-sky-600">Diamond Collection</span>
+          </div>
         </div>
 
         {/* Header */}
