@@ -28,18 +28,26 @@ const allowedOrigins = [
   "https://bbscart.com",
   "https://www.bbscart.com",
 ];
-const corsCfg = {
-  origin(origin, cb) {
-    if (!origin) return cb(null, true); // allow non-browser tools
-    if (allowedOrigins.includes(origin)) return cb(null, true);
-    return cb(new Error("Not allowed by CORS"));
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Pincode", "X-Guest-Key"],
-};
-app.use(cors(corsCfg));
-app.options(/.*/, cors(corsCfg));
+
+app.use(
+  cors({
+    origin(origin, cb) {
+      if (!origin) return cb(null, true); // curl/Insomnia
+      if (allowedOrigins.includes(origin)) return cb(null, true);
+      return cb(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Pincode",
+      "X-Guest-Key",
+    ],
+  })
+);
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
 app.use(
   cors({
     origin: function (origin, callback) {
