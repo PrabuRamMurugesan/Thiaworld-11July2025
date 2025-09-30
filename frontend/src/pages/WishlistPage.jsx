@@ -28,6 +28,14 @@ const WishlistPage = () => {
     } catch {}
   };
 
+  // --- image resolver (prefix non-http paths with site origin) ---
+  const apiOrigin = new URL(import.meta.env.VITE_API_URI).origin;
+  const resolveImg = (img) =>
+    img && img.startsWith("http")
+      ? img
+      : `${apiOrigin}${img?.startsWith("/") ? "" : "/"}${img || ""}`;
+  // ---------------------------------------------------------------
+
   if (err) return <div className="p-6 text-center">{err}</div>;
 
   return (
@@ -42,7 +50,9 @@ const WishlistPage = () => {
           >
             <Link to={`/product/${it.product._id}`}>
               <img
-                src={it.images?.[0] ? it.images[0] : "/default-product.jpg"}
+                src={
+                  resolveImg(it.product.images?.[0]) || "/default-product.jpg"
+                }
                 alt={it.product.name}
                 style={{ width: 240, height: 240, objectFit: "cover" }}
               />
