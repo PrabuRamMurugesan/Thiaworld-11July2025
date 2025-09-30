@@ -42,7 +42,7 @@ const WishlistPage = () => {
           >
             <Link to={`/product/${it.product._id}`}>
               <img
-                src={it.product.images?.[0] || "/default-product.jpg"}
+                src={prod.images?.[0] ? prod.images[0] : "/default-product.jpg"}
                 alt={it.product.name}
                 style={{ width: 240, height: 240, objectFit: "cover" }}
               />
