@@ -2,10 +2,12 @@ import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { FaStar, FaHeart } from "react-icons/fa";
 import { CartContext } from "../context/CartContext"; // ✅ adjust path if needed
+import { useWishlist } from "../context/WishlistContext";
 
 const FeaturedProducts = () => {
   const [products, setProducts] = useState([]);
   const { addToCart } = useContext(CartContext);
+  const { isWished, toggle } = useWishlist();
 
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
@@ -78,8 +80,28 @@ const FeaturedProducts = () => {
               >
                 🛒 Add to Cart
               </button>
-              <FaHeart className="text-gray-500 hover:text-red-500 cursor-pointer size-6" />
-            </div>
+     {/* Heart Icon (Top-Right) */}
+              <button
+                aria-label="Toggle wishlist"
+                onClick={(e) => {
+                  e.preventDefault();
+                  toggle(product._id);
+                }}
+             
+                title={
+                  isWished(product._id)
+                    ? "Remove from wishlist"
+                    : "Add to wishlist"
+                }
+              >
+                <FaHeart
+                  style={{
+                    fontSize: 25,
+                    color: isWished(product._id) ? "#e03131" : "gray",
+                    transition: "color 120ms ease",
+                  }}
+                />
+              </button>            </div>
           </div>
         </div>
       ))}
