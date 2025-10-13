@@ -18,8 +18,8 @@ const RecentProducts = () => {
         const res = await axios.get(
           `${import.meta.env.VITE_API_URI}/products/new-arrivals`
         );
-        console.log(res,"dsfgfghdfgfdg");
-        
+        console.log(res, "dsfgfghdfgfdg");
+
         setRecentProducts(res.data);
       } catch (err) {
         console.error("Failed to fetch new arrivals:", err);
@@ -28,10 +28,9 @@ const RecentProducts = () => {
 
     fetchNewArrivals();
   }, []);
-  
+
   const location = useLocation();
 
- 
   return (
     <>
       {location.pathname !== "/" && <Header />}
@@ -52,7 +51,7 @@ const RecentProducts = () => {
                     ? product.images[0] // ✅ use as-is
                     : "/default-product.jpg"
                 }
-                className="w-100 h-[300px] object-contain group-hover:scale-105 transition duration-300"
+                className="w-[500px] h-[350px] overflow-hidden rounded-xl bg-[#1c1a17] flex items-center justify-center"
                 alt={product.name}
                 onError={(e) => (e.target.src = "/default-product.jpg")}
               />
@@ -88,28 +87,28 @@ const RecentProducts = () => {
                 >
                   🛒 Add to Cart
                 </button>
-    {/* Heart Icon (Top-Right) */}
-              <button
-                aria-label="Toggle wishlist"
-                onClick={(e) => {
-                  e.preventDefault();
-                  toggle(product._id);
-                }}
-             
-                title={
-                  isWished(product._id)
-                    ? "Remove from wishlist"
-                    : "Add to wishlist"
-                }
-              >
-                <FaHeart
-                  style={{
-                    fontSize: 25,
-                    color: isWished(product._id) ? "#e03131" : "gray",
-                    transition: "color 120ms ease",
+                {/* Heart Icon (Top-Right) */}
+                <button
+                  aria-label="Toggle wishlist"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggle(product._id);
                   }}
-                />
-              </button>              </div>
+                  title={
+                    isWished(product._id)
+                      ? "Remove from wishlist"
+                      : "Add to wishlist"
+                  }
+                >
+                  <FaHeart
+                    style={{
+                      fontSize: 25,
+                      color: isWished(product._id) ? "#e03131" : "gray",
+                      transition: "color 120ms ease",
+                    }}
+                  />
+                </button>{" "}
+              </div>
             </div>
           </div>
         ))}

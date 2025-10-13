@@ -33,20 +33,18 @@ const BestSellingProducts = () => {
           key={product._id}
           className="bg-white shadow rounded-lg overflow-hidden hover:shadow-md transition duration-300 group"
         >
-          <div className="overflow-hidden">
-            <a href={`/product/${product._id}`}>
-              <img
-                src={
-                  product.images?.[0]
-                    ? product.images[0] // ✅ use as-is
-                    : "/default-product.jpg"
-                }
-                className="w-full h-100 object-cover group-hover:scale-105 transition duration-300"
-                alt={product.name}
-                onError={(e) => (e.target.src = "/default-product.jpg")}
-              />
-            </a>
-          </div>
+          <a href={`/product/${product._id}`}>
+            <img
+              src={
+                product.images?.[0]
+                  ? product.images[0] // ✅ use as-is
+                  : "/default-product.jpg"
+              }
+              className="w-[500px] h-[350px] object-cover  rounded-t-lg group-hover:scale-105 transition-transform duration-300"
+              alt={product.name}
+              onError={(e) => (e.target.src = "/default-product.jpg")}
+            />
+          </a>
 
           <div className="p-4 ">
             <div className="mt-2 min-h-[100px]">
@@ -86,7 +84,6 @@ const BestSellingProducts = () => {
                   e.preventDefault();
                   toggle(product._id);
                 }}
-             
                 title={
                   isWished(product._id)
                     ? "Remove from wishlist"
