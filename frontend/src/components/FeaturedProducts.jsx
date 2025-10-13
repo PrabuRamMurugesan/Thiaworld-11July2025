@@ -40,7 +40,7 @@ const FeaturedProducts = () => {
                     ? product.images[0] // ✅ use as-is
                     : "/default-product.jpg"
                 }
-                className="w-100 h-[400px] object-contain group-hover:scale-105 transition duration-300"
+                className="w-[500px] h-[350px] overflow-hidden rounded-xl bg-[#1c1a17] flex items-center justify-center"
                 alt={product.name}
                 onError={(e) => (e.target.src = "/default-product.jpg")}
               />
@@ -80,14 +80,13 @@ const FeaturedProducts = () => {
               >
                 🛒 Add to Cart
               </button>
-     {/* Heart Icon (Top-Right) */}
+              {/* Heart Icon (Top-Right) */}
               <button
                 aria-label="Toggle wishlist"
                 onClick={(e) => {
                   e.preventDefault();
                   toggle(product._id);
                 }}
-             
                 title={
                   isWished(product._id)
                     ? "Remove from wishlist"
@@ -101,7 +100,8 @@ const FeaturedProducts = () => {
                     transition: "color 120ms ease",
                   }}
                 />
-              </button>            </div>
+              </button>{" "}
+            </div>
           </div>
         </div>
       ))}

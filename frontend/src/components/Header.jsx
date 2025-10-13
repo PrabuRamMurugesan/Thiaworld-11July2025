@@ -20,7 +20,7 @@ import thia from "../../public/assets/thia.png";
 import bbscart from "../../public/assets/bbscart.png";
 import healthAccess from "../../public/assets/healthacess.png";
 import { useWishlist } from "../context/WishlistContext";
-
+import { IoIosHeart } from "react-icons/io";
 import { CartContext } from "../context/CartContext"; // adjust path if different
 const options = [
   {
@@ -162,11 +162,13 @@ const Header = () => {
               textShadow: "1px 1px 1px rgba(0, 0, 0, 0.3)",
             }}
           >
-            <img
-              src={thia}
-              alt="Thiaworld"
-              style={{ width: "70px", height: "70px" }}
-            />
+            <a href="/">
+              <img
+                src={thia}
+                alt="Thiaworld"
+                style={{ width: "90px", height: "70px" }}
+              />
+            </a>
           </h1>
 
           <button
@@ -244,7 +246,7 @@ const Header = () => {
         {/* ===== DESKTOP / TABLET NAV ===== */}
         <div
           className="hidden md:flex items-center justify-between px-6 py-3"
-          style={{ backgroundColor: "rgba(13,88,102)", color: "white" }}
+          style={{ backgroundColor: "rgb(194, 120, 20)", color: "white" }}
         >
           {/* LEFT: (optional logo) */}
           <div className="w-1/4 flex items-center"></div>
@@ -295,17 +297,17 @@ const Header = () => {
           </nav>
 
           {/* RIGHT: USER + CART */}
-          <div className="w-1/4 flex justify-end items-center gap-4">
+          <div className="w-1/3 flex justify-end items-center gap-4 *:hover:underline relative  ">
             {user ? (
-              <div className="flex items-center gap-3 whitespace-nowrap">
+              <div className="flex flex-row  items-center justify-center  gap-2 whitespace-nowrap text-decoration-none">
                 <span className="font-semibold">
                   Welcome, {user.name || "Profile"}
                 </span>
                 <button
                   onClick={handleLogout}
-                  className="bg-gray-800 hover:bg-gray-900 text-white flex items-center gap-2 px-3 py-1 rounded-md text-sm"
+                  className="bg-gray-800 hover:bg-gray-900  text-white flex items-center gap-2 px-3 py-1 text-center rounded-md text-xs "
                 >
-                  <FaSignOutAlt />
+                  <FaSignOutAlt className="text-center" />
                   Logout
                 </button>
               </div>
@@ -346,7 +348,7 @@ const Header = () => {
 
             <Link
               to="/cart"
-              className="relative flex items-center gap-2 hover:text-yellow-300"
+              className="relative flex items-center gap-2 hover:text-yellow-300 text-decoration-none"
             >
               <FaShoppingCart className="text-lg" />
               <span className="hidden sm:inline">Cart</span>
@@ -355,10 +357,12 @@ const Header = () => {
               </span>
             </Link>
             <Link to="/wishlist" className="relative hover:no-underline">
-              <span className="absolute -top-2 -right-0 bg-red-500 text-white text-xs rounded-full px-1.5">
+              <span className="absolute -top-20 -right-0 bg-red-500 text-white text-xs rounded-full px-1.5 text-decoration-none">
                 {wishlistCount}
               </span>
-              <span>❤️</span>
+              <span className="text-decoration-none text-red-600">
+                <IoIosHeart size={20} />
+              </span>
             </Link>
             <Link
               to="/user-settings"
