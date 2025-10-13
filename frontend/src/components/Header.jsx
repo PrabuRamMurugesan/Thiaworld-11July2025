@@ -297,7 +297,7 @@ const Header = () => {
           </nav>
 
           {/* RIGHT: USER + CART */}
-          <div className="w-1/3 flex justify-end items-center gap-4 *:hover:underline relative  ">
+          <div className="w-1/3 flex justify-end items-center gap-4 relative  ">
             {user ? (
               <div className="flex flex-row  items-center justify-center  gap-2 whitespace-nowrap text-decoration-none">
                 <span className="font-semibold">
@@ -357,7 +357,7 @@ const Header = () => {
               </span>
             </Link>
             <Link to="/wishlist" className="relative hover:no-underline">
-              <span className="absolute -top-20 -right-0 bg-red-500 text-white text-xs rounded-full px-1.5 text-decoration-none">
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5 text-decoration-none">
                 {wishlistCount}
               </span>
               <span className="text-decoration-none text-red-600">
