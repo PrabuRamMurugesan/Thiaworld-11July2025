@@ -229,12 +229,6 @@ const ProductDetailPage = () => {
           <div>
             <h1 className="text-2xl font-bold mb-2">{product.name}</h1>
             <p className="text-sm text-gray-500 mb-2">{product.description}</p>
-            <Link
-              to={`/write-testimonial/${product._id}`}
-              className="btn btn-primary"
-            >
-              Write a Testimonial
-            </Link>
 
             <div className="text-yellow-700 text-3xl font-bold mb-2">
               ₹{payableBase}{" "}
@@ -362,7 +356,12 @@ const ProductDetailPage = () => {
               />
               <FaEnvelope className="cursor-pointer" />
             </div>
-
+            <Link
+              to={`/write-testimonial/${product._id}`}
+              className="btn btn-primary  gap-4 mt-4 bg-orange-500"
+            >
+              Write a Testimonial
+            </Link>
             {/* Action Buttons */}
             <div className="flex gap-4 mt-4">
               <button
@@ -377,6 +376,29 @@ const ProductDetailPage = () => {
               >
                 Buy Now
               </button>
+            </div>
+            {/* Video Call & WhatsApp Blocks */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+              <div className="bg-yellow-50 border border-yellow-300 p-4 rounded">
+                <h4 className="font-semibold mb-2">📹 Video Call Us</h4>
+                <p className="text-sm mb-2">
+                  Speak with our expert jeweller directly and examine the piece
+                  in real-time over a video call.
+                </p>
+                <button className="bg-yellow-600 text-white px-4 py-2 rounded">
+                  Video call
+                </button>
+              </div>
+              <div className="bg-green-50 border border-green-300 p-4 rounded">
+                <h4 className="font-semibold mb-2">💬 Whatsapp</h4>
+                <p className="text-sm mb-2">
+                  Have questions? Chat with our support team anytime on
+                  WhatsApp.
+                </p>
+                <button className="bg-green-600 text-white px-4 py-2 rounded">
+                  Chat with Us
+                </button>
+              </div>
             </div>
           </div>
         </div>
