@@ -10,56 +10,40 @@ const {
   ensureDirSync,
 } = require("../services/mediaProcessor");
 
-// === Added code block (from user snippet) ===
+/* =========================
+   ENV / CONSTANTS (kept)
+   ========================= */
 const UPLOAD_ROOT =
   process.env.UPLOAD_ROOT || path.join(__dirname, "..", "uploads");
-const BASE_ASSETS_URL = process.env.BASE_ASSETS_URL || "http://localhost:5001";
 
-// e.g., thia/2025/11
-function todayRelFolder() {
-  const d = new Date();
-  return path.join(
-    "thia",
-    String(d.getFullYear()),
-    String(d.getMonth() + 1).padStart(2, "0")
-  );
-}
+// Single source of truth for public URLs (prod overrides in .env)
+const BASE_ASSETS_URL =
+  process.env.BASE_ASSETS_URL ||
+  process.env.VITE_API_URL || // legacy fallback name (if present)
+  process.env.VITE_API_URI || // legacy fallback name (if present)
+  "http://localhost:5001";
 
-const storageForSnippet = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const rel = todayRelFolder();
-    const abs = path.join(UPLOAD_ROOT, rel);
-    fs.mkdirSync(abs, { recursive: true });
-    cb(null, abs);
-  },
-  filename: (req, file, cb) => {
-    const base =
-      (file.originalname || "file").split(".").slice(0, -1).join(".") || "file";
-    cb(null, `${base}-${Date.now()}.webp`); // consistent webp naming
-  },
-});
-
-const upload = multer({ storage: storageForSnippet }).array("files", 20);
-
-// when you save URLs, always build like this:
-function toPublicUrl(absPath) {
-  // absPath = e.g., E:\...\backend\uploads\thia\2025\11\file.webp
-  const relFromRoot = absPath
-    .replace(UPLOAD_ROOT + path.sep, "")
-    .replace(/\\/g, "/");
-  return `${BASE_ASSETS_URL}/uploads/${relFromRoot}`;
-}
-// === End of added code block ===
-
-// Retain existing constants (keep both for compatibility)
+// Back-compat constants (do not remove; used by older code paths)
 const BASE_ASSETS_URL_FALLBACK =
   process.env.BASE_ASSETS_URL ||
+  process.env.VITE_API_URL ||
   process.env.VITE_API_URI ||
-  "https://thiaworld.bbscart.com";
+  "http://localhost:5001";
+
 const UPLOAD_ROOT_FALLBACK =
   process.env.UPLOAD_ROOT || path.join(process.cwd(), "uploads");
 
-// Keep your original multer setup (used in current uploadMedia)
+/* ==========================================
+   HELPERS (kept + added flattening utilities)
+   ========================================== */
+function isImage(mime) {
+  return /^image\/(jpeg|png|webp|gif|svg\+xml|bmp|tiff)$/i.test(mime);
+}
+function isVideo(mime) {
+  return /^video\//i.test(mime);
+}
+
+// Original dated subfolder (kept for compatibility)
 function todayRelFolderOriginal() {
   const now = new Date();
   return path.join(
@@ -69,6 +53,7 @@ function todayRelFolderOriginal() {
   );
 }
 
+// Multer storage (kept). We will later FLATTEN final outputs to /uploads root.
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const relFolder = todayRelFolderOriginal();
@@ -93,27 +78,163 @@ const uploadMulter = multer({
   },
 }).array("files", 50);
 
-function isImage(mime) {
-  return /^image\/(jpeg|png|webp|gif|svg\+xml)$/i.test(mime);
-}
-function isVideo(mime) {
-  return /^video\//i.test(mime);
+// URL/Path flattening helpers
+function relFromPublicUrl(u) {
+  const bases = [
+    `${BASE_ASSETS_URL}/uploads/`,
+    `${BASE_ASSETS_URL_FALLBACK}/uploads/`,
+  ];
+  for (const b of bases) {
+    if (u && typeof u === "string" && u.startsWith(b)) return u.slice(b.length);
+  }
+  if (u && !/^https?:\/\//i.test(u)) return u.replace(/^\/?uploads\/?/i, "");
+  return null;
 }
 
+function absFromPublicUrl(u) {
+  const rel = relFromPublicUrl(u);
+  if (!rel) return null;
+  const safeRel = rel.replace(/\//g, path.sep);
+  return path.join(UPLOAD_ROOT, safeRel);
+}
+
+function moveToRootIfNeeded(fromAbs) {
+  if (!fromAbs) return null;
+  // already at root?
+  const rel = path.relative(UPLOAD_ROOT, fromAbs);
+  if (!rel || rel === "" || (!rel.includes(path.sep) && !rel.includes("/"))) {
+    return fromAbs;
+  }
+  const toAbs = path.join(UPLOAD_ROOT, path.basename(fromAbs));
+  try {
+    ensureDirSync(UPLOAD_ROOT);
+    if (fs.existsSync(fromAbs)) {
+      if (!fs.existsSync(toAbs)) fs.renameSync(fromAbs, toAbs);
+    }
+    return toAbs;
+  } catch {
+    return fromAbs;
+  }
+}
+
+function toFlatPublicUrl(absAtRoot) {
+  const file = path.basename(absAtRoot);
+  return `${BASE_ASSETS_URL}/uploads/${file}`;
+}
+
+function flattenProcessedOutputs(proc) {
+  if (!proc || !proc.canonical || !proc.canonical.url) return proc;
+
+  // canonical
+  const cAbs = absFromPublicUrl(proc.canonical.url);
+  const cRoot = moveToRootIfNeeded(cAbs);
+  const cUrl = cRoot ? toFlatPublicUrl(cRoot) : proc.canonical.url;
+
+  // variants
+  const outVariants = [];
+  for (const v of proc.variants || []) {
+    if (!v || !v.url) continue;
+    const vAbs = absFromPublicUrl(v.url);
+    const vRoot = moveToRootIfNeeded(vAbs);
+    outVariants.push({
+      ...v,
+      url: vRoot ? toFlatPublicUrl(vRoot) : v.url,
+    });
+  }
+
+  // poster (video)
+  let posterUrl = proc.posterUrl || null;
+  if (posterUrl) {
+    const pAbs = absFromPublicUrl(proc.posterUrl);
+    const pRoot = moveToRootIfNeeded(pAbs);
+    posterUrl = pRoot ? toFlatPublicUrl(pRoot) : proc.posterUrl;
+  }
+
+  return {
+    ...proc,
+    canonical: { ...proc.canonical, url: cUrl },
+    variants: outVariants,
+    posterUrl,
+  };
+}
+
+function buildDocFromProcessed(proc, userId) {
+  const fileUrl = proc?.canonical?.url || "";
+  const filename = fileUrl ? path.basename(fileUrl) : "";
+  return {
+    type: proc.type || "image",
+    url: fileUrl,
+    filename,
+    folder: "", // flattened
+    variants: proc.variants || [],
+    width: proc?.canonical?.width,
+    height: proc?.canonical?.height,
+    size: proc?.canonical?.size,
+    mime: proc?.canonical?.mime || "image/webp",
+    uploadedBy: userId || null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+}
+
+/* =========================
+   CONTROLLERS (kept + fixes)
+   ========================= */
+
+// GET /api/media
+exports.listMedia = async (req, res) => {
+  try {
+    const page = Math.max(parseInt(req.query.page || "1", 10), 1);
+    const limit = Math.min(
+      Math.max(parseInt(req.query.limit || "40", 10), 1),
+      200
+    );
+    const search = (req.query.search || "").trim();
+    const type = (req.query.type || "").trim();
+    const q = { deleted: { $ne: true } };
+
+    if (search) {
+      q.$or = [
+        { filename: { $regex: search, $options: "i" } },
+        { title: { $regex: search, $options: "i" } },
+        { tags: { $elemMatch: { $regex: search, $options: "i" } } },
+      ];
+    }
+    if (type) q.type = type;
+
+    const total = await Media.countDocuments(q);
+    const items = await Media.find(q)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean();
+
+    return res.json({
+      ok: true,
+      page,
+      limit,
+      total,
+      items,
+    });
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: e.message });
+  }
+};
+
+// POST /api/media/upload
 exports.uploadMedia = (req, res) => {
   uploadMulter(req, res, async (err) => {
     if (err) return res.status(400).json({ ok: false, error: err.message });
-    const results = [];
 
-    for (const f of req.files || []) {
-      try {
+    try {
+      const results = [];
+
+      for (const f of req.files || []) {
         const relFolder = path.relative(
           UPLOAD_ROOT_FALLBACK,
           path.dirname(f.path)
         );
-        const relKey = path.join(relFolder, path.parse(f.filename).name);
         const baseNameNoExt = path.parse(f.filename).name;
-        const uploadsRootAbs = UPLOAD_ROOT_FALLBACK;
 
         let processed;
         if (isImage(f.mimetype)) {
@@ -121,7 +242,7 @@ exports.uploadMedia = (req, res) => {
             srcAbsPath: f.path,
             relFolder,
             baseNameNoExt,
-            uploadsRootAbs,
+            uploadsRootAbs: UPLOAD_ROOT_FALLBACK,
             baseUrl: BASE_ASSETS_URL_FALLBACK,
           });
         } else if (isVideo(f.mimetype)) {
@@ -129,273 +250,190 @@ exports.uploadMedia = (req, res) => {
             srcAbsPath: f.path,
             relFolder,
             baseNameNoExt,
-            uploadsRootAbs,
+            uploadsRootAbs: UPLOAD_ROOT_FALLBACK,
             baseUrl: BASE_ASSETS_URL_FALLBACK,
           });
         } else {
-          const relOut = path.join(relFolder, f.filename);
+          // Unknown type: just move to root and expose raw file
+          const moved = moveToRootIfNeeded(path.resolve(f.path));
           processed = {
-            type: "other",
+            type: "file",
             canonical: {
-              url: `${BASE_ASSETS_URL_FALLBACK}/uploads/${relOut.replace(
-                /\\/g,
-                "/"
-              )}`,
+              url: moved
+                ? toFlatPublicUrl(moved)
+                : `${BASE_ASSETS_URL}/uploads/${f.filename}`,
               size: f.size,
               mime: f.mimetype,
-              label: "original",
+              label: "file",
             },
             variants: [],
           };
         }
 
-        if (processed.type === "image" || processed.type === "video") {
-          try {
-            fs.unlinkSync(f.path);
-          } catch (e) {}
-        }
+        // FLATTEN to /uploads root and fix URLs to BASE_ASSETS_URL
+        const flat = flattenProcessedOutputs(processed);
+        const docData = buildDocFromProcessed(flat, req.user?._id);
 
-        const doc = await Media.create({
-          filename: `${baseNameNoExt}.${
-            processed.type === "video"
-              ? "webm"
-              : processed.type === "image"
-              ? "webp"
-              : path.extname(f.filename).slice(1)
-          }`,
-          originalName: f.originalname,
-          type: processed.type,
-          status: "ready",
-          storageProvider: "local",
-          folder: relFolder,
-          path: relKey,
-          url: processed.canonical.url,
-          size: processed.canonical.size || f.size || 0,
-          mime: processed.canonical.mime || f.mimetype,
-          width: processed.canonical.width || null,
-          height: processed.canonical.height || null,
-          duration: processed.duration || null,
-          posterUrl: processed.posterUrl || null,
-          variants: processed.variants || [],
-          uploadedBy: (req.user && (req.user.email || req.user.id)) || "system",
-        });
-
-        results.push({
-          id: String(doc._id),
-          url: doc.url,
-          filename: doc.filename,
-          type: doc.type,
-          posterUrl: doc.posterUrl || null,
-        });
-      } catch (e) {
-        console.error("Upload process error:", e);
-        results.push({ error: e.message, originalName: f.originalname });
+        const doc = await Media.create(docData);
+        results.push(doc);
       }
+
+      return res.json({ ok: true, items: results });
+    } catch (e) {
+      return res.status(500).json({ ok: false, error: e.message });
     }
-
-    res.json({ ok: true, count: results.length, items: results });
   });
 };
 
-// keep all other exports unchanged (listMedia, updateMedia, replaceMedia, deleteMedia)
-exports.listMedia = async (req, res) => {
-  const page = Math.max(parseInt(req.query.page || "1", 10), 1);
-  const limit = Math.min(
-    Math.max(parseInt(req.query.limit || "40", 10), 1),
-    100
-  );
-  const search = (req.query.search || "").trim();
-  const type = (req.query.type || "").trim();
-
-  const q = { deleted: { $ne: true } };
-  if (search)
-    q.filename = {
-      $regex: search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
-      $options: "i",
-    };
-  if (type) q.type = type;
-
-  const [items, total] = await Promise.all([
-    Media.find(q)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .lean(),
-    Media.countDocuments(q),
-  ]);
-
-  res.json({
-    ok: true,
-    page,
-    limit,
-    total,
-    items: items.map((i) => ({
-      id: i._id,
-      filename: i.filename,
-      url: i.url,
-      type: i.type,
-      posterUrl: i.posterUrl || null,
-      size: i.size,
-      mime: i.mime,
-      createdAt: i.createdAt,
-      variants: i.variants || [],
-    })),
-  });
-};
-
+// PUT /api/media/:id
 exports.updateMedia = async (req, res) => {
-  const { id } = req.params;
-  const { filename, title, altText, description, tags } = req.body || {};
-  const doc = await Media.findById(id);
-  if (!doc || doc.deleted)
-    return res.status(404).json({ ok: false, error: "Not found" });
+  try {
+    const id = req.params.id;
+    const payload = req.body || {};
 
-  if (filename && typeof filename === "string") {
-    doc.filename = filename.trim();
+    const doc = await Media.findById(id);
+    if (!doc) return res.status(404).json({ ok: false, error: "Not found" });
+
+    // allow edits on a few fields
+    if (typeof payload.title === "string") doc.title = payload.title.trim();
+    if (Array.isArray(payload.tags))
+      doc.tags = payload.tags.map((t) => String(t).trim()).filter(Boolean);
+    if (typeof payload.description === "string")
+      doc.description = payload.description.trim();
+
+    doc.updatedAt = new Date();
+    await doc.save();
+
+    return res.json({ ok: true, item: doc });
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: e.message });
   }
-  if (title !== undefined) doc.title = title;
-  if (altText !== undefined) doc.altText = altText;
-  if (description !== undefined) doc.description = description;
-  if (Array.isArray(tags)) doc.tags = tags;
-
-  await doc.save();
-  res.json({ ok: true, item: doc });
 };
 
-
+// PUT /api/media/:id/replace
 exports.replaceMedia = async (req, res) => {
-  // Replace file and re-process
-  const { id } = req.params;
-  const doc = await Media.findById(id);
-  if (!doc || doc.deleted)
-    return res.status(404).json({ ok: false, error: "Not found" });
-
-  const single = multer({
-    storage: multer.diskStorage({
-      destination: (reqx, file, cb) => {
-        const relFolder = doc.folder || todayRelFolder();
-        const absFolder = path.join(UPLOAD_ROOT, relFolder);
-        ensureDirSync(absFolder);
-        cb(null, absFolder);
-      },
-      filename: (reqx, file, cb) => {
-        const base = path.parse(file.originalname).name;
-        const safe = slugify(base, { lower: true, strict: true }) || "media";
-        const stamp = Date.now();
-        cb(
-          null,
-          `${safe}-${stamp}${path.extname(file.originalname).toLowerCase()}`
-        );
-      },
-    }),
-  }).single("file");
-
+  const single = multer({ storage }).single("file");
   single(req, res, async (err) => {
     if (err) return res.status(400).json({ ok: false, error: err.message });
 
     try {
-      const f = req.file;
-      const relFolder = path.relative(UPLOAD_ROOT, path.dirname(f.path));
-      const baseNameNoExt = path.parse(f.filename).name;
+      const id = req.params.id;
+      const doc = await Media.findById(id);
+      if (!doc) return res.status(404).json({ ok: false, error: "Not found" });
+
+      const relFolder = path.relative(
+        UPLOAD_ROOT_FALLBACK,
+        path.dirname(req.file.path)
+      );
+      const baseNameNoExt = path.parse(req.file.filename).name;
 
       let processed;
-      if (isImage(f.mimetype)) {
+      if (isImage(req.file.mimetype)) {
         processed = await processImage({
-          srcAbsPath: f.path,
+          srcAbsPath: req.file.path,
           relFolder,
           baseNameNoExt,
-          uploadsRootAbs: UPLOAD_ROOT,
-          baseUrl: BASE_ASSETS_URL,
+          uploadsRootAbs: UPLOAD_ROOT_FALLBACK,
+          baseUrl: BASE_ASSETS_URL_FALLBACK,
         });
-      } else if (isVideo(f.mimetype)) {
+      } else if (isVideo(req.file.mimetype)) {
         processed = await processVideo({
-          srcAbsPath: f.path,
+          srcAbsPath: req.file.path,
           relFolder,
           baseNameNoExt,
-          uploadsRootAbs: UPLOAD_ROOT,
-          baseUrl: BASE_ASSETS_URL,
+          uploadsRootAbs: UPLOAD_ROOT_FALLBACK,
+          baseUrl: BASE_ASSETS_URL_FALLBACK,
         });
       } else {
-        const relOut = path.join(relFolder, f.filename);
+        const moved = moveToRootIfNeeded(path.resolve(req.file.path));
         processed = {
-          type: "other",
+          type: "file",
           canonical: {
-            url: `${BASE_ASSETS_URL}/uploads/${relOut.replace(/\\/g, "/")}`,
-            size: f.size,
-            mime: f.mimetype,
-            label: "original",
+            url: moved
+              ? toFlatPublicUrl(moved)
+              : `${BASE_ASSETS_URL}/uploads/${req.file.filename}`,
+            size: req.file.size,
+            mime: req.file.mimetype,
+            label: "file",
           },
           variants: [],
         };
       }
 
-      // Remove previous variant files (best effort)
-      for (const v of doc.variants || []) {
-        try {
-          const rel = v.url.split("/uploads/")[1];
-          if (rel) fs.unlinkSync(path.join(UPLOAD_ROOT, rel));
-        } catch (e) {}
-      }
+      const flat = flattenProcessedOutputs(processed);
+
+      // Old file cleanup (best-effort)
       try {
-        const rel = doc.url.split("/uploads/")[1];
-        if (rel) fs.unlinkSync(path.join(UPLOAD_ROOT, rel));
-      } catch (e) {}
+        const rel = relFromPublicUrl(doc.url);
+        if (rel) {
+          const abs = path.join(UPLOAD_ROOT, rel);
+          if (fs.existsSync(abs)) fs.unlinkSync(abs);
+        }
+        for (const v of doc.variants || []) {
+          const vRel = relFromPublicUrl(v.url);
+          if (vRel) {
+            const vAbs = path.join(UPLOAD_ROOT, vRel);
+            if (fs.existsSync(vAbs)) fs.unlinkSync(vAbs);
+          }
+        }
+      } catch {}
 
-      // Remove uploaded temp if processed
-      if (processed.type === "image" || processed.type === "video") {
-        try {
-          fs.unlinkSync(f.path);
-        } catch (e) {}
-      }
+      // Update document with new flattened data
+      doc.type = flat.type || doc.type;
+      doc.url = flat.canonical?.url || doc.url;
+      doc.filename = doc.url ? path.basename(doc.url) : doc.filename;
+      doc.folder = ""; // flattened
+      doc.variants = Array.isArray(flat.variants) ? flat.variants : [];
+      doc.width = flat?.canonical?.width ?? doc.width;
+      doc.height = flat?.canonical?.height ?? doc.height;
+      doc.size = flat?.canonical?.size ?? doc.size;
+      doc.mime = flat?.canonical?.mime ?? doc.mime;
+      doc.updatedAt = new Date();
 
-      // Update doc
-      doc.type = processed.type;
-      doc.folder = relFolder;
-      doc.path = path.join(relFolder, baseNameNoExt);
-      doc.url = processed.canonical.url;
-      doc.size = processed.canonical.size || f.size || 0;
-      doc.mime = processed.canonical.mime || f.mimetype;
-      doc.width = processed.canonical.width || null;
-      doc.height = processed.canonical.height || null;
-      doc.duration = processed.duration || null;
-      doc.posterUrl = processed.posterUrl || null;
-      doc.variants = processed.variants || [];
       await doc.save();
 
-      res.json({ ok: true, item: doc });
+      return res.json({ ok: true, item: doc });
     } catch (e) {
-      console.error("Replace error:", e);
-      res.status(500).json({ ok: false, error: e.message });
+      return res.status(500).json({ ok: false, error: e.message });
     }
   });
 };
 
+// DELETE /api/media/:id  (?hard=true for physical delete)
 exports.deleteMedia = async (req, res) => {
-  const { id } = req.params;
-  const hard = String(req.query.hard || "").toLowerCase() === "true";
-  const doc = await Media.findById(id);
-  if (!doc) return res.status(404).json({ ok: false, error: "Not found" });
+  try {
+    const id = req.params.id;
+    const hard = String(req.query.hard || "false").toLowerCase() === "true";
 
-  if (hard) {
-    // delete files
-    for (const v of doc.variants || []) {
+    const doc = await Media.findById(id);
+    if (!doc) return res.status(404).json({ ok: false, error: "Not found" });
+
+    if (hard) {
       try {
-        const rel = v.url.split("/uploads/")[1];
-        if (rel) fs.unlinkSync(path.join(UPLOAD_ROOT, rel));
+        const rel = relFromPublicUrl(doc.url);
+        if (rel) {
+          const abs = path.join(UPLOAD_ROOT, rel);
+          if (fs.existsSync(abs)) fs.unlinkSync(abs);
+        }
+        for (const v of doc.variants || []) {
+          const vRel = relFromPublicUrl(v.url);
+          if (vRel) {
+            const vAbs = path.join(UPLOAD_ROOT, vRel);
+            if (fs.existsSync(vAbs)) fs.unlinkSync(vAbs);
+          }
+        }
       } catch {}
+
+      await doc.deleteOne();
+      return res.json({ ok: true, deleted: "hard" });
     }
-    try {
-      const rel = doc.url.split("/uploads/")[1];
-      if (rel) fs.unlinkSync(path.join(UPLOAD_ROOT, rel));
-    } catch {}
 
-    await doc.deleteOne();
-    return res.json({ ok: true, deleted: "hard" });
+    // soft delete
+    doc.deleted = true;
+    doc.deletedAt = new Date();
+    await doc.save();
+    return res.json({ ok: true, deleted: "soft" });
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: e.message });
   }
-
-  // soft delete
-  doc.deleted = true;
-  doc.deletedAt = new Date();
-  await doc.save();
-  res.json({ ok: true, deleted: "soft" });
 };

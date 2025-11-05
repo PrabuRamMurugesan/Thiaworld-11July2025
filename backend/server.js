@@ -24,8 +24,7 @@ const exportRoutes = require("./routes/exportRoutes");
 const mediaRoutes = require("./routes/mediaRoutes");
 
 const app = express();
-const UPLOAD_DIR = path.join(__dirname, "uploads");
-app.use("/uploads", express.static(UPLOAD_DIR));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // If you’re behind Nginx/HTTPS, this lets secure cookies work correctly
 app.set("trust proxy", 1);
 

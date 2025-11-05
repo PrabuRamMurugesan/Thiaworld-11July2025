@@ -6,14 +6,48 @@ export default function MediaUploadModal({ onClose, onUpload }) {
   const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef(null);
 
+  // 🔹 Handle drag & drop (folders or files)
   function onDrop(e) {
     e.preventDefault();
     e.stopPropagation();
     setDragOver(false);
-    const list = Array.from(e.dataTransfer.files || []);
-    setFiles((prev) => prev.concat(list));
+    const items = e.dataTransfer.items;
+    if (items) {
+      traverseFileTree(items);
+    } else {
+      const list = Array.from(e.dataTransfer.files || []);
+      setFiles((prev) => prev.concat(list));
+    }
   }
 
+  // 🔹 Recursively read folders and files
+  function traverseFileTree(items) {
+    const allFiles = [];
+    let pending = items.length;
+
+    function readEntries(entry) {
+      if (entry.isFile) {
+        entry.file((file) => {
+          allFiles.push(file);
+          if (--pending === 0) setFiles((prev) => prev.concat(allFiles));
+        });
+      } else if (entry.isDirectory) {
+        const dirReader = entry.createReader();
+        dirReader.readEntries((entries) => {
+          pending += entries.length;
+          entries.forEach(readEntries);
+          if (--pending === 0) setFiles((prev) => prev.concat(allFiles));
+        });
+      }
+    }
+
+    for (const item of items) {
+      const entry = item.webkitGetAsEntry?.();
+      if (entry) readEntries(entry);
+    }
+  }
+
+  // 🔹 Handle file/folder picker
   function onPick(e) {
     const list = Array.from(e.target.files || []);
     setFiles((prev) => prev.concat(list));
@@ -31,7 +65,7 @@ export default function MediaUploadModal({ onClose, onUpload }) {
   return (
     <div style={backdropStyle}>
       <div style={modalStyle}>
-        <h3 style={{ marginTop: 0 }}>Upload files</h3>
+        <h3 style={{ marginTop: 0 }}>Upload files or folders</h3>
 
         <div
           onDragOver={(e) => {
@@ -49,12 +83,15 @@ export default function MediaUploadModal({ onClose, onUpload }) {
             marginBottom: 12,
           }}
         >
-          Drag & drop files here
+          Drag & drop files or folders here
           <div style={{ margin: 8 }}>or</div>
+          {/* 🔹 Allows both file & folder upload */}
           <input
             ref={inputRef}
             type="file"
             multiple
+            webkitdirectory="true"
+            directory="true"
             accept="image/*,video/*,.pdf"
             onChange={onPick}
           />
@@ -88,7 +125,7 @@ export default function MediaUploadModal({ onClose, onUpload }) {
                     textOverflow: "ellipsis",
                   }}
                 >
-                  {f.name}
+                  {f.webkitRelativePath || f.name}
                 </div>
                 <div style={{ color: "#666" }}>
                   {Math.round(f.size / 1024)} KB
@@ -122,6 +159,7 @@ const backdropStyle = {
   justifyContent: "center",
   zIndex: 9999,
 };
+
 const modalStyle = {
   width: 560,
   background: "#fff",

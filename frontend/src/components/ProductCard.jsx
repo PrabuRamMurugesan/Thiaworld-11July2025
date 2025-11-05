@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import ModalImage from "react-modal-image";
 import { FaHeart, FaShoppingCart, FaBolt, FaShareAlt ,FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import ProductDetail from "./ProductDetail";
+import { pickFirstImageSrc } from "../utils/imageTools"; // adjust path if this file sits deeper
+
 const ProductCard = () => {
   const [paymentOption, setPaymentOption] = useState("full");
 
