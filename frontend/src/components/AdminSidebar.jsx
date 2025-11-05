@@ -27,7 +27,7 @@ const AdminSidebar = () => {
     { icon: <FaFileAlt />, label: "CMS Pages", path: "/cms-panel-admin" },
     { icon: <FaShoppingCart />, label: "Orders", path: "/admin/orders" },
     { icon: <FaUsers />, label: "Customers", path: "/admin/customers" },
-    // { icon: <FaDragon />, label: "Drag & Drop", path: "/admin/dragdrop" },
+    { icon: <FaDragon />, label: "Media", path: "/admin/media" },
     {
       icon: <IoLanguage />,
       label: "Multi-Language",

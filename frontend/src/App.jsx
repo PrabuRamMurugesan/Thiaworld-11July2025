@@ -86,6 +86,7 @@ import ForgotPasswordPage from "./components/Auth/ForgotPassword";
 import UserSettings from "./components/UserSetting";
 import WriteTestimonial from "./pages/WriteTestimonial";
 import WishlistPage from "./pages/WishlistPage";
+import MediaLibrary from "./pages/admin/MediaLibrary";
 
 export default function App() {
   return (
@@ -192,6 +193,7 @@ export default function App() {
       <Route path="/diamond-collection" element={<DiamondCollection />} />
       <Route path="/festive-offers" element={<FestiveOffers />} />
       <Route path="/cms-panel-admin" element={<CMSAdvancedAdminPanel />} />
+      <Route path="/admin/media" element={<MediaLibrary />} />
       {/* Admin Panel */}
       <Route path="/admin" element={<AdminLayout />}>
         <Route path="dashboard" element={<DashboardHome />} />
@@ -207,7 +209,7 @@ export default function App() {
         <Route path="multi-language" element={<MultiLangSupport />} />
         <Route path="geo-visibility" element={<GeoVisibilityToggle />} />
         <Route path="roles-manager" element={<RoleManager />} />
-        <Route path="media" element={<MediaLibraryPage />} />
+        {/* <Route path="media" element={<MediaLibrary />} /> */}
         <Route path="seo-manager" element={<SeoManagerPage />} />
         <Route path="preview-scheduler" element={<PreviewSchedulerPage />} />
         <Route path="cms-panel-admin" element={<CMSAdvancedAdminPanel />} />
