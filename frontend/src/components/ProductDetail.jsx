@@ -15,11 +15,18 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 import { CartContext } from "../context/CartContext";
+import {
+  buildImgSrc,
+  normalizeImages,
+  pickFirstImageSrc,
+} from "../utils/imageTools";
 
 function apiOrigin() {
-  const base = import.meta.env.VITE_API_URI || "";
+  const base =
+    import.meta.env.VITE_API_URI || import.meta.env.VITE_API_URL || "";
   return base.replace(/\/api\/?$/, "");
 }
+
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -33,6 +40,7 @@ const ProductDetailPage = () => {
   const mainImageSize = 500;
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+const [galleryList, setGalleryList] = useState([]);
 
   // Lens Zoom States
   const [lensPos, setLensPos] = useState({ x: 10, y: 0 });
@@ -41,28 +49,31 @@ const ProductDetailPage = () => {
   const lensSize = 150;
   const zoom = 2;
 
-  const buildImgSrc = (img) => {
-    if (!img) return "/default-product.jpg";
-    if (/^https?:\/\//i.test(img)) return img;
-    if (img.startsWith("/uploads")) return `${apiOrigin()}${img}`;
-    return "/default-product.jpg";
-  };
+ function buildImgSrc(img) {
+   if (!img) return "/default-product.jpg";
+   if (/^https?:\/\//i.test(img)) return img;
+   if (img.startsWith("/uploads/")) return `${apiOrigin()}${img}`;
+   return `${apiOrigin()}/uploads/${img}`;
+ }
+const fetchProduct = async () => {
+  try {
+    const res = await axios.get(
+      `${import.meta.env.VITE_API_URI}/products/${id}`
+    );
+    const prod = res.data;
+    prod.category = prod.category || prod.metalType;
+    setProduct(prod);
 
-  const fetchProduct = async () => {
-    try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_URI}/products/${id}`
-      );
-      const prod = res.data;
-      prod.category = prod.category || prod.metalType;
-      setProduct(prod);
-      const firstImg = Array.isArray(prod.images) ? prod.images[0] : "";
-      setSelectedImage(buildImgSrc(firstImg));
-    } catch (err) {
-      console.error("Failed to fetch product:", err);
+    const normalizedGallery = normalizeImages(prod?.images);
+    setGalleryList(normalizedGallery);
+
+    if (normalizedGallery.length > 0) {
+      setSelectedImage(buildImgSrc(normalizedGallery[0]));
     }
-  };
-
+  } catch (err) {
+    console.error("Failed to fetch product:", err);
+  }
+};
   useEffect(() => {
     fetchProduct();
     setUsePartial(false);
@@ -205,23 +216,20 @@ const ProductDetailPage = () => {
 
             {/* Thumbnail Images */}
             <div className="flex gap-2 mt-4 flex-wrap justify-center">
-              {Array.isArray(product.images) &&
-                product.images.map((img, i) => {
-                  const thumb = buildImgSrc(img);
-                  return (
-                    <img
-                      key={i}
-                      src={thumb}
-                      alt={`thumb-${i}`}
-                      className={`w-40 h-40 object-cover rounded border cursor-pointer ${
-                        selectedImage === thumb
-                          ? "border-yellow-500"
-                          : "border-gray-300"
-                      }`}
-                      onClick={() => setSelectedImage(thumb)}
-                    />
-                  );
-                })}
+              {galleryList.map((img) => (
+                <img
+                  key={img}
+                  src={buildImgSrc(img)}
+                  alt=""
+                  onClick={() => setSelectedImage(buildImgSrc(img))}
+                  style={{
+                    width: 70,
+                    height: 70,
+                    objectFit: "cover",
+                    cursor: "pointer",
+                  }}
+                />
+              ))}
             </div>
           </div>
 

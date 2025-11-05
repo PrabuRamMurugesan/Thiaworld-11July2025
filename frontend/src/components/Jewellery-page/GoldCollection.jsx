@@ -6,6 +6,11 @@ import Header from "../Header";
 import Footer from "../Footer";
 import { IoHeart, IoStar } from "react-icons/io5";
 import { useWishlist } from "../../context/WishlistContext";
+import {
+  pickFirstImageSrc,
+  normalizeImages,
+  buildImgSrc,
+} from "../../utils/imageTools";
 
 const GoldCollection = () => {
   // raw products from API
@@ -205,19 +210,20 @@ const { isWished, toggle } = useWishlist();
 
         {/* Products grid */}
         <section className="d-flex flex-row flex-wrap justify-start gap-4">
-          {paginatedProducts.map((prod) => (
-            <div
-              key={prod._id}
-              className="position-relative border rounded p-3"
-              style={{ width: 270 }}
-            >
-    
+          {paginatedProducts.map((prod) => {
+            const firstImg = pickFirstImageSrc(prod.images);
+
+            return (
+              <div
+                key={prod._id}
+                className="position-relative border rounded p-3"
+                style={{ width: 270 }}
+              >
                 <div
                   className="d-flex justify-content-between position-absolute top-0 start-0 end-0 px-4 mt-4"
                   style={{ zIndex: 1 }}
                 >
                   <IoStar style={{ color: "gray", fontSize: 25 }} />
-
                   <button
                     aria-label="Toggle wishlist"
                     onClick={(e) => {
@@ -239,71 +245,69 @@ const { isWished, toggle } = useWishlist();
                     <IoHeart
                       style={{
                         fontSize: 25,
-                        color: isWished(prod._id) ? "#e03131" : "gray", // red if wished
+                        color: isWished(prod._id) ? "#e03131" : "gray",
                         transition: "color 120ms ease",
                       }}
                     />
                   </button>
                 </div>
-       
 
-              <Link to={`/product/${prod._id}`}>
-                <img
-                  src={
-                    prod.images?.[0] ? prod.images[0] : "/default-product.jpg"
-                  }
-                  alt={prod.name}
-                  style={{ width: 250, height: 250, objectFit: "cover" }}
-                />
-              </Link>
+                <Link to={`/product/${prod._id}`}>
+                  <img
+                    src={buildImgSrc(firstImg)}
+                    alt={prod.name}
+                    style={{ width: 250, height: 250, objectFit: "cover" }}
+                  />
+                </Link>
 
-              <div className="mt-2">
-                <h3 className="text-gray-800 mt-2">{prod.name}</h3>
-                <p className="text-xs text-gray-500 my-2">
-                  Net: {prod.netWeight}g | Gross: {prod.grossWeight}g
-                </p>
+                <div className="mt-2">
+                  <h3 className="text-gray-800 mt-2">{prod.name}</h3>
+                  <p className="text-xs text-gray-500 my-2">
+                    Net: {prod.netWeight}g | Gross: {prod.grossWeight}g
+                  </p>
 
-                <div className="mt-1 text-yellow-700 fw-bold">
-                  ₹{Number(prod.price || 0).toLocaleString("en-IN")}
-                  {Number(prod.discount || 0) > 0 && (
-                    <span className="text-gray-400 text-decoration-line-through ms-2">
-                      ₹{Number(prod.mrp || 0).toLocaleString("en-IN")}
-                    </span>
-                  )}
+                  <div className="mt-1 text-yellow-700 fw-bold">
+                    ₹{Number(prod.price || 0).toLocaleString("en-IN")}
+                    {Number(prod.discount || 0) > 0 && (
+                      <span className="text-gray-400 text-decoration-line-through ms-2">
+                        ₹{Number(prod.mrp || 0).toLocaleString("en-IN")}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="d-flex justify-content-between mt-3">
+                  <button
+                    onClick={() => addToCart(prod)}
+                    className="btn"
+                    style={{
+                      background: "#ffb703",
+                      color: "#333",
+                      fontWeight: "bold",
+                      padding: "8px 16px",
+                      borderRadius: 30,
+                    }}
+                  >
+                    Add to Cart
+                  </button>
+
+                  <Link
+                    to={`/product/${prod._id}`}
+                    className="btn"
+                    style={{
+                      background: "#f1f1f1",
+                      color: "#333",
+                      fontWeight: "bold",
+                      padding: "8px 16px",
+                      borderRadius: 30,
+                    }}
+                  >
+                    View
+                  </Link>
                 </div>
               </div>
-
-              <div className="d-flex justify-content-between mt-3">
-                <button
-                  onClick={() => addToCart(prod)}
-                  className="btn"
-                  style={{
-                    background: "#ffb703",
-                    color: "#333",
-                    fontWeight: "bold",
-                    padding: "8px 16px",
-                    borderRadius: 30,
-                  }}
-                >
-                  Add to Cart
-                </button>
-
-                <Link
-                  to={`/product/${prod._id}`}
-                  className="btn"
-                  style={{
-                    background: "#f1f1f1",
-                    color: "#333",
-                    fontWeight: "bold",
-                    padding: "8px 16px",
-                    borderRadius: 30,
-                  }}
-                >
-                  View
-                </Link>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </section>
 
         {/* Pagination */}
