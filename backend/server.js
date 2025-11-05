@@ -21,9 +21,11 @@ const metalRateRoutes = require("./routes/metalRateRoutes");
 const testimonialRoutes = require("./routes/testimonialRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
 const exportRoutes = require("./routes/exportRoutes");
+const mediaRoutes = require("./routes/mediaRoutes");
 
 const app = express();
-
+const UPLOAD_DIR = path.join(__dirname, "uploads");
+app.use("/uploads", express.static(UPLOAD_DIR));
 // If you’re behind Nginx/HTTPS, this lets secure cookies work correctly
 app.set("trust proxy", 1);
 
@@ -81,6 +83,7 @@ app.use("/api/export", exportRoutes);
 app.use("/api/razorpay", razorpayRoutes);
 app.use("/api/testimonials", testimonialRoutes);
 app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/media", mediaRoutes);
 
 // Health check (useful for curl and Nginx)
 app.get("/api/health", (_req, res) => res.status(200).send("OK"));

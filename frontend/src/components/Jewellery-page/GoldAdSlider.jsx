@@ -8,7 +8,7 @@ import {
 } from "react-icons/fa6"; // ✅ use from fa6 for modern icons
 import { FaVolumeUp } from "react-icons/fa";
 const products = [
-  { video: "/assets/addiwali.mp4" },
+  // { video: "/assets/addiwali.mp4" },
   { title: "Royal Gold Necklace", image: "/assets/Banner1.jpg" },
   { title: "Elegant Gold Ring", image: "/assets/Banner3.jpg" },
   { title: "Luxury Gold Bracelet", image: "/assets/Banner2.jpg" },
