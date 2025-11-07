@@ -4,9 +4,9 @@ import { FaBell, FaUserCircle } from "react-icons/fa";
 
 const AdminHeader = () => {
   return (
-    <Navbar bg="light" expand="lg" className="shadow-sm border-bottom">
+    <Navbar bg="light" expand="lg" className="shadow-sm border-bottom w-100">
       <Container fluid>
-        <Navbar.Brand className="fw-bold">🛡️ BBSCART Admin</Navbar.Brand>
+        <Navbar.Brand className="fw-bold p-3">Thiaworld Admin</Navbar.Brand>
         <Nav className="ms-auto d-flex align-items-center gap-4">
           <Nav.Link href="#" className="position-relative">
             <FaBell size={20} />

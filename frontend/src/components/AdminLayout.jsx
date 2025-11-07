@@ -11,27 +11,14 @@ const AdminLayout = () => {
   return (
     <div className="d-flex" style={{ minHeight: "100vh" }}>
       {/* Sidebar */}
-      <div
-        className="bg-dark text-white position-fixed"
-        style={{
-          width: `${sidebarWidth}px`,
-          height: "100vh",
-          transition: "width 0.3s",
-          overflow: "hidden",
-          zIndex: 1000,
-        }}
-      >
+      <div>
         <AdminSidebar collapsed={collapsed} setCollapsed={setCollapsed} />
       </div>
 
       {/* Main Content */}
       <div
         className="flex-grow-1"
-        style={{
-          marginLeft: `${sidebarWidth}px`,
-          transition: "margin-left 0.3s",
-          width: `calc(100% - ${sidebarWidth}px)`,
-        }}
+        style={{ width: `calc(100% - ${sidebarWidth}px)` }}
       >
         <AdminHeader />
         <main className="p-4">

@@ -51,21 +51,29 @@ export default function MediaEditDrawer({ item, onClose, onSaved }) {
   return (
     <div style={drawerBackdrop}>
       <div style={drawer}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <h3 style={{ margin: 0, flex: 1 }}>Edit media</h3>
-          <button onClick={onClose}>Close</button>
+        <div className="flex items-center p-3 border-b pb-4">
+          <h3 className="text-xl" style={{ margin: 0, flex: 1 }}>
+            Edit media
+          </h3>
+          <button
+            className="bg-red-500 text-white px-3 py-1 rounded"
+            onClick={onClose}
+          >
+            Close
+          </button>
         </div>
 
         <div
           style={{
             marginTop: 12,
             display: "grid",
-            gridTemplateColumns: "220px 1fr",
+            gridTemplateColumns: "280px 1fr",
             gap: 12,
           }}
         >
-          <div>
+          <div className="mt-4">
             <div
+              className=""
               style={{
                 width: "100%",
                 aspectRatio: "1/1",
@@ -80,12 +88,15 @@ export default function MediaEditDrawer({ item, onClose, onSaved }) {
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
             </div>
-            <div style={{ fontSize: 12, color: "#666", marginTop: 6 }}>
+            <div
+              className="text-center"
+              style={{ fontSize: 12, color: "#666", marginTop: 6 }}
+            >
               {item.filename}
             </div>
           </div>
 
-          <div>
+          <div className="border p-4 rounded ">
             <label style={lbl}>Title</label>
             <input
               value={title}
@@ -114,8 +125,12 @@ export default function MediaEditDrawer({ item, onClose, onSaved }) {
               style={txt}
             />
 
-            <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-              <button onClick={saveMeta} disabled={busy}>
+            <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+              <button
+                className="bg-green-600 text-white px-3 py-1 rounded m-2 flex items-start justify-start gap-2"
+                onClick={saveMeta}
+                disabled={busy}
+              >
                 Save
               </button>
             </div>
@@ -123,9 +138,18 @@ export default function MediaEditDrawer({ item, onClose, onSaved }) {
             <hr style={{ margin: "16px 0" }} />
 
             <div style={{ fontWeight: 600, marginBottom: 6 }}>Replace file</div>
-            <input ref={fileRef} type="file" accept="image/*,video/*" />
+            <input
+              className="border border-gray-400 rounded px-2 py-2"
+              ref={fileRef}
+              type="file"
+              accept="image/*,video/*"
+            />
             <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-              <button onClick={doReplace} disabled={busy}>
+              <button
+                className="bg-red-600 p-1 px-2 rounded text-white flex mx-2"
+                onClick={doReplace}
+                disabled={busy}
+              >
                 Replace
               </button>
             </div>

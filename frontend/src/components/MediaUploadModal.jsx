@@ -65,9 +65,10 @@ export default function MediaUploadModal({ onClose, onUpload }) {
   return (
     <div style={backdropStyle}>
       <div style={modalStyle}>
-        <h3 style={{ marginTop: 0 }}>Upload files or folders</h3>
+        <h3 className="text-2xl  text-center">Upload files or folders</h3>
 
         <div
+          className="flex flex-col items-center  justify-center m-4 p-3"
           onDragOver={(e) => {
             e.preventDefault();
             setDragOver(true);
@@ -75,40 +76,45 @@ export default function MediaUploadModal({ onClose, onUpload }) {
           onDragLeave={() => setDragOver(false)}
           onDrop={onDrop}
           style={{
-            border: "2px dashed #bbb",
+            border: "2px dashed gray",
             borderRadius: 8,
-            padding: 16,
+            padding: 0,
             textAlign: "center",
             background: dragOver ? "#f4f8ff" : "white",
             marginBottom: 12,
           }}
         >
           Drag & drop files or folders here
-          <div style={{ margin: 8 }}>or</div>
+          <div style={{ margin: "8px 0" }}>or</div>
           {/* 🔹 Allows both file & folder upload */}
-          <input
-            ref={inputRef}
-            type="file"
-            multiple
-            webkitdirectory="true"
-            directory="true"
-            accept="image/*,video/*,.pdf"
-            onChange={onPick}
-          />
+          <div className="border p-2 rounded text-center bg-[#c5d1e6] ">
+            <input
+              ref={inputRef}
+              type="file"
+              multiple
+              webkitdirectory="true"
+              directory="true"
+              accept="image/*,video/*,.pdf"
+              onChange={onPick}
+            />
+          </div>
         </div>
 
         {files.length > 0 && (
           <div
+            className="mx-4"
             style={{
               maxHeight: 200,
               overflow: "auto",
               border: "1px solid #eee",
               padding: 8,
               borderRadius: 6,
+              background: "#f9f9f9",
             }}
           >
             {files.map((f, i) => (
               <div
+                className="px-4"
                 key={i}
                 style={{
                   display: "flex",
@@ -130,17 +136,31 @@ export default function MediaUploadModal({ onClose, onUpload }) {
                 <div style={{ color: "#666" }}>
                   {Math.round(f.size / 1024)} KB
                 </div>
-                <button onClick={() => removeAt(i)}>Remove</button>
+                <button
+                  className="text-white bg-red-500 p-2 rounded "
+                  onClick={() => removeAt(i)}
+                >
+                  Remove
+                </button>
               </div>
             ))}
           </div>
         )}
 
-        <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-          <button onClick={submit} disabled={!files.length}>
+        <div className="flex justify-center gap-2 m-2 p-2 ">
+          <button
+            className="text-white bg-blue-500 p-1 px-3 rounded "
+            onClick={submit}
+            disabled={!files.length}
+          >
             Upload
           </button>
-          <button onClick={onClose}>Close</button>
+          <button
+            className="text-white bg-red-500 p-1 px-3 rounded"
+            onClick={onClose}
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>

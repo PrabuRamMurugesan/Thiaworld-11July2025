@@ -22,6 +22,9 @@ import healthAccess from "../../public/assets/healthacess.png";
 import { useWishlist } from "../context/WishlistContext";
 import { IoIosHeart } from "react-icons/io";
 import { CartContext } from "../context/CartContext"; // adjust path if different
+import AccountSettingsPage from "../pages/AccountSettingsPage";
+import AccountPage from "./AccountPage";
+import AccountMenu from "./AccountMenu";
 const options = [
   {
     value: "IN",
@@ -252,7 +255,7 @@ const Header = () => {
           <div className="w-1/4 flex items-center"></div>
 
           {/* CENTER LINKS */}
-          <nav className="w-2/4 flex justify-center gap-6 text-sm items-center">
+          <nav className="w-2/4 flex justify-center gap-6 text-sm items-center flex-wrap">
             <Link
               to="/"
               onClick={(e) => {
@@ -269,7 +272,7 @@ const Header = () => {
                 navigate("/aboutus"); // React Router navigation
                 window.location.reload(); // full page reload after navigation
               }}
-              className="cursor-pointer hover:underline"
+              className="cursor-pointer hover:underline text-nowrap"
             >
               About Us
             </span>
@@ -279,7 +282,7 @@ const Header = () => {
                 navigate("/thia-secure"); // React Router navigation
                 window.location.reload(); // full page reload after navigation
               }}
-              className="flex items-center gap-2 cursor-pointer hover:underline"
+              className="flex items-center gap-2 cursor-pointer hover:underline text-nowrap"
             >
               <RiSecurePaymentLine />
               Thia-Secure Plan
@@ -297,19 +300,29 @@ const Header = () => {
           </nav>
 
           {/* RIGHT: USER + CART */}
-          <div className="w-1/3 flex justify-end items-center gap-4 relative  ">
+          <div className="w-1/3 flex justify-end items-center gap-3 relative">
             {user ? (
-              <div className="flex flex-row  items-center justify-center  gap-2 whitespace-nowrap text-decoration-none">
-                <span className="font-semibold">
-                  Welcome, {user.name || "Profile"}
-                </span>
-                <button
-                  onClick={handleLogout}
-                  className="bg-gray-800 hover:bg-gray-900  text-white flex items-center gap-2 px-3 py-1 text-center rounded-md text-xs "
-                >
-                  <FaSignOutAlt className="text-center" />
-                  Logout
-                </button>
+              <div
+                className="relative flex flex-row items-center justify-center gap-2 whitespace-nowrap text-decoration-none"
+                onMouseEnter={() => setOpen(true)}
+                onMouseLeave={() => setOpen(false)}
+              >
+                {/* Welcome Text */}
+                <div className="flex flex-col  items-start justify-start whitespace-nowrap text-decoration-none cursor-pointer">
+                  <span className="font-semibold text-white  flex flex-wrap text-xs">
+                    Welcome
+                  </span>
+                  <span className="font-semibold text-opacity-10 flex flex-wrap text-xs ">
+                    {user.name || "Profile"}
+                  </span>
+                </div>
+
+                {/* Dropdown / Option Box */}
+                {open && (
+                  <div className="absolute right-22 top-[1.5rem] mt-2 bg-white text-black shadow-lg rounded-lg z-50 w-[250px] sm:w-[300px] md:w-[500px] max-h-[80vh] overflow-y-auto no-scrollbar transition-all duration-200">
+                    <AccountMenu />
+                  </div>
+                )}
               </div>
             ) : (
               <div
@@ -326,21 +339,15 @@ const Header = () => {
 
                 {/* Dropdown */}
                 {open && (
-                  <div className="absolute right-0 mt-2 w-32 bg-white text-black shadow-lg rounded-lg z-50">
-                    <Link
-                      to="/login"
-                      className="flex px-3 py-2 hover:bg-orange-100 rounded-t flex-row items-center gap-2"
-                    >
-                      <IoLogoXing />
-                      Login
-                    </Link>
-                    <Link
-                      to="/signup"
-                      className="flex flex-row items-center gap-2 px-3 py-2 hover:bg-orange-100 rounded-b"
-                    >
-                      <GiArchiveRegister />
-                      Register
-                    </Link>
+                  <div
+                    className="p-2 top-[1.5rem] mt-2 bg-white text-black shadow-lg rounded-lg z-50 w-[250px] sm:w-[300px] md:w-[450px] max-h-[80vh] overflow-y-auto no-scrollbar transition-all duration-200"
+                    style={{
+                      position: "absolute",
+                      right: "-12.8rem",
+                    }}
+                  >
+                    {/* Login / Signup Section */}
+                    <AccountPage />
                   </div>
                 )}
               </div>
@@ -393,12 +400,15 @@ const Header = () => {
 
         {/* Mobile drawer menu */}
         {mobileOpen && (
-          <div className="md:hidden bg-[rgba(13,88,102)] text-white flex flex-row flex-wrap justify-between items-end gap-4 px-6 py-4 transition-all duration-300">
+          <div
+            className="md:hidden bg-[rgba(13,88,102)] text-white flex flex-row flex-wrap
+           justify-between items-end gap-4 px-6 py-4 transition-all duration-300"
+          >
             {/* Nav links */}
             <Link
               to="/"
               onClick={() => setMobileOpen(false)}
-              className="hover:underline"
+              className="hover:underline text-nowrap"
             >
               Home
             </Link>
@@ -407,7 +417,7 @@ const Header = () => {
                 navigate("/aboutus");
                 setMobileOpen(false);
               }}
-              className="text-left hover:underline"
+              className="text-left hover:underline text-nowrap"
             >
               About Us
             </button>
@@ -416,7 +426,7 @@ const Header = () => {
                 navigate("/thia-secure");
                 setMobileOpen(false);
               }}
-              className="flex items-center gap-2 hover:underline"
+              className="flex items-center gap-2 hover:underline text-nowrap"
             >
               <RiSecurePaymentLine />
               Thia-Secure Plan
@@ -426,52 +436,13 @@ const Header = () => {
                 navigate("/contact-page");
                 setMobileOpen(false);
               }}
-              className="text-left hover:underline"
+              className="text-left hover:underline text-nowrap"
             >
               Contact
             </button>
 
             {/* Divider */}
             <hr className="border-gray-300 my-2" />
-
-            {/* User / Auth */}
-            {user ? (
-              <div className="flex flex-col gap-2">
-                <span className="font-semibold">
-                  Welcome, {user.name || "Profile"}
-                </span>
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setMobileOpen(false);
-                  }}
-                  className="bg-gray-800 hover:bg-gray-900 text-white flex items-center gap-2 px-3 py-1 rounded-md text-sm"
-                >
-                  <FaSignOutAlt />
-                  Logout
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                <Link
-                  to="/login"
-                  onClick={() => setMobileOpen(false)}
-                  className="hover:underline flex flex-row items-center gap-2"
-                >
-                  <IoLogoXing />
-                  Login
-                </Link>
-                <Link
-                  to="/signup"
-                  onClick={() => setMobileOpen(false)}
-                  className="hover:underline flex flex-row items-center gap-2"
-                >
-                  <GiArchiveRegister />
-                  Register
-                </Link>
-              </div>
-            )}
-
             {/* Cart */}
             <Link
               to="/cart"
@@ -484,6 +455,56 @@ const Header = () => {
                 {cartCount}
               </span>
             </Link>
+
+            {/* User / Auth */}
+            {user ? (
+              <div
+                className="relative flex flex-row items-center justify-center gap-2 whitespace-nowrap text-decoration-none"
+                onMouseEnter={() => setOpen(true)}
+                onMouseLeave={() => setOpen(false)}
+              >
+                <div className="flex flex-row gap-2 items-start justify-start whitespace-nowrap text-decoration-none cursor-pointer">
+                  <span className="font-semibold text-white  flex flex-wrap text-xs">
+                    Welcome
+                  </span>
+                  <span className="font-semibold text-opacity-10 flex flex-wrap text-xs ">
+                    {user.name || "Profile"}
+                  </span>
+                </div>
+                {open && (
+                  <div
+                    className="absolute right-10 left-[-5rem] sm:left-[-15rem] md:left-[20rem] top-[0.6rem] mt-2 bg-white text-black shadow-lg rounded-lg z-50 
+                  w-[300px] sm:w-[400px] md:w-[400px] max-h-[60vh] overflow-y-auto no-scrollbar transition-all duration-200"
+                  >
+                    <AccountMenu />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div
+                className="relative"
+                onMouseEnter={handleEnter}
+                onMouseLeave={handleLeave}
+                onFocus={handleEnter}
+                onBlur={handleLeave}
+              >
+                <button className="flex items-center text-sm">
+                  <FaUserAlt className="mr-2 text-xl" />
+                  <span className="hidden sm:inline">Account</span>
+                </button>
+
+                {/* Dropdown */}
+                {open && (
+                  <div
+                    className="absolute right-10 left-[-5rem] sm:left-[-15rem] md:left-[20rem] top-[0.6rem] mt-2 bg-white text-black shadow-lg rounded-lg z-50 
+                  w-[300px] sm:w-[400px] md:w-[400px] max-h-[60vh] overflow-y-auto no-scrollbar transition-all duration-200"
+                  >
+                    {/* Login / Signup Section */}
+                    <AccountPage />
+                  </div>
+                )}
+              </div>
+            )}
 
             <Link
               to="/user-settings"
@@ -498,7 +519,8 @@ const Header = () => {
         <Row className="mb-3">
           <Col className="d-flex justify-content-center gap-3 mt-3">
             <Button
-              variant="outline-secondary"
+              className="border-1 border-r-red-600 border-l-red-900 border-rose-700  rounded-t-xl px-3"
+              variant="none"
               size="sm"
               style={{ color: "black" }}
               onClick={() => (window.location.href = "https://bbscart.com/")}
@@ -516,7 +538,8 @@ const Header = () => {
             </Button>
 
             <Button
-              variant="outline-secondary"
+              className="border-r-cyan-600 border-l-cyan-900 border-cyan-700 border-1 rounded-b-xl px-3"
+              variant="none"
               size="sm"
               style={{ color: "black" }}
               onClick={() =>
@@ -537,6 +560,19 @@ const Header = () => {
           </Col>
         </Row>
       </header>
+      <style>
+        {`
+        /* Hide scrollbar but allow scrolling */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+`}
+      </style>
     </>
   );
 };
