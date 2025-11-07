@@ -63,11 +63,11 @@ const AdminSidebar = () => {
 
   return (
     <div
-      className={`sidebar bg-dark text-white p-3 ${
+      className={`sidebar bg-dark text-white p-3 h-100 ${
         collapsed ? "collapsed" : ""
       }`}
       style={{
-        minHeight: "100vh",
+        minHeight: "100",
         width: collapsed ? "70px" : "240px",
         transition: "width 0.3s",
       }}
@@ -75,10 +75,10 @@ const AdminSidebar = () => {
       {/* Toggle Button */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         {!collapsed && (
-          <h5 className="text-warning m-0">
+          <h5 className="text-warning m-0 text-2xl mx-3">
             {" "}
             <a href="/" target="_blank">
-              ✨ BBSCART
+              Thiaworld
             </a>
           </h5>
         )}

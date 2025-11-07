@@ -47,7 +47,7 @@ export default function MediaGridItem({
           type="checkbox"
           checked={!!selected}
           onChange={onSelect}
-          style={{ position: "absolute", top: 8, left: 8 }}
+          style={{ position: "absolute", top: 12, left: 12 }}
         />
       </div>
 
@@ -62,16 +62,26 @@ export default function MediaGridItem({
       >
         {item.filename}
       </div>
-      <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+      <div className="flex justify-center items-center gap-2 flex-col  m-2 p-2 rounded-md text-wrap">
         <CopyButton text={item.filename} label="Copy name" />
         <CopyButton text={item.url} label="Copy URL" />
       </div>
 
-      <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
-        <button onClick={onEdit}>Edit</button>
-        <button onClick={onDelete}>Delete</button>
+      <div className="flex justify-center items-center flex-wrap m-2 gap-2 ">
+        <button
+          className="bg-stone-500 text-white p-2 rounded-md "
+          onClick={onEdit}
+        >
+          Edit
+        </button>
+        <button
+          className="bg-red-500 text-white p-2 rounded-md "
+          onClick={onDelete}
+        >
+          Delete
+        </button>
         <a href={item.url} target="_blank" rel="noreferrer">
-          <button>Open</button>
+          <button className="bg-green-400 p-2 rounded-md ">Open</button>
         </a>
       </div>
     </div>
