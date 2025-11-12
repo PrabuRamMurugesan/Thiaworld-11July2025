@@ -6,31 +6,26 @@ function apiOrigin() {
 }
 
 // Accepts: array, a single filename, a pipe string, or a URL → returns a browser-usable src
-export function normalizeImages(images) {
-  if (!images) return [];
-  if (typeof images === "string") {
-    return images
-      .split(/[|,]/)
-      .map((s) => s.trim())
-      .filter(Boolean);
-  }
-  if (Array.isArray(images)) {
-    // handle ["img1|img2|img3"]
-    if (images.length === 1 && images[0].includes("|")) {
-      return images[0]
-        .split("|")
-        .map((s) => s.trim())
-        .filter(Boolean);
-    }
-    return images.filter(Boolean);
-  }
-  return [];
+// src/utils/imageTools.js
+export function normalizeImages(raw) {
+  if (!raw) return [];
+  // raw can be ["a| b| c"] or ["a","b"] or "a|b"
+  const s = Array.isArray(raw) ? raw.join("|") : String(raw);
+  return s
+    .split("|")
+    .map(x => x.trim())
+    .filter(Boolean);
 }
 
-export function pickFirstImageSrc(images) {
-  const arr = normalizeImages(images);
-  return arr.length ? arr[0] : null;
+export function pickFirstImageSrc(raw) {
+  const arr = normalizeImages(raw);
+  return arr.length ? arr[0] : "";
 }
+
+
+
+
+
 
 export function buildImgSrc(img) {
   if (!img) return "/default-product.jpg";
