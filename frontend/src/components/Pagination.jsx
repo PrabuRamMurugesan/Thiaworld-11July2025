@@ -3,21 +3,14 @@ import React from "react";
 
 export default function Pagination({ page, totalPages, onPrev, onNext }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        gap: 8,
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <button onClick={onPrev} disabled={page <= 1}>
+    <div className="flex justify-around p-3">
+      <button className="btn " onClick={onPrev} disabled={page <= 1}>
         Prev
       </button>
       <span>
         Page {page} / {totalPages}
       </span>
-      <button onClick={onNext} disabled={page >= totalPages}>
+      <button className="btn" onClick={onNext} disabled={page >= totalPages}>
         Next
       </button>
     </div>

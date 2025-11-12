@@ -76,7 +76,7 @@ const uploadMulter = multer({
     fileSize: 800 * 1024 * 1024, // 800MB per file
     files: 50,
   },
-}).array("files", 50);
+}).array("files", 200);
 
 // URL/Path flattening helpers
 function relFromPublicUrl(u) {
@@ -222,12 +222,30 @@ exports.listMedia = async (req, res) => {
 };
 
 // POST /api/media/upload
+// utils/mediaAPI.js
+// --- inside controllers/mediaController.js ---
+// utils/mediaAPI.js
+// POST /api/media/upload
 exports.uploadMedia = (req, res) => {
+  console.log("🟢 [Upload] Request received");
+
+  // Configure multer per request
+  const uploadMulter = multer({
+    storage,
+    limits: {
+      fileSize: 800 * 1024 * 1024, // 800MB per file
+      files: 200, // safe per batch
+    },
+  }).array("files", 200);
+
   uploadMulter(req, res, async (err) => {
-    if (err) return res.status(400).json({ ok: false, error: err.message });
+    if (err) {
+      console.error("🔴 [Multer Error]:", err);
+      return res.status(400).json({ ok: false, error: err.message });
+    }
 
     try {
-      const results = [];
+      const uploaded = [];
 
       for (const f of req.files || []) {
         const relFolder = path.relative(
@@ -235,16 +253,32 @@ exports.uploadMedia = (req, res) => {
           path.dirname(f.path)
         );
         const baseNameNoExt = path.parse(f.filename).name;
-
         let processed;
+
         if (isImage(f.mimetype)) {
-          processed = await processImage({
-            srcAbsPath: f.path,
-            relFolder,
-            baseNameNoExt,
-            uploadsRootAbs: UPLOAD_ROOT_FALLBACK,
-            baseUrl: BASE_ASSETS_URL_FALLBACK,
-          });
+          const originalName = path.parse(f.originalname).name;
+          const originalExt = path.extname(f.originalname);
+          const safeName = originalName.replace(/\s+/g, "_"); // replace spaces
+          const destPath = path.join(
+            UPLOAD_ROOT_FALLBACK,
+            safeName + originalExt
+          );
+
+          fs.renameSync(f.path, destPath);
+
+          processed = {
+            type: "image",
+            canonical: {
+              url: `${BASE_ASSETS_URL_FALLBACK}/uploads/${
+                safeName + originalExt
+              }`,
+              size: f.size,
+              mime: f.mimetype,
+              label: safeName,
+            },
+            variants: [],
+          };
+
         } else if (isVideo(f.mimetype)) {
           processed = await processVideo({
             srcAbsPath: f.path,
@@ -254,7 +288,6 @@ exports.uploadMedia = (req, res) => {
             baseUrl: BASE_ASSETS_URL_FALLBACK,
           });
         } else {
-          // Unknown type: just move to root and expose raw file
           const moved = moveToRootIfNeeded(path.resolve(f.path));
           processed = {
             type: "file",
@@ -270,20 +303,21 @@ exports.uploadMedia = (req, res) => {
           };
         }
 
-        // FLATTEN to /uploads root and fix URLs to BASE_ASSETS_URL
         const flat = flattenProcessedOutputs(processed);
-        const docData = buildDocFromProcessed(flat, req.user?._id);
-
-        const doc = await Media.create(docData);
-        results.push(doc);
+        const doc = buildDocFromProcessed(flat, req.user?._id || null);
+        const saved = await Media.create(doc);
+        uploaded.push(saved);
       }
 
-      return res.json({ ok: true, items: results });
+      console.log(`✅ Uploaded ${uploaded.length} files successfully`);
+      return res.json({ ok: true, items: uploaded });
     } catch (e) {
+      console.error("🔴 [Upload Error]:", e);
       return res.status(500).json({ ok: false, error: e.message });
     }
   });
 };
+
 
 // PUT /api/media/:id
 exports.updateMedia = async (req, res) => {
