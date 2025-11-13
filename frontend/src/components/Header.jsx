@@ -248,14 +248,14 @@ const Header = () => {
         {/* NAVBAR WRAPPER */}
         {/* ===== DESKTOP / TABLET NAV ===== */}
         <div
-          className="hidden md:flex items-center justify-between px-6 py-3"
-          style={{ backgroundColor: "rgb(194, 120, 20)", color: "white" }}
+          className="hidden md:flex items-center justify-between px-6 py-3 button-83"
+          // style={{ backgroundColor: "rgb(194, 120, 20)", color: "white" }}
         >
           {/* LEFT: (optional logo) */}
           <div className="w-1/4 flex items-center"></div>
 
           {/* CENTER LINKS */}
-          <nav className="w-2/4 flex justify-center gap-6 text-sm items-center flex-wrap">
+          <nav className="w-2/4 flex justify-center gap-6 text-sm items-center flex-wrap ">
             <Link
               to="/"
               onClick={(e) => {
@@ -570,6 +570,44 @@ const Header = () => {
 .no-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;     /* Firefox */
+}
+
+/* CSS */
+.button-83 {
+  appearance: button;
+  background-color: transparent;
+  background-image: linear-gradient(to bottom, #DEDEDE, #f8eedb);
+  border: 0 solid #e5e7eb;
+ 
+  box-sizing: border-box;
+  color: #482307;
+  column-gap: 1rem;
+  cursor: pointer;
+  display: flex;
+  font-family: ui-sans-serif,system-ui,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-size: 100%;
+  font-weight: 700;
+  line-height: 24px;
+  margin: 0;
+  outline: 2px solid transparent;
+  padding: 1rem 1.5rem;
+  text-align: center;
+  text-transform: none;
+  transition: all .1s cubic-bezier(.4, 0, .2, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  box-shadow: -6px 8px 10px rgba(81,41,10,0.1),0px 2px 2px rgba(81,41,10,0.2);
+}
+
+.button-83:active {
+  background-color: #f3f4f6;
+  box-shadow: -1px 2px 5px rgba(81,41,10,0.15),0px 1px 1px rgba(81,41,10,0.15);
+  transform: translateY(0.125rem);
+}
+
+.button-83:focus {
+  box-shadow: rgba(72, 35, 7, .46) 0 0 0 4px, -6px 8px 10px rgba(81,41,10,0.1), 0px 2px 2px rgba(81,41,10,0.2);
 }
 `}
       </style>

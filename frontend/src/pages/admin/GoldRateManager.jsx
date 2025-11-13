@@ -10,6 +10,8 @@ import {
   Alert,
 } from "react-bootstrap";
 import { MdCancel } from "react-icons/md";
+import AdminSidebar from "../../components/AdminSidebar";
+import AdminHeader from "../../components/AdminHeader";
 // Utility: download CSV helper
 const downloadCSV = (data) => {
   const headers = [
@@ -51,7 +53,9 @@ const GoldRateManager = () => {
   const [editingData, setEditingData] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSource, setFilterSource] = useState("All");
+  const [collapsed, setCollapsed] = useState(false); // control sidebar state
 
+  const sidebarWidth = collapsed ? 70 : 240;
   const fetchGroups = async () => {
     const res = await axios.get(
       `${import.meta.env.VITE_API_URI}/goldrate/grouped?metalType=Gold`
@@ -151,228 +155,276 @@ const GoldRateManager = () => {
 
   return (
     <>
-      <Container fluid className=" border mx-auto p-3   vh-100 bg-light ">
-        <div className="d-flex justify-content-between align-items-center p-3 ">
-          <h3
-            style={{
-              fontFamily: "Poppins",
-              fontWeight: "bold",
-              fontSize: "28px",
-            }}
-          >
-            Gold Rate Manager
-          </h3>
-          <a href="/">
-            {" "}
-            <span>
-              <MdCancel
-                style={{
-                  color: "white",
-                  fontSize: "25px",
-                  backgroundColor: "gray",
-                  borderRadius: "50%",
-                  padding: "1px",
-                }}
-              />
-            </span>
-          </a>
+      <div className="d-flex" style={{ minHeight: "100vh" }}>
+        <div>
+          <AdminSidebar />
         </div>
-        {message && <Alert variant="info">{message}</Alert>}
-
-        <div className="d-flex  flex-column justify-content-between  p-3  border ">
-          {/* Add New Block */}
-          <Form className="mb-4 ">
-            <Row className="d-flex justify-content-between">
-              <Col md={3}>
-                <Form.Label>Source</Form.Label>
-                <Form.Select
-                  value={source}
-                  onChange={(e) => setSource(e.target.value)}
+        <div
+          className="flex-grow-1"
+          style={{ width: `calc(100% - ${sidebarWidth}px)` }}
+        >
+          <AdminHeader />
+          <main>
+            <Container fluid className=" border mx-auto p-3   vh-100 bg-light ">
+              <div className="d-flex justify-content-between align-items-center p-3 ">
+                <h3
+                  style={{
+                    fontFamily: "Poppins",
+                    fontWeight: "bold",
+                    fontSize: "28px",
+                  }}
                 >
-                  <option>Manual</option>
-                  <option>MMTC-PAMP</option>
-                </Form.Select>
-              </Col>
-              {source === "Manual" && (
-                <Col md={3}>
-                  <Form.Label>24K Market Price</Form.Label>
-                  <Form.Control
-                    type="number"
-                    value={marketPrice}
-                    onChange={(e) => setMarketPrice(e.target.value)}
-                  />
-                </Col>
-              )}
-              <Col md={3}>
-                <Form.Label>Effective Date</Form.Label>
-                <Form.Control
-                  type="date"
-                  value={effectiveDate}
-                  onChange={(e) => setEffectiveDate(e.target.value)}
-                />
-              </Col>
-              <Col md={3} className="d-flex align-items-end">
-                <Button onClick={handleAdd}>Add</Button>
-              </Col>
-            </Row>
-          </Form>
+                  Gold Rate Manager
+                </h3>
+                <a href="/">
+                  {" "}
+                  <span>
+                    <MdCancel
+                      style={{
+                        color: "white",
+                        fontSize: "25px",
+                        backgroundColor: "gray",
+                        borderRadius: "50%",
+                        padding: "1px",
+                      }}
+                    />
+                  </span>
+                </a>
+              </div>
+              {message && <Alert variant="info">{message}</Alert>}
 
-          {/* Search + Filter + Download */}
-          <Row className="mb-3">
-            <Col md={4}>
-              <Form.Control
-                placeholder="Search source..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </Col>
-            <Col md={3}>
-              <Form.Select
-                value={filterSource}
-                onChange={(e) => setFilterSource(e.target.value)}
-              >
-                <option>All</option>
-                <option>Manual</option>
-                <option>MMTC-PAMP</option>
-              </Form.Select>
-            </Col>
-            <Col md={3}>
-              <Button
-                variant="success"
-                onClick={() => downloadCSV(filteredGroups)}
-              >
-                Download CSV
-              </Button>
-            </Col>
-          </Row>
+              <div className="d-flex  flex-column justify-content-between  p-3  border ">
+                {/* Add New Block */}
+                <Form className="mb-4 ">
+                  <Row className="d-flex justify-content-between">
+                    <Col md={3}>
+                      <Form.Label>Source</Form.Label>
+                      <Form.Select
+                        value={source}
+                        onChange={(e) => setSource(e.target.value)}
+                      >
+                        <option>Manual</option>
+                        <option>MMTC-PAMP</option>
+                      </Form.Select>
+                    </Col>
+                    {source === "Manual" && (
+                      <Col md={3}>
+                        <Form.Label>24K Market Price</Form.Label>
+                        <Form.Control
+                          type="number"
+                          value={marketPrice}
+                          onChange={(e) => setMarketPrice(e.target.value)}
+                        />
+                      </Col>
+                    )}
+                    <Col md={3}>
+                      <Form.Label>Effective Date</Form.Label>
+                      <Form.Control
+                        type="date"
+                        value={effectiveDate}
+                        onChange={(e) => setEffectiveDate(e.target.value)}
+                      />
+                    </Col>
+                    <Col md={3} className="d-flex align-items-end gap-2">
+                      <Button onClick={handleAdd}>Add</Button>
+                      <Button>Undo</Button>
+                    </Col>
+                  </Row>
+                </Form>
 
-          {/* Grouped Table */}
-          <Table striped bordered hover responsive>
-            <thead>
-              <tr>
-                <th>Market Price</th>
-                <th>24K</th>
-                <th>22K</th>
-                <th>18K</th>
-                <th>Source</th>
-                <th>Effective Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredGroups.map((group) => {
-                const isEditing =
-                  editingKey === `${group.effectiveDate}_${group.source}`;
-                return (
-                  <tr key={`${group._id24}`}>
-                    <td>
-                      {isEditing ? (
-                        <Form.Control
-                          type="number"
-                          value={editingData.marketPrice}
-                          onChange={(e) =>
-                            setEditingData({
-                              ...editingData,
-                              marketPrice: e.target.value,
-                            })
-                          }
-                        />
-                      ) : (
-                        group.marketPrice
-                      )}
-                    </td>
-                    <td>
-                      {isEditing ? (
-                        <Form.Control
-                          type="number"
-                          value={editingData.rate24}
-                          onChange={(e) =>
-                            setEditingData({
-                              ...editingData,
-                              rate24: e.target.value,
-                            })
-                          }
-                        />
-                      ) : (
-                        group.rate24?.toFixed(2)
-                      )}
-                    </td>
-                    <td>
-                      {isEditing ? (
-                        <Form.Control
-                          type="number"
-                          value={editingData.rate22}
-                          onChange={(e) =>
-                            setEditingData({
-                              ...editingData,
-                              rate22: e.target.value,
-                            })
-                          }
-                        />
-                      ) : (
-                        group.rate22?.toFixed(2)
-                      )}
-                    </td>
-                    <td>
-                      {isEditing ? (
-                        <Form.Control
-                          type="number"
-                          value={editingData.rate18}
-                          onChange={(e) =>
-                            setEditingData({
-                              ...editingData,
-                              rate18: e.target.value,
-                            })
-                          }
-                        />
-                      ) : (
-                        group.rate18?.toFixed(2)
-                      )}
-                    </td>
-                    <td>{group.source}</td>
-                    <td>
-                      {new Date(group.effectiveDate).toLocaleDateString()}
-                    </td>
-                    <td>
-                      {isEditing ? (
-                        <>
-                          <Button
-                            size="sm"
-                            variant="success"
-                            onClick={handleUpdate}
-                          >
-                            Save
-                          </Button>{" "}
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={handleCancel}
-                          >
-                            Cancel
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Button size="sm" onClick={() => handleEdit(group)}>
-                            Edit
-                          </Button>{" "}
-                          <Button
-                            size="sm"
-                            variant="danger"
-                            onClick={() => handleDelete(group)}
-                          >
-                            Delete
-                          </Button>
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </Table>
+                {/* Search + Filter + Download */}
+                <Row className="mb-3">
+                  <Col md={4}>
+                    <Form.Control
+                      placeholder="Search source..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </Col>
+                  <Col md={3}>
+                    <Form.Select
+                      value={filterSource}
+                      onChange={(e) => setFilterSource(e.target.value)}
+                    >
+                      <option>All</option>
+                      <option>Manual</option>
+                      <option>MMTC-PAMP</option>
+                    </Form.Select>
+                  </Col>
+                  <Col md={3}>
+                    <Button
+                      variant="success"
+                      onClick={() => downloadCSV(filteredGroups)}
+                    >
+                      Download CSV
+                    </Button>
+                  </Col>
+                  <Col pt={3}>
+                    <Button
+                      variant="warning"
+                      onClick={async () => {
+                        try {
+                          const res = await axios.post(
+                            `${
+                              import.meta.env.VITE_API_URI
+                            }/goldrate/apply-to-products`,
+                            { dryRun: false }
+                          );
+                          alert(
+                            `Repriced: ${res.data.updates} products (out of ${res.data.total})`
+                          );
+                        } catch (err) {
+                          alert(
+                            "Error: " +
+                              (err?.response?.data?.message || err.message)
+                          );
+                        }
+                      }}
+                    >
+                      Apply
+                    </Button>
+                  </Col>
+                </Row>
+
+                {/* Grouped Table */}
+                <Table striped bordered hover responsive>
+                  <thead>
+                    <tr>
+                      <th>
+                        <input type="checkbox" />
+                      </th>
+                      <th>Market Price</th>
+                      <th>24K</th>
+                      <th>22K</th>
+                      <th>18K</th>
+                      <th>Source</th>
+                      <th>Effective Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredGroups.map((group) => {
+                      const isEditing =
+                        editingKey === `${group.effectiveDate}_${group.source}`;
+                      return (
+                        <tr key={`${group._id24}`}>
+                          <th>
+                            <input type="checkbox" />
+                          </th>
+                          <td>
+                            {isEditing ? (
+                              <Form.Control
+                                type="number"
+                                value={editingData.marketPrice}
+                                onChange={(e) =>
+                                  setEditingData({
+                                    ...editingData,
+                                    marketPrice: e.target.value,
+                                  })
+                                }
+                              />
+                            ) : (
+                              group.marketPrice
+                            )}
+                          </td>
+                          <td>
+                            {isEditing ? (
+                              <Form.Control
+                                type="number"
+                                value={editingData.rate24}
+                                onChange={(e) =>
+                                  setEditingData({
+                                    ...editingData,
+                                    rate24: e.target.value,
+                                  })
+                                }
+                              />
+                            ) : (
+                              group.rate24?.toFixed(2)
+                            )}
+                          </td>
+                          <td>
+                            {isEditing ? (
+                              <Form.Control
+                                type="number"
+                                value={editingData.rate22}
+                                onChange={(e) =>
+                                  setEditingData({
+                                    ...editingData,
+                                    rate22: e.target.value,
+                                  })
+                                }
+                              />
+                            ) : (
+                              group.rate22?.toFixed(2)
+                            )}
+                          </td>
+                          <td>
+                            {isEditing ? (
+                              <Form.Control
+                                type="number"
+                                value={editingData.rate18}
+                                onChange={(e) =>
+                                  setEditingData({
+                                    ...editingData,
+                                    rate18: e.target.value,
+                                  })
+                                }
+                              />
+                            ) : (
+                              group.rate18?.toFixed(2)
+                            )}
+                          </td>
+                          <td>{group.source}</td>
+                          <td>
+                            {new Date(group.effectiveDate).toLocaleDateString()}
+                          </td>
+                          <td>
+                            {isEditing ? (
+                              <>
+                                <Button
+                                  size="sm"
+                                  variant="success"
+                                  onClick={handleUpdate}
+                                >
+                                  Save
+                                </Button>{" "}
+                                <Button
+                                  size="sm"
+                                  variant="secondary"
+                                  onClick={handleCancel}
+                                >
+                                  Cancel
+                                </Button>
+                              </>
+                            ) : (
+                              <>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleEdit(group)}
+                                >
+                                  Edit
+                                </Button>{" "}
+                                <Button
+                                  size="sm"
+                                  variant="danger"
+                                  onClick={() => handleDelete(group)}
+                                >
+                                  Delete
+                                </Button>
+                              </>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </Table>
+              </div>
+            </Container>
+          </main>
         </div>
-      </Container>
+      </div>
     </>
   );
 };

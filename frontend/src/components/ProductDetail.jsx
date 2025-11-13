@@ -40,7 +40,7 @@ const ProductDetailPage = () => {
   const mainImageSize = 500;
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-const [galleryList, setGalleryList] = useState([]);
+  const [galleryList, setGalleryList] = useState([]);
 
   // Lens Zoom States
   const [lensPos, setLensPos] = useState({ x: 10, y: 0 });
@@ -48,32 +48,38 @@ const [galleryList, setGalleryList] = useState([]);
   const imgRef = useRef(null);
   const lensSize = 150;
   const zoom = 2;
-
- function buildImgSrc(img) {
-   if (!img) return "/default-product.jpg";
-   if (/^https?:\/\//i.test(img)) return img;
-   if (img.startsWith("/uploads/")) return `${apiOrigin()}${img}`;
-   return `${apiOrigin()}/uploads/${img}`;
- }
-const fetchProduct = async () => {
-  try {
-    const res = await axios.get(
-      `${import.meta.env.VITE_API_URI}/products/${id}`
-    );
-    const prod = res.data;
-    prod.category = prod.category || prod.metalType;
-    setProduct(prod);
-
-    const normalizedGallery = normalizeImages(prod?.images);
-    setGalleryList(normalizedGallery);
-
-    if (normalizedGallery.length > 0) {
-      setSelectedImage(buildImgSrc(normalizedGallery[0]));
-    }
-  } catch (err) {
-    console.error("Failed to fetch product:", err);
+  function formatINR(n) {
+    return Number(n || 0).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   }
-};
+
+  function buildImgSrc(img) {
+    if (!img) return "/default-product.jpg";
+    if (/^https?:\/\//i.test(img)) return img;
+    if (img.startsWith("/uploads/")) return `${apiOrigin()}${img}`;
+    return `${apiOrigin()}/uploads/${img}`;
+  }
+  const fetchProduct = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URI}/products/${id}`
+      );
+      const prod = res.data;
+      prod.category = prod.category || prod.metalType;
+      setProduct(prod);
+
+      const normalizedGallery = normalizeImages(prod?.images);
+      setGalleryList(normalizedGallery);
+
+      if (normalizedGallery.length > 0) {
+        setSelectedImage(buildImgSrc(normalizedGallery[0]));
+      }
+    } catch (err) {
+      console.error("Failed to fetch product:", err);
+    }
+  };
   useEffect(() => {
     fetchProduct();
     setUsePartial(false);
@@ -86,9 +92,15 @@ const fetchProduct = async () => {
     setAdvancePct(clamped);
   };
 
+  // new
   const payableBase = useMemo(() => {
     if (!product) return 0;
-    const base = Number(product.totalPayable || product.price || 0);
+
+    // Prefer dynamic gold-based sale price if available
+    const base = Number(
+      product.displaySale || product.totalPayable || product.price || 0
+    );
+
     return Number.isFinite(base) ? base : 0;
   }, [product]);
 
@@ -144,13 +156,13 @@ const fetchProduct = async () => {
       </p>
     );
 
-  const strike =
-    product.discount > 0
-      ? Math.round((product.price || 0) / (1 - (product.discount || 0) / 100))
-      : null;
+  // Use backend-computed actual price when available
+  const displayActual = Number(product.displayActual || product.price || 0);
+
+  // Only show strike if it is actually higher than sale price
+  const strike = displayActual > payableBase ? displayActual : null;
   const altText = product.name || "Product Image";
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";
-
   return (
     <>
       <Header />
@@ -239,10 +251,13 @@ const fetchProduct = async () => {
             <p className="text-sm text-gray-500 mb-2">{product.description}</p>
 
             <div className="text-yellow-700 text-3xl font-bold mb-2">
-              ₹{payableBase}{" "}
+              <h2 className="text-3xl font-bold text-yellow-700 mr-3">
+                ₹{formatINR(payableBase)}
+              </h2>
+
               {strike && (
-                <span className="text-gray-400 text-lg line-through ml-3">
-                  ₹{strike}
+                <span className="text-gray-400 line-through text-lg">
+                  ₹{formatINR(strike)}
                 </span>
               )}
             </div>
@@ -303,13 +318,13 @@ const fetchProduct = async () => {
                     <div className="text-sm text-gray-700 grid gap-1">
                       <div>
                         <strong>Advance Payment ({advancePct}%):</strong> ₹
-                        {advanceAmount}
+                        {formatINR(advanceAmount)}
                       </div>
                       <div>
                         <strong>
                           Remaining on Delivery ({100 - advancePct}%):
                         </strong>{" "}
-                        ₹{remainingAmount}
+                        ₹{formatINR(remainingAmount)}
                       </div>
                     </div>
                   </div>
@@ -327,8 +342,10 @@ const fetchProduct = async () => {
               {product.grossWeight}g
             </p>
             <p className="text-sm text-gray-600 mb-1">
-              Making Charges: ₹{product.makingCharges} | GST: {product.gst}%
+              Making Charges: ₹{formatINR(product.makingCharges)} | GST:{" "}
+              {product.gst}%
             </p>
+
             <p className="text-sm text-gray-600 mb-1">
               Category: {product.category}
             </p>

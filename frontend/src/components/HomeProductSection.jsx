@@ -3,7 +3,12 @@ import { IoMdHeart } from "react-icons/io";
 import axios from "axios";
 import { CartContext } from "../context/CartContext"; // ✅ adjust path if needed
 import { useWishlist } from "../context/WishlistContext";
-
+import { FaStar, FaHeart } from "react-icons/fa";
+import {
+  pickFirstImageSrc,
+  normalizeImages,
+  buildImgSrc,
+} from "../utils/imageTools";
 const HomeProductSection = () => {
   const [products, setProducts] = useState([]);
   const [liked, setLiked] = useState({});
@@ -35,7 +40,7 @@ const HomeProductSection = () => {
           const saveRate = Math.round(
             ((previousPrice - currentPrice) / previousPrice) * 100
           );
-
+ const firstImg = pickFirstImageSrc(normalizeImages(product.images));
           return (
             <div
               className="col-12 col-sm-6 col-md-4 col-lg-3 "
@@ -82,7 +87,7 @@ const HomeProductSection = () => {
 
                   {/* Product Image */}
                   <div></div>
-                  <img
+                  {/* <img
                     src={
                       product.images?.[0]
                         ? product.images[0]
@@ -91,7 +96,13 @@ const HomeProductSection = () => {
                     className="w-full h-[300px] object-cover rounded-t-xl p-2"
                     alt={product.name}
                     onError={(e) => (e.target.src = "/default-product.jpg")}
-                  />
+                  /> */}
+                  <img
+                  src={buildImgSrc(firstImg) || "/default-product.jpg"}
+                   alt={product.name}
+                   style={{ width: 250, height: 250, objectFit: "cover" }}
+                   onError={(e) => (e.currentTarget.src = "/default-product.jpg")}
+                   />
 
                   <div className="card-body text-center">
                     <h6 className="card-title mb-2">{product.name}</h6>
@@ -103,12 +114,21 @@ const HomeProductSection = () => {
                         ₹{previousPrice}
                       </span>
                     </div>
-                    <button
-                      className="btn btn-warning btn-sm mt-3 w-100 fw-bold"
-                      onClick={() => addToCart(product)}
-                    >
-                      🛒 Add to Cart
-                    </button>
+
+                    <div className=" d-flex justify-center mt-3 align-items-center  gap-1 ">
+                      <button
+                        className="btn button-90 btn-sm fw-bold px-4"
+                        onClick={() => addToCart(product)}
+                      >
+                        Add to Cart
+                      </button>
+                      <button
+                        className="btn button-90   btn-sm fw-bold px-3"
+                        onClick={() => addToCart(product)}
+                      >
+                        Buy Now
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

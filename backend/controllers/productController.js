@@ -1,7 +1,15 @@
 // controllers/productController.js
 const Product = require("../models/Product");
 const mongoose = require("mongoose");
-
+const {
+  computePrice,
+  computePriceBreakdown,
+  computePriceExplain,
+} = require("../services/pricing");
+const {
+  getLatestBlockCached,
+  purityToCarat,
+} = require("../services/goldRates");
 // ===== Bulk upload deps =====
 const fs = require("fs");
 const path = require("path");
@@ -88,14 +96,54 @@ const getAllProducts = async (req, res) => {
 // 🔹 GET SINGLE PRODUCT BY ID
 const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).json({ error: "Product not found" });
-    res.status(200).json(product);
+    const p = await Product.findById(req.params.id).lean();
+    if (!p) return res.status(404).json({ message: "Not found" });
+
+    // Apply only if metal is Gold (case-insensitive)
+    if (String(p.metalType || "").toLowerCase() === "gold") {
+      const latest = await getLatestBlockCached();
+      if (latest) {
+        const carat = purityToCarat(p.purity);
+        const rate = latest[carat]?.ratePerGram;
+
+        if (rate) {
+          // ✅ Compute breakdown and explanation
+          const b = computePriceBreakdown({ ratePerGram: rate, product: p });
+          const explain = computePriceExplain({
+            ratePerGram: rate,
+            product: p,
+          });
+
+          // ✅ Assign display fields
+          p.displayActual = explain.actualPrice;
+          p.displaySale = explain.salesPrice;
+          p.displayPrice = explain.salesPrice;
+          p.breakdown = b;
+
+          // ✅ Include rate source
+          p.priceSource = {
+            carat,
+            ratePerGram: rate,
+            effectiveDate: latest[carat].effectiveDate,
+            source: latest[carat].source,
+          };
+
+          // ✅ Optional debug info
+          if (String(req.query.debug) === "1") {
+            p.debugPricing = explain;
+          }
+        }
+      }
+    }
+
+    res.json(p);
   } catch (err) {
-    console.error("Get By ID Error:", err);
-    res.status(500).json({ error: "Failed to get product" });
+    console.error("getProductById error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 };
+
+
 
 // 🔹 GET PRODUCTS BY COMBO GROUP
 const getComboProducts = async (req, res) => {
@@ -172,18 +220,56 @@ const calculateFinalPrice = (data) => {
 };
 
 // ===== EXTRA LIST ENDPOINTS (as in your file) =====
+// 🔹 GET GOLD PRODUCTS (compute-on-read)
 const getGoldProducts = async (req, res) => {
   try {
-    const goldProducts = await Product.find({
-      metalType: { $regex: /gold/i },
-      isPublished: true,
-    });
-    res.status(200).json(goldProducts);
-  } catch (error) {
-    console.error("❌ Error in getGoldProducts:", error.message);
-    res.status(500).json({ message: "Server error fetching gold products" });
+    // 1) Fetch all gold products (case-insensitive)
+    const items = await Product.find({ metalType: /gold/i }).lean();
+
+    // 2) Get latest gold rate block (cached)
+    const latest = await getLatestBlockCached();
+
+    if (latest) {
+      for (const p of items) {
+        const carat = purityToCarat(p.purity);
+        const rate = latest[carat]?.ratePerGram;
+        if (!rate) continue;
+
+        // ✅ Compute using breakdown helper
+        const b = computePriceBreakdown({ ratePerGram: rate, product: p });
+
+        // ✅ Compute explanation (for debug and traceability)
+        const explain = computePriceExplain({ ratePerGram: rate, product: p });
+
+        // ✅ Assign computed display fields
+        p.displayActual = explain.actualPrice;
+        p.displaySale = explain.salesPrice;
+        p.displayPrice = explain.salesPrice; // used by UI
+        p.breakdown = b;
+
+        // ✅ Rate source info
+        p.priceSource = {
+          carat,
+          ratePerGram: rate,
+          effectiveDate: latest[carat].effectiveDate,
+          source: latest[carat].source,
+        };
+
+        // ✅ Optional debug info (only if ?debug=1)
+        if (String(req.query.debug) === "1") {
+          p.debugPricing = explain;
+        }
+      }
+    }
+
+    // 3) Send enriched items
+    res.json({ items });
+  } catch (err) {
+    console.error("getGoldProducts error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 };
+
 
 const getSilverProducts = async (req, res) => {
   try {
@@ -390,7 +476,10 @@ const FIELD_MAP = {
   bestselling: "bestSelling",
   showinhomepage: "showInHomepage",
   priorityranking: "priorityRanking",
-  // extras not in schema are ignored
+  ispartialpaymentenabled: "isPartialPaymentEnabled",
+  issecureplanenabled: "isSecurePlanEnabled",
+  isvirtualtryonenabled: "isVirtualTryOnEnabled",
+
 };
 
 
@@ -455,10 +544,19 @@ function normalizeRow(raw) {
   "bestSelling",
   "showInHomepage",
   "isPublished",
+  "isPartialPaymentEnabled",
+  "isSecurePlanEnabled",
+  "isVirtualTryOnEnabled",
 ].forEach((b) => {
-  if (typeof rec[b] === "string") rec[b] = /^(1|true|yes)$/i.test(rec[b]);
+ if (typeof rec[b] === "string") {
+    const s = rec[b].trim();
+    // true tokens: TRUE/true/Yes/1/On/Y
+    if (/^(1|true|yes|on|y)$/i.test(s)) rec[b] = true;
+    // false tokens: FALSE/false/No/0/Off/N  (optional; if not matched above, stays false)
+   else if (/^(0|false|no|off|n)$/i.test(s)) rec[b] = false;
+    else rec[b] = false; // fallback
+  }
 });
-
 
 
   // fallbacks for missing category
@@ -583,7 +681,50 @@ const bulkUploadProducts = async (req, res) => {
       .json({ error: err?.message || "Bulk upload failed" });
   }
 };
+exports.getPublicProducts = async (req, res) => {
+  try {
+    // 1) load products from DB with only fields we need for price
+    const items = await Product.find(/* your filters */)
+      .select({
+        name: 1,
+        price: 1,
+        metalType: 1,
+        purity: 1,
+        netWeight: 1,
+        grossWeight: 1,
+        makingCharge: 1,
+        wastageCharge: 1,
+        images: 1,
+      })
+      .lean();
 
+    // 2) get latest 24K/22K/18K block once
+    const latest = await getLatestBlockCached();
+
+    // 3) attach displayPrice on gold items
+    if (latest) {
+      for (const p of items) {
+        if (String(p.metalType || "").toLowerCase() !== "gold") continue;
+        const carat = purityToCarat(p.purity);
+        const rate = latest[carat]?.ratePerGram;
+        if (!rate) continue;
+
+        p.displayPrice = computePrice({ ratePerGram: rate, product: p });
+        p.priceSource = {
+          carat,
+          ratePerGram: rate,
+          effectiveDate: latest[carat].effectiveDate,
+          source: latest[carat].source,
+        };
+      }
+    }
+
+    res.json({ items });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 const getBulkTemplate = async (req, res) => {
   const header = [
     "name",
@@ -606,6 +747,9 @@ const getBulkTemplate = async (req, res) => {
     "bestSelling",
     "showInHomepage",
     "priorityRanking",
+    "isPartialPaymentEnabled",
+    "isSecurePlanEnabled",
+    "isVirtualTryOnEnabled",
   ];
   const ws = XLSX.utils.aoa_to_sheet([header]);
   const wb = XLSX.utils.book_new();

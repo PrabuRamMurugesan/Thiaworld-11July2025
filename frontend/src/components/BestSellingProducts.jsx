@@ -1,9 +1,17 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { FaStar, FaHeart } from "react-icons/fa";
-import { CartContext } from "../context/CartContext"; // ✅ adjust path if needed
 import { IoMdHeart } from "react-icons/io";
+import { CartContext } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
+import {
+  pickFirstImageSrc,
+  normalizeImages,
+  buildImgSrc,
+} from "../utils/imageTools";
+
+// Adjust this if your API base is different
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
 
 const BestSellingProducts = () => {
   const [products, setProducts] = useState([]);
@@ -13,95 +21,147 @@ const BestSellingProducts = () => {
   useEffect(() => {
     const fetchBestSelling = async () => {
       try {
+        // If your endpoint path is different, change only this URL:
         const response = await axios.get(
-          `${import.meta.env.VITE_API_URI}/products/best-selling`
+          `${API_BASE}/api/products/best-selling`
         );
-        setProducts(response.data);
-        console.log(response.data, "best-selling");
+        setProducts(response.data?.items || response.data || []);
       } catch (error) {
-        console.error("Failed to fetch best selling products:", error);
+        console.error("Error fetching best-selling products:", error);
       }
     };
 
     fetchBestSelling();
   }, []);
 
+  const formatPrice = (value) => {
+    const n = Number(value || 0);
+    if (!Number.isFinite(n)) return "₹0";
+    return `₹${n.toLocaleString("en-IN")}`;
+  };
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 p-8 m-5">
-      {products.map((product) => (
-        <div
-          key={product._id}
-          className="bg-white shadow rounded-lg overflow-hidden hover:shadow-md transition duration-300 group"
-        >
-          <a href={`/product/${product._id}`}>
-            <img
-              src={
-                product.images?.[0]
-                  ? product.images[0] // ✅ use as-is
-                  : "/default-product.jpg"
-              }
-              className="w-[500px] h-[350px] object-cover  rounded-t-lg group-hover:scale-105 transition-transform duration-300"
-              alt={product.name}
-              onError={(e) => (e.target.src = "/default-product.jpg")}
-            />
-          </a>
+    <div className="container my-5">
+      <h2 className="text-center fw-bold mb-4">Best Selling Products</h2>
 
-          <div className="p-4 ">
-            <div className="mt-2 min-h-[100px]">
-              <h3 className="text-base font-medium text-gray-800">
-                {product.name}
-              </h3>
-              <p className="text-sm text-gray-500 mt-1">
-                {product.shortDescription}
-              </p>
+      <div className="row g-3">
+        {products.map((product) => {
+          // ----- pricing -----
+          const sale =
+            product.displaySale ??
+            product.displayPrice ??
+            product.totalPayable ??
+            product.price ??
+            0;
 
-              <div className="flex items-center text-yellow-500 text-sm mt-2">
-                {[...Array(5)].map((_, i) => (
-                  <FaStar
-                    key={i}
-                    className={
-                      i < (product.rating || 4)
-                        ? "text-yellow-500"
-                        : "text-gray-300"
-                    }
+          const mrp =
+            product.displayActual ??
+            (Number(product.discount || 0) > 0 ? product.price : null);
+
+          const discountPct = Number(product.discount || 0);
+
+          // ----- image -----
+          const firstImg = pickFirstImageSrc(
+            normalizeImages(product.images || product.image)
+          );
+          const imgSrc = buildImgSrc(firstImg) || "/default-product.jpg";
+
+          const wished = isWished(product._id);
+
+          return (
+            <div
+              key={product._id}
+              className="col-12 col-sm-6 col-md-4 col-lg-3 d-flex"
+            >
+              <div className="card shadow-sm w-100 h-100 position-relative">
+                {/* Discount badge */}
+                {discountPct > 0 && (
+                  <span className="badge bg-danger position-absolute top-0 start-0 m-2">
+                    {discountPct}% OFF
+                  </span>
+                )}
+
+                {/* Wishlist icon */}
+                <button
+                  type="button"
+                  className="btn btn-light rounded-circle position-absolute top-0 end-0 m-2 p-1"
+                  onClick={() => toggle(product)}
+                >
+                  {wished ? (
+                    <FaHeart className="text-danger" />
+                  ) : (
+                    <IoMdHeart className="text-secondary" />
+                  )}
+                </button>
+
+                {/* Image */}
+                <a href={`/product/${product._id}`}>
+                  <img
+                    src={imgSrc}
+                    alt={product.name}
+                    className="card-img-top"
+                    style={{ height: 260, objectFit: "cover" }}
+                    onError={(e) => {
+                      e.currentTarget.src = "/default-product.jpg";
+                    }}
                   />
-                ))}
+                </a>
+
+                <div className="card-body d-flex flex-column">
+                  {/* Name */}
+                  <h6 className="card-title text-truncate" title={product.name}>
+                    {product.name}
+                  </h6>
+
+                  {/* Rating (static stars for now) */}
+                  <div className="d-flex align-items-center mb-2">
+                    <FaStar className="text-warning me-1" />
+                    <FaStar className="text-warning me-1" />
+                    <FaStar className="text-warning me-1" />
+                    <FaStar className="text-warning me-1" />
+                    <FaStar className="text-warning me-2" />
+                    <small className="text-muted">Best Seller</small>
+                  </div>
+
+                  {/* Prices */}
+                  <div className="mb-2">
+                    <span className="fw-bold me-2">{formatPrice(sale)}</span>
+                    {mrp && mrp > sale && (
+                      <span className="text-muted text-decoration-line-through">
+                        {formatPrice(mrp)}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="mt-auto d-flex gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary btn-sm fw-bold text-nowrap"
+                      onClick={() => addToCart(product)}
+                    >
+                      Add to Cart
+                    </button>
+                    <button
+                      type="button"
+                      className="btn button-90 btn-sm fw-bold text-nowrap"
+                      onClick={() => addToCart(product)}
+                    >
+                      Buy Now
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
+          );
+        })}
 
-            <div className=" d-flex justify-between align-items-center  gap-4 ">
-              <button
-                className="btn btn-warning btn-sm  w-100 fw-bold"
-                onClick={() => addToCart(product)}
-              >
-                🛒 Add to Cart
-              </button>
-
-              {/* Heart Icon (Top-Right) */}
-              <button
-                aria-label="Toggle wishlist"
-                onClick={(e) => {
-                  e.preventDefault();
-                  toggle(product._id);
-                }}
-                title={
-                  isWished(product._id)
-                    ? "Remove from wishlist"
-                    : "Add to wishlist"
-                }
-              >
-                <FaHeart
-                  style={{
-                    fontSize: 25,
-                    color: isWished(product._id) ? "#e03131" : "gray",
-                    transition: "color 120ms ease",
-                  }}
-                />
-              </button>
-            </div>
+        {products.length === 0 && (
+          <div className="col-12 text-center text-muted">
+            No best-selling products found.
           </div>
-        </div>
-      ))}
+        )}
+      </div>
     </div>
   );
 };
