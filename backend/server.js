@@ -23,6 +23,7 @@ const wishlistRoutes = require("./routes/wishlistRoutes");
 const exportRoutes = require("./routes/exportRoutes");
 const mediaRoutes = require("./routes/mediaRoutes");
 const goldrateRoutes = require("./routes/goldrate");
+const adminAuthRoutes = require("./routes/adminAuthRoutes");
 
 const app = express();
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -85,6 +86,7 @@ app.use("/api/testimonials", testimonialRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/media", mediaRoutes);
 app.use("/api/goldrate", goldrateRoutes);
+app.use("/api/admin", adminAuthRoutes);
 
 // Health check (useful for curl and Nginx)
 app.get("/api/health", (_req, res) => res.status(200).send("OK"));

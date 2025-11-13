@@ -40,7 +40,6 @@ import CustomersManager from "./pages/admin/CustomersManager";
 
 import ContactMessages from "./pages/admin/ContactMessages";
 import ViewAppointments from "./components/ViewAppointments";
-import AdminLogin from "./pages/admin/AdminLogin";
 import CardProduct from "./components/CardProduct";
 import GoldCollection from "./components/Jewellery-page/GoldCollection";
 import SilverCollection from "./components/Jewellery-page/SilverCollection";
@@ -87,6 +86,8 @@ import UserSettings from "./components/UserSetting";
 import WriteTestimonial from "./pages/WriteTestimonial";
 import WishlistPage from "./pages/WishlistPage";
 import MediaLibrary from "./pages/admin/MediaLibrary";
+import AdminSignup from "./pages/AdminSignup";
+import AdminLogin from "./pages/AdminLogin";
 
 export default function App() {
   return (
@@ -95,6 +96,8 @@ export default function App() {
       <Route path="/" element={<ThiaHomePage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/admin/signup" element={<AdminSignup />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/virtual-jewelry-on" element={<VirtualJewelryOn />} />
       <Route path="/user-settings" element={<UserSettings />} />

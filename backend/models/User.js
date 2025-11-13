@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const userDB = require("../config/userDB"); // ✅ This connection goes to BBSCartLocal1
+const userDB = require("../config/userDB");
 
 const UserSchema = new mongoose.Schema(
   {
@@ -9,6 +9,7 @@ const UserSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+
     email: {
       type: String,
       required: true,
@@ -16,36 +17,64 @@ const UserSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+
     phone: {
       type: String,
       required: true,
       trim: true,
     },
+
     password: {
       type: String,
       required: true,
     },
+
     roles: {
-      type: [String], // e.g., ["user", "healthcare"]
+      type: [String],
       default: ["user"],
     },
+
     createdFrom: {
-      type: String, // e.g., "healthcare", "thiaworld", "bbscart"
+      type: String,
       required: true,
+      default: "bbscart",
     },
+
     referralCode: {
       type: String,
       default: null,
     },
+
     isVerified: {
       type: Boolean,
       default: false,
+    },
+
+    // login tracking
+    loginAttempts: {
+      type: Number,
+      default: 0,
+    },
+
+    lastLoginAt: {
+      type: Date,
+      default: null,
+    },
+
+    // email verification
+    emailVerificationToken: {
+      type: String,
+      default: null,
+    },
+    emailVerificationExpires: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true }
 );
 
-// ✅ Auto-hash password before save
+// hash password
 UserSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   try {
@@ -57,7 +86,6 @@ UserSchema.pre("save", async function (next) {
   }
 });
 
-// ✅ Method to compare entered password
 UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
