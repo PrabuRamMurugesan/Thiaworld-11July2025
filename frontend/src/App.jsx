@@ -86,7 +86,7 @@ import UserSettings from "./components/UserSetting";
 import WriteTestimonial from "./pages/WriteTestimonial";
 import WishlistPage from "./pages/WishlistPage";
 import MediaLibrary from "./pages/admin/MediaLibrary";
-import AdminSignup from "./pages/AdminSignup";
+import AdminSignup from "./pages/admin/AdminSignup";
 import AdminLogin from "./pages/AdminLogin";
 
 export default function App() {
