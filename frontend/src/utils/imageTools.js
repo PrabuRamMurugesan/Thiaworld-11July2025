@@ -30,7 +30,7 @@ export function pickFirstImageSrc(raw) {
 export function buildImgSrc(img) {
   if (!img) return "/default-product.jpg";
   if (/^https?:\/\//i.test(img)) return img;
-  const base = import.meta.env.VITE_API_URI || "http://localhost:5001";
+  const base = import.meta.env.VITE_API_URL 
   if (img.startsWith("/uploads/")) return `${base}${img}`;
   return `${base}/uploads/${img}`;
 }
