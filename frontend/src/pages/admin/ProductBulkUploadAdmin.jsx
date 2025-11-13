@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 
 /**
@@ -9,11 +9,10 @@ import axios from "axios";
  * - Export validation errors to CSV
  * - Clean UI with all labels, buttons, and states
  *
- * Requirements:
- * - API:
- *   GET  ${import.meta.env.VITE_API_URI}/products/bulk-template
- *   POST ${import.meta.env.VITE_API_URI}/products/bulk-upload?dryRun=true|false  (multipart/form-data, file)
- *   GET  ${import.meta.env.VITE_API_URI}/products/all  (for export)
+ * API endpoints expected:
+ * GET  ${import.meta.env.VITE_API_URI}/products/bulk-template
+ * POST ${import.meta.env.VITE_API_URI}/products/bulk-upload?dryRun=true|false  (multipart/form-data, file)
+ * GET  ${import.meta.env.VITE_API_URI}/products/all  (for export)
  */
 
 const COLS = [
@@ -59,7 +58,7 @@ const Line = () => (
   <div style={{ borderTop: "1px solid #e9ecef", margin: "16px 0" }} />
 );
 
-const Button = ({ children, variant = "primary", ...rest }) => {
+const Button = ({ children, variant = "primary", style, ...rest }) => {
   const colors = {
     primary: "#0d6efd",
     secondary: "#6c757d",
@@ -69,15 +68,15 @@ const Button = ({ children, variant = "primary", ...rest }) => {
     info: "#0dcaf0",
     light: "#f8f9fa",
     dark: "#212529",
-    outline: "transparent",
+    outline: "#0d6efd",
   };
-  const bg = variant.startsWith("outline")
-    ? "transparent"
-    : colors[variant.replace("outline-", "")] || colors.primary;
-  const bd = variant.startsWith("outline")
-    ? colors[variant.replace("outline-", "")] || colors.primary
-    : bg;
-  const fg = variant.startsWith("outline") ? bd : "#fff";
+  const isOutline = variant.startsWith("outline");
+  const baseKey = isOutline ? variant.replace("outline-", "") : variant;
+  const baseColor = colors[baseKey] || colors.primary;
+  const bg = isOutline ? "transparent" : baseColor;
+  const bd = baseColor;
+  const fg = isOutline ? bd : "#fff";
+
   return (
     <button
       {...rest}
@@ -90,6 +89,7 @@ const Button = ({ children, variant = "primary", ...rest }) => {
         fontWeight: 600,
         cursor: "pointer",
         boxShadow: "0 1px 2px rgba(0,0,0,0.06)",
+        ...style,
       }}
     >
       {children}
@@ -105,14 +105,15 @@ const Pill = ({ children, tone = "info" }) => {
     warning: "#ffc107",
     secondary: "#6c757d",
   };
+  const color = map[tone] || map.info;
   return (
     <span
       style={{
         display: "inline-block",
         padding: "2px 8px",
         borderRadius: 999,
-        background: map[tone] + "22",
-        color: map[tone],
+        background: color + "22",
+        color,
         fontSize: 12,
         fontWeight: 700,
       }}
@@ -129,12 +130,13 @@ const Alert = ({ children, tone = "danger", onClose }) => {
     info: "#0dcaf0",
     success: "#198754",
   };
+  const color = map[tone] || map.danger;
   return (
     <div
       style={{
         padding: "10px 12px",
-        background: map[tone] + "22",
-        border: `1px solid ${map[tone]}55`,
+        background: color + "22",
+        border: `1px solid ${color}55`,
         borderRadius: 12,
         color: "#222",
         display: "flex",
@@ -150,7 +152,7 @@ const Alert = ({ children, tone = "danger", onClose }) => {
           style={{
             border: "none",
             background: "transparent",
-            color: map[tone],
+            color,
             fontWeight: 700,
             cursor: "pointer",
           }}
@@ -252,8 +254,14 @@ function downloadBlob(data, filename, type) {
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
+  // append to body to make sure click works in some environments
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  // cleanup
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  }, 800);
 }
 
 export default function ProductBulkUploadAdmin() {
@@ -269,6 +277,20 @@ export default function ProductBulkUploadAdmin() {
 
   const apiBase = import.meta.env.VITE_API_URI;
 
+  // errors table state; will sync with result.errors when result changes
+  const [errors, setErrors] = useState([]);
+  const [undoStack, setUndoStack] = useState([]);
+
+  useEffect(() => {
+    setErrors(
+      Array.isArray(result?.errors)
+        ? result.errors.map((e, i) => ({ row: e.row ?? i + 1, ...e }))
+        : []
+    );
+    // reset undo stack when a new result arrives
+    setUndoStack([]);
+  }, [result]);
+
   const summaryList = useMemo(() => {
     const s = result?.summary || {};
     return [
@@ -282,11 +304,6 @@ export default function ProductBulkUploadAdmin() {
       },
     ];
   }, [result]);
-
-  const errorColumns = [
-    { key: "row", label: "Row", align: "right", nowrap: true },
-    { key: "reason", label: "Reason" },
-  ];
 
   const sampleColumns = [
     { key: "row", label: "Row", align: "right", nowrap: true },
@@ -324,6 +341,11 @@ export default function ProductBulkUploadAdmin() {
       setError("Please choose a CSV/XLSX file.");
       return;
     }
+    // client-side size check: 25 MB
+    if (file.size > 25 * 1024 * 1024) {
+      setError("File too large. Maximum allowed size is 25 MB.");
+      return;
+    }
     setError("");
     setBusy(true);
     setProgress(0);
@@ -331,7 +353,7 @@ export default function ProductBulkUploadAdmin() {
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const url = `${apiBase}/products/bulk-upload?dryRun=${dryRun}`;
+      const url = `${apiBase}/products/bulk-upload?dryRun=${Boolean(dryRun)}`;
       const resp = await axios.post(url, fd, {
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (evt) => {
@@ -345,12 +367,6 @@ export default function ProductBulkUploadAdmin() {
     } finally {
       setBusy(false);
     }
-  };
-
-  const handleExportErrors = () => {
-    if (!result?.errors?.length) return;
-    const csv = toCSV(result.errors, ["row", "reason"]);
-    downloadBlob(csv, "bulk-upload-errors.csv", "text/csv;charset=utf-8");
   };
 
   const handleExportProducts = async () => {
@@ -400,7 +416,80 @@ export default function ProductBulkUploadAdmin() {
     setError("");
     setProgress(0);
     setDryRun(true);
+    setErrors([]);
+    setUndoStack([]);
   };
+
+  // ---- Error table columns + handlers ----
+  const handleAdd = () => {
+    const newError = {
+      row: (errors.length ? Math.max(...errors.map((x) => x.row || 0)) : 0) + 1,
+      reason: "New Error",
+      details: "Details here",
+      rate: "N/A",
+    };
+    setUndoStack((u) => [...u, errors]);
+    setErrors((prev) => [...prev, newError]);
+  };
+
+  const handleEdit = (index) => {
+    const current = errors[index];
+    const newReason = window.prompt("Enter new reason:", current?.reason ?? "");
+    if (newReason !== null) {
+      setUndoStack((u) => [...u, errors]);
+      const updated = [...errors];
+      updated[index] = { ...updated[index], reason: newReason };
+      setErrors(updated);
+    }
+  };
+
+  const handleDelete = (index) => {
+    setUndoStack((u) => [...u, errors]);
+    setErrors((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleUndo = () => {
+    if (undoStack.length > 0) {
+      const last = undoStack[undoStack.length - 1];
+      setUndoStack((u) => u.slice(0, -1));
+      setErrors(last);
+    }
+  };
+
+  const handleExportErrors = () => {
+    if (!errors?.length) return;
+    // Build rows normalized to keys for stable CSV headers
+    const headerOrder = ["row", "reason", "details", "rate"];
+    const rows = errors.map((e) => ({
+      row: e.row ?? "",
+      reason: e.reason ?? "",
+      details: e.details ?? "",
+      rate: e.rate ?? "",
+    }));
+    const csv = toCSV(rows, headerOrder);
+    downloadBlob(csv, "product-import-errors.csv", "text/csv;charset=utf-8");
+  };
+
+  const errorColumns = [
+    { key: "row", label: "Row", align: "right", nowrap: true },
+    { key: "reason", label: "Reason" },
+    { key: "details", label: "Details" },
+    { key: "rate", label: "Rate" },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (_item, index) => (
+        <div style={{ display: "flex", gap: 8 }}>
+          <Button variant="outline-primary" onClick={() => handleEdit(index)}>
+            Edit
+          </Button>
+          <Button variant="outline-danger" onClick={() => handleDelete(index)}>
+            Delete
+          </Button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div style={{ maxWidth: 1100, margin: "24px auto", padding: "0 12px" }}>
@@ -504,7 +593,10 @@ export default function ProductBulkUploadAdmin() {
               <input
                 type="file"
                 accept=".csv,.xls,.xlsx"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                onChange={(e) => {
+                  setError("");
+                  setFile(e.target.files?.[0] || null);
+                }}
               />
               <div style={{ fontSize: 12, color: "#6c757d" }}>
                 Max size 25 MB. Supported: .csv, .xls, .xlsx
@@ -534,7 +626,7 @@ export default function ProductBulkUploadAdmin() {
               </div>
             ) : (
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                <Button onClick={handleUpload} disabled={!file}>
+                <Button onClick={handleUpload} disabled={!file || busy}>
                   {dryRun ? "Validate File (Dry Run)" : "Upload & Commit"}
                 </Button>
                 <Button variant="secondary" onClick={handleReset}>
@@ -551,7 +643,11 @@ export default function ProductBulkUploadAdmin() {
               title="3) Summary"
               right={
                 result?.errors?.length ? (
-                  <Button variant="outline-danger" onClick={handleExportErrors}>
+                  <Button
+                    variant="outline-danger"
+                    onClick={handleExportErrors}
+                    disabled={!errors?.length}
+                  >
                     Export Errors (CSV)
                   </Button>
                 ) : (
@@ -591,14 +687,29 @@ export default function ProductBulkUploadAdmin() {
               <Table columns={sampleColumns} rows={result.sample || []} dense />
             </Section>
 
-            {result.errors?.length ? (
-              <Section title={`5) Errors (${result.errors.length})`}>
-                <Table columns={errorColumns} rows={result.errors} />
-                <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
-                  <Button variant="outline-danger" onClick={handleExportErrors}>
-                    Export Errors (CSV)
+            {errors?.length ? (
+              <Section title={`5) Errors (${errors.length})`}>
+                <div style={{ marginBottom: 10, display: "flex", gap: 8 }}>
+                  <Button variant="outline-success" onClick={handleAdd}>
+                    ➕ Add
+                  </Button>
+                  <Button
+                    variant="outline-secondary"
+                    onClick={handleUndo}
+                    disabled={undoStack.length === 0}
+                  >
+                    ↩️ Undo
+                  </Button>
+                  <Button
+                    variant="outline-danger"
+                    onClick={handleExportErrors}
+                    disabled={!errors?.length}
+                  >
+                    ⬇️ Export Errors (CSV)
                   </Button>
                 </div>
+
+                <Table columns={errorColumns} rows={errors} />
               </Section>
             ) : null}
 
