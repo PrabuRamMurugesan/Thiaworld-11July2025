@@ -12,12 +12,20 @@ import {
   buildImgSrc,
 } from "../../utils/imageTools";
 
+// Same INR formatter style as ProductDetail page
+function formatINR(n) {
+  return Number(n || 0).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
 const GoldCollection = () => {
   // raw products from API
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-const { isWished, toggle } = useWishlist();
+  const { isWished, toggle } = useWishlist();
 
   // filters
   const [search, setSearch] = useState("");
@@ -29,7 +37,7 @@ const { isWished, toggle } = useWishlist();
 
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 100;
 
   // fetch once
   useEffect(() => {
@@ -87,9 +95,25 @@ const { isWished, toggle } = useWishlist();
         (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
       );
     } else if (sortOption === "priceAsc") {
-      list.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
+      list.sort(
+        (a, b) =>
+          Number(
+            a.displaySale || a.displayPrice || a.displayActual || a.price || 0
+          ) -
+          Number(
+            b.displaySale || b.displayPrice || b.displayActual || b.price || 0
+          )
+      );
     } else if (sortOption === "priceDesc") {
-      list.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
+      list.sort(
+        (a, b) =>
+          Number(
+            b.displaySale || b.displayPrice || b.displayActual || b.price || 0
+          ) -
+          Number(
+            a.displaySale || a.displayPrice || a.displayActual || a.price || 0
+          )
+      );
     }
 
     return list;
@@ -171,7 +195,7 @@ const { isWished, toggle } = useWishlist();
           </select>
         </div>
 
-        {/* Inline filters row just under Sort (like Silver page) */}
+        {/* Inline filters row just under Sort */}
         <div className="d-flex flex-wrap align-items-center gap-4 mb-4">
           <div className="d-flex flex-wrap align-items-center gap-3">
             <span className="fw-bold me-2">Category:</span>
@@ -212,6 +236,22 @@ const { isWished, toggle } = useWishlist();
         <section className="d-flex flex-row flex-wrap justify-start gap-4">
           {paginatedProducts.map((prod) => {
             const firstImg = pickFirstImageSrc(prod.images);
+
+            // SAME pricing logic as ProductDetail (current + MRP)
+            const payableBase = Number(
+              prod.displaySale ||
+                prod.displayPrice ||
+                prod.displayActual ||
+                prod.totalPayable ||
+                prod.price ||
+                0
+            );
+
+            const strike =
+              Number(prod.discount || 0) > 0 &&
+              Number(prod.displayActual || 0) > 0
+                ? Number(prod.displayActual)
+                : null;
 
             return (
               <div
@@ -267,16 +307,22 @@ const { isWished, toggle } = useWishlist();
                   </p>
 
                   <div className="mt-1 text-yellow-700 fw-bold">
-                    ₹{Number(prod.price || 0).toLocaleString("en-IN")}
-                    {Number(prod.discount || 0) > 0 && (
+                    ₹{formatINR(payableBase)}
+                    {strike && (
                       <span className="text-gray-400 text-decoration-line-through ms-2">
-                        ₹{Number(prod.mrp || 0).toLocaleString("en-IN")}
+                        ₹{formatINR(strike)}
                       </span>
                     )}
                   </div>
                 </div>
 
                 <div className="d-flex justify-content-between mt-3">
+                  <button
+                    onClick={() => (window.location.href = "/virtual-try-on")}
+                    className="flex-1 text-xs text-pink-600 border border-pink-600 rounded px-2 py-1 hover:bg-pink-50"
+                  >
+                    👁 Try This On
+                  </button>
                   <button
                     onClick={() => addToCart(prod)}
                     className="btn"
@@ -330,40 +376,23 @@ const { isWished, toggle } = useWishlist();
           </button>
 
           <span className="mx-2 fw-bold">
-            {currentPage} /{" "}
-            {Math.max(1, Math.ceil(filteredSorted.length / itemsPerPage))}
+            {currentPage} / {totalPages}
           </span>
 
           <button
             onClick={() =>
-              setCurrentPage((prev) =>
-                Math.min(
-                  Math.max(1, Math.ceil(filteredSorted.length / itemsPerPage)),
-                  prev + 1
-                )
-              )
+              setCurrentPage((prev) => Math.min(totalPages, prev + 1))
             }
-            disabled={
-              currentPage ===
-              Math.max(1, Math.ceil(filteredSorted.length / itemsPerPage))
-            }
+            disabled={currentPage === totalPages}
             className="filter-btn"
             style={{
-              background:
-                currentPage ===
-                Math.max(1, Math.ceil(filteredSorted.length / itemsPerPage))
-                  ? "#ddd"
-                  : "#ffb703",
+              background: currentPage === totalPages ? "#ddd" : "#ffb703",
               color: "#333",
               fontWeight: "bold",
               padding: "10px 20px",
               borderRadius: 30,
               marginLeft: 10,
-              cursor:
-                currentPage ===
-                Math.max(1, Math.ceil(filteredSorted.length / itemsPerPage))
-                  ? "not-allowed"
-                  : "pointer",
+              cursor: currentPage === totalPages ? "not-allowed" : "pointer",
             }}
           >
             Next

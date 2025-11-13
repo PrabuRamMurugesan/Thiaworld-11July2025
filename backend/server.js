@@ -22,6 +22,7 @@ const testimonialRoutes = require("./routes/testimonialRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
 const exportRoutes = require("./routes/exportRoutes");
 const mediaRoutes = require("./routes/mediaRoutes");
+const goldrateRoutes = require("./routes/goldrate");
 
 const app = express();
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -83,6 +84,7 @@ app.use("/api/razorpay", razorpayRoutes);
 app.use("/api/testimonials", testimonialRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/media", mediaRoutes);
+app.use("/api/goldrate", goldrateRoutes);
 
 // Health check (useful for curl and Nginx)
 app.get("/api/health", (_req, res) => res.status(200).send("OK"));
