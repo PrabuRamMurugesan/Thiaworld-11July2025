@@ -3,7 +3,7 @@ import axios from "axios";
 import { FaStar, FaHeart } from "react-icons/fa";
 import { CartContext } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
-
+import { motion } from "framer-motion";
 // ✅ use the same image helpers as BestSellingProducts
 import {
   pickFirstImageSrc,
@@ -36,6 +36,20 @@ const FeaturedProducts = () => {
   }, []);
 
   return (
+    <>
+        <motion.div
+            className="position-relative  p-3"
+            style={{ width: "100%" }}
+            initial={{ opacity: 0, y: 40 }} // start hidden
+            whileInView={{ opacity: 1, y: 0 }} // animate on scroll
+            viewport={{ once: false, amount: 0.2 }}
+            transition={{
+              duration: 0.5,
+              ease: "easeOut",
+              type: "spring",
+              stiffness: 120,
+            }}
+          >
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 p-8 m-5">
       {products.map((product) => {
         // ✅ SAME IMAGE LOGIC AS BEST SELLING
@@ -162,7 +176,8 @@ const FeaturedProducts = () => {
         }
       `}
       </style>
-    </div>
+    </div> </motion.div>  
+    </>
   );
 };
 

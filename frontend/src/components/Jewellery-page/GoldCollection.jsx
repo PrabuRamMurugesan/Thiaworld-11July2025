@@ -11,7 +11,9 @@ import {
   normalizeImages,
   buildImgSrc,
 } from "../../utils/imageTools";
-
+import { IoEyeSharp } from "react-icons/io5";
+import Navbar from "../Navbar";
+import { motion } from "framer-motion";
 // Same INR formatter style as ProductDetail page
 function formatINR(n) {
   return Number(n || 0).toLocaleString("en-IN", {
@@ -151,7 +153,7 @@ const GoldCollection = () => {
   return (
     <>
       <Header />
-
+      <Navbar />
       <div className="container-fluid mt-5" style={{ padding: "0 10%" }}>
         {/* Breadcrumb */}
         <div className="text-sm text-muted mb-2">
@@ -254,104 +256,116 @@ const GoldCollection = () => {
                 : null;
 
             return (
-              <div
+              <motion.div
                 key={prod._id}
-                className="position-relative border rounded p-3"
-                style={{ width: 270 }}
+                className="position-relative  p-3"
+                style={{ width: 260 }}
+                initial={{ opacity: 0, y: 40 }} // start hidden
+                whileInView={{ opacity: 1, y: 0 }} // animate on scroll
+                viewport={{ once: false, amount: 0.2 }}
+                transition={{
+                  duration: 0.5,
+                  ease: "easeOut",
+                  type: "spring",
+                  stiffness: 120,
+                }}
               >
                 <div
-                  className="d-flex justify-content-between position-absolute top-0 start-0 end-0 px-4 mt-4"
-                  style={{ zIndex: 1 }}
+                  key={prod._id}
+                  className="position-relative border rounded p-3"
+                  style={{ width: 260 }}
                 >
-                  <IoStar style={{ color: "gray", fontSize: 25 }} />
-                  <button
-                    aria-label="Toggle wishlist"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      toggle(prod._id);
-                    }}
-                    style={{
-                      background: "transparent",
-                      border: "none",
-                      cursor: "pointer",
-                      padding: 0,
-                    }}
-                    title={
-                      isWished(prod._id)
-                        ? "Remove from wishlist"
-                        : "Add to wishlist"
-                    }
+                  <div
+                    className="d-flex justify-content-between position-absolute top-0 start-0 end-0 px-4 mt-4"
+                    style={{ zIndex: 1 }}
                   >
-                    <IoHeart
-                      style={{
-                        fontSize: 25,
-                        color: isWished(prod._id) ? "#e03131" : "gray",
-                        transition: "color 120ms ease",
+                    <IoStar style={{ color: "white", fontSize: 20 }} />
+                    <button
+                      aria-label="Toggle wishlist"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        toggle(prod._id);
                       }}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: 0,
+                      }}
+                      title={
+                        isWished(prod._id)
+                          ? "Remove from wishlist"
+                          : "Add to wishlist"
+                      }
+                    >
+                      <IoHeart
+                        style={{
+                          fontSize: 20,
+                          color: isWished(prod._id) ? "#e03131" : "white",
+                          transition: "color 120ms ease",
+                        }}
+                      />
+                    </button>
+                  </div>
+
+                  <Link to={`/product/${prod._id}`}>
+                    <img
+                      src={buildImgSrc(firstImg)}
+                      alt={prod.name}
+                      style={{ width: 250, height: 250, objectFit: "cover" }}
                     />
-                  </button>
-                </div>
+                  </Link>
 
-                <Link to={`/product/${prod._id}`}>
-                  <img
-                    src={buildImgSrc(firstImg)}
-                    alt={prod.name}
-                    style={{ width: 250, height: 250, objectFit: "cover" }}
-                  />
-                </Link>
+                  <div className="mt-2">
+                    <div className="flex gap-2 justify-between items-center">
+                      <div>
+                        <h3 className="text-gray-800 mt-2">{prod.name}</h3>
+                        <p className="text-xs text-gray-500 my-2">
+                          Net: {prod.netWeight}g | Gross: {prod.grossWeight}g
+                        </p>
+                      </div>
 
-                <div className="mt-2">
-                  <h3 className="text-gray-800 mt-2">{prod.name}</h3>
-                  <p className="text-xs text-gray-500 my-2">
-                    Net: {prod.netWeight}g | Gross: {prod.grossWeight}g
-                  </p>
-
-                  <div className="mt-1 text-yellow-700 fw-bold">
-                    ₹{formatINR(payableBase)}
-                    {strike && (
-                      <span className="text-gray-400 text-decoration-line-through ms-2">
+                      <div>
+                        {" "}
+                        <button
+                          onClick={() =>
+                            (window.location.href = "/virtual-try-on")
+                          }
+                          className="text-xs text-nowrap  flex flex-row gap-2 items-center  py-1 px-2 rounded"
+                        >
+                          <IoEyeSharp size={15} color="brown" /> Try This On
+                        </button>
+                      </div>
+                    </div>
+                    <div className="mt-1 text-yellow-700 fw-bold ">
+                      ₹{formatINR(payableBase)}
+                      {strike && (
+                        <span className="text-gray-400 text-decoration-line-through ms-2">
+                          ₹{formatINR(strike)}
+                        </span>
+                      )}
+                      {/* <span className="text-gray-400 text-decoration-line-through ms-2">
                         ₹{formatINR(strike)}
-                      </span>
-                    )}
+                      </span> */}
+                    </div>
+                  </div>
+
+                  <div className="d-flex justify-content-between mt-3">
+                    <Link
+                      to={`/product/${prod._id}`}
+                      className="btn button-90 btn-sm fw-bold px-4 text-xs"
+                    >
+                      View
+                    </Link>
+                    <button
+                      onClick={() => addToCart(prod)}
+                      className="btn button-90 btn-sm fw-bold px-4 text-xs text-nowrap"
+                    >
+                      Add to Cart
+                    </button>
                   </div>
                 </div>
-
-                <div className="d-flex justify-content-between mt-3">
-                  <button
-                    onClick={() => (window.location.href = "/virtual-try-on")}
-                    className="flex-1 text-xs text-pink-600 border border-pink-600 rounded px-2 py-1 hover:bg-pink-50"
-                  >
-                    👁 Try This On
-                  </button>
-                  <button
-                    onClick={() => addToCart(prod)}
-                    className="btn"
-                    style={{
-                      background: "#ffb703",
-                      color: "#333",
-                      fontWeight: "bold",
-                      padding: "8px 16px",
-                      borderRadius: 30,
-                    }}
-                  >
-                    Add to Cart
-                  </button>
-
-                  <Link
-                    to={`/product/${prod._id}`}
-                    className="btn"
-                    style={{
-                      background: "#f1f1f1",
-                      color: "#333",
-                      fontWeight: "bold",
-                      padding: "8px 16px",
-                      borderRadius: 30,
-                    }}
-                  >
-                    View
-                  </Link>
-                </div>
-              </div>
+              </motion.div>
             );
           })}
         </section>
@@ -401,6 +415,33 @@ const GoldCollection = () => {
       </div>
 
       <Footer />
+      <style>
+        {`
+  .button-90 {
+  background-image: linear-gradient(#0dccea, #0d70ea);
+  border: 0;
+  border-radius: 40px;
+  box-shadow: rgba(0, 0, 0, .3) 0 5px 15px;
+  box-sizing: border-box;
+  color: #fff;            /* normal color white */
+  cursor: pointer;
+  font-family: Montserrat, sans-serif;
+  font-size: .9em;
+  margin: 5px;
+  padding: 10px 15px;
+  text-align: center;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+/* hover fixed (must be outside the class) */
+.button-90:hover {
+  color: #D7F5D1!important;  /* hover color red */
+}
+
+        `}
+      </style>
     </>
   );
 };
