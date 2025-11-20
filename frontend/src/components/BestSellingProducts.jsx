@@ -9,7 +9,7 @@ import {
   normalizeImages,
   buildImgSrc,
 } from "../utils/imageTools";
-
+import { motion } from "framer-motion";
 // Adjust this if your API base is different
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
 
@@ -41,6 +41,20 @@ const BestSellingProducts = () => {
   };
 
   return (
+   <>
+         <motion.div
+        className="position-relative  p-3"
+        style={{ width: "100%" }}
+        initial={{ opacity: 0, y: 40 }} // start hidden
+        whileInView={{ opacity: 1, y: 0 }} // animate on scroll
+        viewport={{ once: false, amount: 0.2 }}
+        transition={{
+          duration: 0.5,
+          ease: "easeOut",
+          type: "spring",
+          stiffness: 120,
+        }}
+      >
     <div className="container my-5">
       <h2 className="text-center fw-bold mb-4">Best Selling Products</h2>
 
@@ -137,7 +151,7 @@ const BestSellingProducts = () => {
                   <div className="mt-auto d-flex gap-2">
                     <button
                       type="button"
-                      className="btn btn-outline-primary btn-sm fw-bold text-nowrap"
+                      className="btn button-90  btn-outline-primary btn-sm fw-bold text-nowrap"
                       onClick={() => addToCart(product)}
                     >
                       Add to Cart
@@ -162,7 +176,8 @@ const BestSellingProducts = () => {
           </div>
         )}
       </div>
-    </div>
+    </div></motion.div>
+   </>
   );
 };
 
