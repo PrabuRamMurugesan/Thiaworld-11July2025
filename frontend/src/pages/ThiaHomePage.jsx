@@ -23,7 +23,8 @@ import ShopByBudget from "../components/Jewellery-page/ShopByBudget";
 import HomeProductSection from "../components/HomeProductSection"; // adjust path if needed
 import BestSellingProducts from "../components/BestSellingProducts";
 import THIAWorldExclusiveStorefrontPage from "./ThaiworldExclusiveStorefrontPage";
-
+import TestimonialsSection from "./TestimonialsSection";
+import BottonAd from "./bottonAd";
 const ThiaHomePage = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -56,22 +57,21 @@ const ThiaHomePage = () => {
 
       <HomeProductSection />
 
-       <section className="py-10 px-4 bg-slate-100">
+      <section className="py-10 px-4 bg-slate-100">
         <h2 className="text-center mb-5 font-serif text-3xl font-bold">
-         Thiaworld Exclusive 
+          Thiaworld Exclusive
         </h2>
-          <THIAWorldExclusiveStorefrontPage/>
+        <THIAWorldExclusiveStorefrontPage />
       </section>
-
 
       {/* ✅ UPDATED Best Selling Section */}
       <section className="py-10 px-4 bg-slate-100">
         <h2 className="text-center mb-5 font-serif text-3xl font-bold">
-        Best Selling Products
+          Best Selling Products
         </h2>
         <BestSellingProducts />
       </section>
-
+      <TestimonialsSection />
       {/* Featured Collections */}
       <section className="py-10 px-4 bg-[#ffffff]">
         <h2 className="text-center mb-5 font-serif text-3xl font-bold">
@@ -99,7 +99,9 @@ const ThiaHomePage = () => {
       <section className="py-10 px-4 bg-[#ffffff]">
         <PromoBanner />
       </section>
-
+      <section>
+        <BottonAd />
+      </section>
       <section className="py-10 px-4 bg-[#f8f5f0]">
         <h2 className="text-2xl font-semibold text-center mb-6">
           What Our Customers Say
@@ -121,7 +123,7 @@ const ThiaHomePage = () => {
         </button>
       </div>
 
-      <Footer/>
+      <Footer />
     </div>
   );
 };
