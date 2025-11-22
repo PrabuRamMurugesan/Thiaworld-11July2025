@@ -24,7 +24,7 @@ import HomeProductSection from "../components/HomeProductSection"; // adjust pat
 import BestSellingProducts from "../components/BestSellingProducts";
 import THIAWorldExclusiveStorefrontPage from "./ThaiworldExclusiveStorefrontPage";
 import TestimonialsSection from "../components/TestimonialSection";
-import BottonAd from "./bottonAd";
+import BottonAd from "../components/BottonAd";
 const ThiaHomePage = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
