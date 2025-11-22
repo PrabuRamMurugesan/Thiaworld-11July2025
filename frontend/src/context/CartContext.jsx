@@ -14,34 +14,40 @@ export const CartProvider = ({ children }) => {
   // ------------------------------
   // LOAD CART FROM LOCAL STORAGE
   // ------------------------------
-  useEffect(() => {
+useEffect(() => {
+  const safeLoad = (key) => {
     try {
-      setGoldCart(JSON.parse(localStorage.getItem("goldCart")) || []);
-      setSilverCart(JSON.parse(localStorage.getItem("silverCart")) || []);
-      setDiamondCart(JSON.parse(localStorage.getItem("diamondCart")) || []);
-      setPlatinumCart(JSON.parse(localStorage.getItem("platinumCart")) || []);
-    } catch (err) {
-      console.error("Cart load error:", err);
+      const data = JSON.parse(localStorage.getItem(key));
+      return Array.isArray(data) ? data : [];
+    } catch (e) {
+      return [];
     }
-  }, []);
+  };
+
+  setGoldCart(safeLoad("goldCart"));
+  setSilverCart(safeLoad("silverCart"));
+  setDiamondCart(safeLoad("diamondCart"));
+  setPlatinumCart(safeLoad("platinumCart"));
+}, []);
+
 
   // ------------------------------
   // MERGE CARTS + UPDATE COUNT
   // ------------------------------
-  useEffect(() => {
-    const merged = [
-      ...goldCart,
-      ...silverCart,
-      ...diamondCart,
-      ...platinumCart,
-    ];
+useEffect(() => {
+  const merged = [
+    ...(goldCart || []),
+    ...(silverCart || []),
+    ...(diamondCart || []),
+    ...(platinumCart || []),
+  ];
 
-    setMergedCart(merged);
-    setCartCount(merged.length);
+  setMergedCart(merged);
+  setCartCount(merged.length);
 
-    // Notify other components
-    window.dispatchEvent(new Event("storageUpdate"));
-  }, [goldCart, silverCart, diamondCart, platinumCart]);
+  window.dispatchEvent(new Event("storageUpdate"));
+}, [goldCart, silverCart, diamondCart, platinumCart]);
+
 
   // ------------------------------
   // ADD TO CART
