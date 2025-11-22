@@ -1,5 +1,4 @@
-// ✅ src/context/CartContext.jsx
-import React, { createContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
 
 export const CartContext = createContext();
 
@@ -9,71 +8,99 @@ export const CartProvider = ({ children }) => {
   const [diamondCart, setDiamondCart] = useState([]);
   const [platinumCart, setPlatinumCart] = useState([]);
 
-  // helper: write merged cart to localStorage + notify
-  const persist = (next) => {
-    try {
-      localStorage.setItem("cart", JSON.stringify(next));
-      // inform listeners like Header
-      window.dispatchEvent(new Event("storageUpdate"));
-    } catch {}
-  };
+  const [mergedCart, setMergedCart] = useState([]);
+  const [cartCount, setCartCount] = useState(0);
 
-  const addToCart = (product) => {
-    console.log("✅ Adding to cart:", product);
-
-    // normalize category
-    const cat = product.category || product.metalType;
-    if (cat === "Gold") setGoldCart((prev) => [...prev, product]);
-    else if (cat === "Silver") setSilverCart((prev) => [...prev, product]);
-    else if (cat === "Diamond") setDiamondCart((prev) => [...prev, product]);
-    else if (cat === "Platinum") setPlatinumCart((prev) => [...prev, product]);
-    else console.warn("Unknown category", product);
-  };
-
-  const removeFromCart = (id, category) => {
-    if (category === "Gold") setGoldCart((p) => p.filter((x) => x._id !== id));
-    else if (category === "Silver")
-      setSilverCart((p) => p.filter((x) => x._id !== id));
-    else if (category === "Diamond")
-      setDiamondCart((p) => p.filter((x) => x._id !== id));
-    else if (category === "Platinum")
-      setPlatinumCart((p) => p.filter((x) => x._id !== id));
-  };
-
-  const clearCart = (category) => {
-    if (category === "Gold") setGoldCart([]);
-    else if (category === "Silver") setSilverCart([]);
-    else if (category === "Diamond") setDiamondCart([]);
-    else if (category === "Platinum") setPlatinumCart([]);
-  };
-
-  // merged cart + count
-  const mergedCart = useMemo(
-    () => [...goldCart, ...silverCart, ...diamondCart, ...platinumCart],
-    [goldCart, silverCart, diamondCart, platinumCart]
-  );
-  const cartCount = useMemo(
-    () => mergedCart.reduce((sum, item) => sum + (item.quantity || 1), 0),
-    [mergedCart]
-  );
-
-  // persist whenever the cart changes
+  // ------------------------------
+  // LOAD CART FROM LOCAL STORAGE ONCE
+  // ------------------------------
   useEffect(() => {
-    persist(mergedCart);
-  }, [mergedCart]);
+    try {
+      setGoldCart(JSON.parse(localStorage.getItem("goldCart")) || []);
+      setSilverCart(JSON.parse(localStorage.getItem("silverCart")) || []);
+      setDiamondCart(JSON.parse(localStorage.getItem("diamondCart")) || []);
+      setPlatinumCart(JSON.parse(localStorage.getItem("platinumCart")) || []);
+    } catch (err) {
+      console.error("Cart load error:", err);
+    }
+  }, []);
+
+  // ------------------------------
+  // MERGE CARTS + UPDATE COUNT
+  // ------------------------------
+  useEffect(() => {
+    const merged = [
+      ...goldCart,
+      ...silverCart,
+      ...diamondCart,
+      ...platinumCart,
+    ];
+    setMergedCart(merged);
+    setCartCount(merged.length);
+
+    window.dispatchEvent(new Event("storageUpdate"));
+  }, [goldCart, silverCart, diamondCart, platinumCart]);
+
+  // ------------------------------
+  // ADD TO CART — FIXED VERSION
+  // ------------------------------
+  const addToCart = (product) => {
+    const raw = product.category || product.metalType || "";
+    const cat = raw.toLowerCase();
+
+    if (cat === "gold") {
+      const updated = [...goldCart, product];
+      setGoldCart(updated);
+      localStorage.setItem("goldCart", JSON.stringify(updated));
+    } else if (cat === "silver") {
+      const updated = [...silverCart, product];
+      setSilverCart(updated);
+      localStorage.setItem("silverCart", JSON.stringify(updated));
+    } else if (cat === "diamond") {
+      const updated = [...diamondCart, product];
+      setDiamondCart(updated);
+      localStorage.setItem("diamondCart", JSON.stringify(updated));
+    } else if (cat === "platinum") {
+      const updated = [...platinumCart, product];
+      setPlatinumCart(updated);
+      localStorage.setItem("platinumCart", JSON.stringify(updated));
+    } else {
+      console.warn("Unknown category", raw, product);
+    }
+  };
+
+  // ------------------------------
+  // REMOVE ITEM
+  // ------------------------------
+  const removeFromCart = (id, category) => {
+    const cat = category.toLowerCase();
+
+    if (cat === "gold") {
+      const updated = goldCart.filter((i) => i._id !== id);
+      setGoldCart(updated);
+      localStorage.setItem("goldCart", JSON.stringify(updated));
+    } else if (cat === "silver") {
+      const updated = silverCart.filter((i) => i._id !== id);
+      setSilverCart(updated);
+      localStorage.setItem("silverCart", JSON.stringify(updated));
+    } else if (cat === "diamond") {
+      const updated = diamondCart.filter((i) => i._id !== id);
+      setDiamondCart(updated);
+      localStorage.setItem("diamondCart", JSON.stringify(updated));
+    } else if (cat === "platinum") {
+      const updated = platinumCart.filter((i) => i._id !== id);
+      setPlatinumCart(updated);
+      localStorage.setItem("platinumCart", JSON.stringify(updated));
+    }
+  };
 
   return (
     <CartContext.Provider
       value={{
-        goldCart,
-        silverCart,
-        diamondCart,
-        platinumCart,
+        mergedCart,
+        cartCount,
         addToCart,
         removeFromCart,
-        clearCart,
-        cartCount, // <-- expose this
-        mergedCart, // optional, if needed elsewhere
       }}
     >
       {children}

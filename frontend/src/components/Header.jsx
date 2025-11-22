@@ -153,7 +153,7 @@ const Header = () => {
   };
   return (
     <>
-      <header className="bg-white shadow-sm border-b border-gray-200  z-50 ">
+      <header className="bg-black shadow-sm border-b border-gray-200  z-50 ">
         <div className="max-w-screen-xxl  flex flex-row md:flex-row items-center justify-between gap-2   ">
           <h1
             style={{
@@ -253,8 +253,8 @@ const Header = () => {
         {/* NAVBAR WRAPPER */}
         {/* ===== DESKTOP / TABLET NAV ===== */}
         <div
-          className="hidden md:flex items-center justify-between px-6 py-3 bg-cyan-50 text-white text-sm"
-         
+          className="hidden md:flex items-center justify-between px-6 py-3 
+             bg-[#faca14] text-black text-sm font-bold font-serif"
         >
           {/* LEFT: (optional logo) */}
           <div className="w-1/4 flex items-center"></div>
@@ -314,7 +314,7 @@ const Header = () => {
               >
                 {/* Welcome Text */}
                 <div className="flex flex-col  items-start justify-start whitespace-nowrap text-decoration-none cursor-pointer">
-                  <span className="font-semibold text-white  flex flex-wrap text-xs">
+                  <span className="font-semibold text-black text-sm font-bold font-serif  flex flex-wrap text-xs">
                     Welcome
                   </span>
                   <span className="font-semibold text-opacity-10 flex flex-wrap text-xs ">
@@ -373,7 +373,7 @@ const Header = () => {
                 {wishlistCount}
               </span>
               <span className="text-decoration-none ">
-                <IoIosHeart size={20} className="text-black"/>
+                <IoIosHeart size={20} className="text-black" />
               </span>
             </Link>
             <Link
@@ -520,8 +520,6 @@ const Header = () => {
             </Link>
           </div>
         )}
-
-    
       </header>
       <style>
         {`
