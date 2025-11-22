@@ -12,7 +12,7 @@ export const CartProvider = ({ children }) => {
   const [cartCount, setCartCount] = useState(0);
 
   // ------------------------------
-  // LOAD CART FROM LOCAL STORAGE ONCE
+  // LOAD CART FROM LOCAL STORAGE
   // ------------------------------
   useEffect(() => {
     try {
@@ -35,14 +35,16 @@ export const CartProvider = ({ children }) => {
       ...diamondCart,
       ...platinumCart,
     ];
+
     setMergedCart(merged);
     setCartCount(merged.length);
 
+    // Notify other components
     window.dispatchEvent(new Event("storageUpdate"));
   }, [goldCart, silverCart, diamondCart, platinumCart]);
 
   // ------------------------------
-  // ADD TO CART — FIXED VERSION
+  // ADD TO CART
   // ------------------------------
   const addToCart = (product) => {
     const raw = product.category || product.metalType || "";
@@ -94,13 +96,55 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  // ------------------------------
+  // CLEAR SPECIFIC CATEGORY
+  // ------------------------------
+  const clearCart = (category) => {
+    const cat = category.toLowerCase();
+
+    if (cat === "gold") {
+      setGoldCart([]);
+      localStorage.setItem("goldCart", "[]");
+    } else if (cat === "silver") {
+      setSilverCart([]);
+      localStorage.setItem("silverCart", "[]");
+    } else if (cat === "diamond") {
+      setDiamondCart([]);
+      localStorage.setItem("diamondCart", "[]");
+    } else if (cat === "platinum") {
+      setPlatinumCart([]);
+      localStorage.setItem("platinumCart", "[]");
+    }
+  };
+
+  // ------------------------------
+  // CLEAR ALL CARTS
+  // ------------------------------
+  const clearAll = () => {
+    setGoldCart([]);
+    setSilverCart([]);
+    setDiamondCart([]);
+    setPlatinumCart([]);
+
+    localStorage.setItem("goldCart", "[]");
+    localStorage.setItem("silverCart", "[]");
+    localStorage.setItem("diamondCart", "[]");
+    localStorage.setItem("platinumCart", "[]");
+  };
+
   return (
     <CartContext.Provider
       value={{
+        goldCart,
+        silverCart,
+        diamondCart,
+        platinumCart,
         mergedCart,
         cartCount,
         addToCart,
         removeFromCart,
+        clearCart,
+        clearAll,
       }}
     >
       {children}
