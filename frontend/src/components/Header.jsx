@@ -16,7 +16,7 @@ import { GiArchiveRegister } from "react-icons/gi";
 import { IoLogoXing } from "react-icons/io";
 import { useNavigate, Link } from "react-router-dom";
 import Select from "react-select";
-import thia from "../../public/assets/thia.png";
+import thia from "../../public/assets/thiaworld.png";
 import bbscart from "../../public/assets/bbscart.png";
 import healthAccess from "../../public/assets/healthacess.png";
 import { useWishlist } from "../context/WishlistContext";
@@ -25,6 +25,7 @@ import { CartContext } from "../context/CartContext"; // adjust path if differen
 import AccountSettingsPage from "../pages/AccountSettingsPage";
 import AccountPage from "./AccountPage";
 import AccountMenu from "./AccountMenu";
+import { PiCoinVertical } from "react-icons/pi";
 const options = [
   {
     value: "IN",
@@ -152,8 +153,8 @@ const Header = () => {
   };
   return (
     <>
-      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50 ">
-        <div className="max-w-screen-xxl  flex flex-row md:flex-row items-center justify-between gap-2 px-4 py-2  ">
+      <header className="bg-white shadow-sm border-b border-gray-200  z-50 ">
+        <div className="max-w-screen-xxl  flex flex-row md:flex-row items-center justify-between gap-2   ">
           <h1
             style={{
               fontFamily: "Lucida Handwriting",
@@ -169,7 +170,7 @@ const Header = () => {
               <img
                 src={thia}
                 alt="Thiaworld"
-                style={{ width: "90px", height: "70px" }}
+                style={{ width: "300px", height: "100px" }}
               />
             </a>
           </h1>
@@ -183,9 +184,13 @@ const Header = () => {
 
           <div className="hidden md:flex flex-col md:flex-row items-center flex-1 gap-4">
             <div className="text-sm text-black overflow-hidden whitespace-nowrap w-full">
-              <div className="animate-marquee inline-block">
-                Matte Finish Bangles · 22K Necklaces · Antique Temple Jewelry ·
-                Lightweight Gold Chains
+              <div className="animate-marquee bg-white text-black px-4 py-1 w-100  flex flex-row items-center">
+                <span className="text-yellow-600 flex flex-row items-center gap-1">
+                  <PiCoinVertical size={25} className="animate-coin-rotate" />
+                  Matte Finish Bangles
+                </span>
+                · 22K Necklaces · Antique Temple Jewelry · Lightweight Gold
+                Chains
               </div>
             </div>
 
@@ -248,14 +253,14 @@ const Header = () => {
         {/* NAVBAR WRAPPER */}
         {/* ===== DESKTOP / TABLET NAV ===== */}
         <div
-          className="hidden md:flex items-center justify-between px-6 py-3 button-83"
-          // style={{ backgroundColor: "rgb(194, 120, 20)", color: "white" }}
+          className="hidden md:flex items-center justify-between px-6 py-3 bg-cyan-50 text-white text-sm"
+         
         >
           {/* LEFT: (optional logo) */}
           <div className="w-1/4 flex items-center"></div>
 
           {/* CENTER LINKS */}
-          <nav className="w-2/4 flex justify-center gap-6 text-sm items-center flex-wrap ">
+          <nav className="w-2/4 flex justify-center gap-6 text-sm items-center flex-wrap text-black ">
             <Link
               to="/"
               onClick={(e) => {
@@ -333,8 +338,8 @@ const Header = () => {
                 onBlur={handleLeave}
               >
                 <button className="flex items-center text-sm">
-                  <FaUserAlt className="mr-2 text-xl" />
-                  <span className="hidden sm:inline">Account</span>
+                  <FaUserAlt className="mr-2 text-xl text-black" />
+                  <span className="hidden sm:inline text-black">Account</span>
                 </button>
 
                 {/* Dropdown */}
@@ -357,8 +362,8 @@ const Header = () => {
               to="/cart"
               className="relative flex items-center gap-2 hover:text-yellow-300 text-decoration-none"
             >
-              <FaShoppingCart className="text-lg" />
-              <span className="hidden sm:inline">Cart</span>
+              <FaShoppingCart className="text-lg text-black" />
+              <span className="hidden sm:inline text-black">Cart</span>
               <span className="absolute -top-2 -right-0 bg-red-500 text-white text-xs rounded-full px-1.5">
                 {cartCount}
               </span>
@@ -367,16 +372,16 @@ const Header = () => {
               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5 text-decoration-none">
                 {wishlistCount}
               </span>
-              <span className="text-decoration-none text-red-600">
-                <IoIosHeart size={20} />
+              <span className="text-decoration-none ">
+                <IoIosHeart size={20} className="text-black"/>
               </span>
             </Link>
             <Link
               to="/user-settings"
               className="relative flex items-center gap-2 hover:text-yellow-300"
             >
-              <RiUserSettingsFill className=" text-xl" />
-              <span className="hidden sm:inline">User</span>
+              <RiUserSettingsFill className=" text-xl text-black" />
+              <span className="hidden sm:inline text-black">User</span>
             </Link>
           </div>
         </div>
@@ -451,7 +456,7 @@ const Header = () => {
             >
               <FaShoppingCart className="text-lg" />
               <span>Cart</span>
-              <span className="absolute -top-2 left-5 bg-red-500 text-white text-xs rounded-full px-1.5">
+              <span className="absolute -top-2 left-5  text-white text-xs rounded-full px-1.5">
                 {cartCount}
               </span>
             </Link>
@@ -516,49 +521,7 @@ const Header = () => {
           </div>
         )}
 
-        <Row className="mb-3">
-          <Col className="d-flex justify-content-center gap-3 mt-3">
-            <Button
-              className="border-1 border-r-red-600 border-l-red-900 border-rose-700  rounded-t-xl px-3"
-              variant="none"
-              size="sm"
-              style={{ color: "black" }}
-              onClick={() => (window.location.href = "https://bbscart.com/")}
-            >
-              <span
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
-              >
-                <img
-                  src={bbscart}
-                  alt="BBSCart"
-                  style={{ height: "30px", objectFit: "contain" }}
-                />
-                BBSCart Online Shopping
-              </span>
-            </Button>
-
-            <Button
-              className="border-r-cyan-600 border-l-cyan-900 border-cyan-700 border-1 rounded-b-xl px-3"
-              variant="none"
-              size="sm"
-              style={{ color: "black" }}
-              onClick={() =>
-                (window.location.href = "http://healthcare.bbscart.com/")
-              }
-            >
-              <span
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
-              >
-                <img
-                  src={healthAccess}
-                  alt="HealthAccess"
-                  style={{ height: "30px", objectFit: "contain" }}
-                />
-                BBS Global Health Access
-              </span>
-            </Button>
-          </Col>
-        </Row>
+    
       </header>
       <style>
         {`
@@ -609,6 +572,15 @@ const Header = () => {
 .button-83:focus {
   box-shadow: rgba(72, 35, 7, .46) 0 0 0 4px, -6px 8px 10px rgba(81,41,10,0.1), 0px 2px 2px rgba(81,41,10,0.2);
 }
+  @keyframes coin-rotate {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+.animate-coin-rotate {
+  animation: coin-rotate 1.5s linear infinite;
+}
+
 `}
       </style>
     </>

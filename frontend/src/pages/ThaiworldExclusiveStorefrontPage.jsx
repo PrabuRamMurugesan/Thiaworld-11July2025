@@ -27,19 +27,19 @@ const THIAWorldExclusiveStorefrontPage = () => {
                 }}
               />
               <Carousel.Caption className="text-center">
-                <h1 className="display-3 fw-bold">THIAWORLD™ Gold Jewellery</h1>
-                <p className="lead my-3">
+                <h1 className="display-3 fw-bold text-3xl">THIAWORLD™ Gold Jewellery</h1>
+                <p className="lead mb-3 text-sm">
                   Crafted in Purity. Cherished for Eternity.
                 </p>
                 <a
                   href="#collections"
-                  className="btn btn-warning btn-lg me-2 shadow"
+                  className="btn btn-warning btn-lg me-2 shadow text-sm py-1"
                 >
                   Explore Collection
                 </a>
                 <a
                   href="/thia-secure-plan"
-                  className="btn btn-outline-light btn-lg shadow"
+                  className="btn btn-outline-light btn-lg shadow py-1 text-sm"
                 >
                   THIA Secure Plan
                 </a>
@@ -56,7 +56,7 @@ const THIAWorldExclusiveStorefrontPage = () => {
         </h2>
 
         {/* Define name + image URL pairs */}
-        <div className="row g-3 justify-content-center max-w-100 ">
+        <div className="row g-3 justify-content-center max-w-100  rounded-5">
           {[
             {
               name: "Bridal",

@@ -512,7 +512,7 @@
 
 // export default Navbar;
 
-import React, { useState, useRef} from "react";
+import React, { useState, useRef } from "react";
 import { RiApps2AiFill } from "react-icons/ri";
 import { SiFirebase, SiH3 } from "react-icons/si";
 import {
@@ -784,7 +784,7 @@ const Navbar = () => {
   const timerRef = useRef(null);
 
   const handleEnter = (key) => {
-    clearTimeout(timerRef.current);     // cancel any scheduled close
+    clearTimeout(timerRef.current); // cancel any scheduled close
     setActiveCategory(key);
   };
 
@@ -793,234 +793,234 @@ const Navbar = () => {
     timerRef.current = setTimeout(() => setActiveCategory(null), 500);
   };
 
-
   return (
-    
-   <>
-   <nav className="sticky top-[68px] z-40 bg-white border-b border-gray-200 shadow-sm">
-      <div className="max-w-screen-xl mx-auto px-4 py-2 flex flex-wrap items-center justify-center gap-6 overflow-x-auto">
-        {categories.map(({ key, label, icon, href }) => (
-          <Link
-            key={key}
-            to={href}
-            onMouseEnter={() => handleEnter(key)}
-            onMouseLeave={handleLeave}
-            className="text-sm text-gray-700 hover:text-yellow-600 transition-all font-medium whitespace-nowrap flex items-center"
-          >
-            {icon}
-            <span className="ml-2">{label}</span>
-          </Link>
-        ))}
-      </div>
-
-      {activeCategory && menuData && (
-    <div
-          className="absolute left-0 right-0 bg-white shadow-md border-t border-gray-200 z-50"
-          onMouseEnter={() => handleEnter(activeCategory)}
-          onMouseLeave={handleLeave}
-        >
-         <div className="max-w-screen-xl mx-auto px-4 py-6 grid grid-cols-4 gap-6">
-            {menuData.styles && (
-              <div>
-                <h1 className="text-xl font-semibold mb-2 font-serif">
-                  All Jewellery
-                </h1>
-                <ul className="space-y-1 p-3 font-playfair text-lg">
-                  {menuData.styles.map((styles, idx) => (
-                    <li
-                      key={idx}
-                      className="text-sm text-gray-700 hover:text-yellow-600 cursor-pointer"
-                    >
-                      {styles}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {menuData.gender && (
-              <div>
-                <h1 className="text-xl font-semibold mb-2 font-serif">
-                  Gender
-                </h1>
-                <ul className="space-y-1 p-3 font-playfair text-lg">
-                  {menuData.gender.map((gender, idx) => (
-                    <li
-                      key={idx}
-                      className="text-sm text-gray-700 hover:text-yellow-600 cursor-pointer"
-                    >
-                      {gender}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {menuData.occasion && (
-              <div>
-                <h1 className="text-xl font-semibold mb-2 font-serif">
-                  Occasion
-                </h1>
-                <ul className="space-y-1 p-3 font-playfair text-lg">
-                  {menuData.occasion.map((occasion, idx) => (
-                    <li
-                      key={idx}
-                      className="text-sm text-gray-700 hover:text-yellow-600 cursor-pointer"
-                    >
-                      {occasion}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {menuData.style && (
-              <div>
-                <h4 className="text-l font-semibold mb-2 font-serif">Style</h4>
-                <ul className="  p-2 font-playfair text-lg">
-                  {menuData.style.map((style, idx) => (
-                    <li
-                      key={idx}
-                      className="text-sm text-gray-700 hover:text-yellow-600 cursor-pointer"
-                    >
-                      {style}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {menuData.price && (
-              <div>
-                <h4 className="text-l font-semibold mb-2 font-serif">
-                  Shop By Price
-                </h4>
-                <ul className="space-y-1">
-                  {menuData.price.map((price, idx) => (
-                    <li
-                      key={idx}
-                      className="text-sm text-gray-700 hover:text-yellow-600 cursor-pointer"
-                    >
-                      {price}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {menuData.material && (
-              <div>
-                <h4 className="text-l font-semibold mb-2 font-serif">
-                  Shop By Metal & Stone
-                </h4>
-                <ul className="space-y-1">
-                  {menuData.material.map((mat, idx) => (
-                    <li
-                      key={idx}
-                      className="text-sm text-gray-700 hover:text-yellow-600 cursor-pointer"
-                    >
-                      {mat}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {menuData.image && Array.isArray(menuData.image) && (
-              <div className="flex flex-col gap-5 justify-center">
-                {menuData.image.map((imgSrc, idx) => (
-                  <img
-                    key={idx}
-                    src={imgSrc}
-                    alt={`${activeCategory} visual ${idx + 1}`}
-                    className="w-80 h-40 object-cover rounded border border-gray-300 p-2"
-                  />
-                ))}
-              </div>
-            )}
-
-            {menuData.imageone && Array.isArray(menuData.imageone) && (
-              <div className="flex flex-row gap-5 justify-center">
-                {menuData.imageone.map((imgSrc, idx) => (
-                  <img
-                    key={idx}
-                    src={imgSrc}
-                    alt={`${activeCategory} visual ${idx + 1}`}
-                    className="w-80 h-40 object-cover rounded border border-gray-300 p-1"
-                  />
-                ))}
-              </div>
-            )}
-
-            {menuData.imagetwo && Array.isArray(menuData.imagetwo) && (
-              <div className="flex flex-row gap-5 justify-center">
-                {menuData.imagetwo.map((imgSrc, idx) => (
-                  <img
-                    key={idx}
-                    src={imgSrc}
-                    alt={`${activeCategory} visual ${idx + 1}`}
-                    className="w-40 h-40 object-cover rounded border border-gray-300 p-3"
-                  />
-                ))}
-              </div>
-            )}
-            {menuData.imageThree && Array.isArray(menuData.imageThree) && (
-              <div className="flex flex-col gap-5 justify-center">
-                {menuData.imageThree.map((imgSrc, idx) => (
-                  <img
-                    key={idx}
-                    src={imgSrc}
-                    alt={`${activeCategory} visual ${idx + 1}`}
-                    className="w-100 h-[150px]  rounded border border-gray-300 p-1"
-                  />
-                ))}
-              </div>
-            )}
-
-            {menuData.imageFour && Array.isArray(menuData.imageFour) && (
-              <div className="flex flex-col gap-5 justify-center">
-                {menuData.imageFour.map((imgSrc, idx) => (
-                  <img
-                    key={idx}
-                    src={imgSrc}
-                    alt={`${activeCategory} visual ${idx + 1}`}
-                    className="w-100 h-[150px]  rounded border border-gray-300 p-1"
-                  />
-                ))}
-              </div>
-            )}
-
-            {menuData.imageFive && Array.isArray(menuData.imageFive) && (
-              <div className="flex flex-col gap-5 justify-center">
-                {menuData.imageFive.map((imgSrc, idx) => (
-                  <img
-                    key={idx}
-                    src={imgSrc}
-                    alt={`${activeCategory} visual ${idx + 1}`}
-                    className="w-100 h-[150px]  rounded border border-gray-300 p-1"
-                  />
-                ))}
-              </div>
-            )}
-
-            {menuData.imageSix && Array.isArray(menuData.imageSix) && (
-              <div className="flex flex-row gap-2 justify-center">
-                {menuData.imageSix.map((imgSrc, idx) => (
-                  <img
-                    key={idx}
-                    src={imgSrc}
-                    alt={`${activeCategory} visual ${idx + 1}`}
-                    className="w-50 h-[200px]  rounded border border-gray-300 p-1"
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+    <>
+      <nav className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-screen-xl mx-auto px-4 py-2 flex flex-wrap items-center justify-center gap-6 overflow-x-auto">
+          {categories.map(({ key, label, icon, href }) => (
+            <Link
+              key={key}
+              to={href}
+              onMouseEnter={() => handleEnter(key)}
+              onMouseLeave={handleLeave}
+              className="text-sm text-gray-700 hover:text-yellow-600 transition-all font-medium whitespace-nowrap flex items-center"
+            >
+              {icon}
+              <span className="ml-2">{label}</span>
+            </Link>
+          ))}
         </div>
-      )}
 
-      <style>
-        {`
+        {activeCategory && menuData && (
+          <div
+            className="absolute left-0 right-0 bg-white shadow-md border-t border-gray-200 z-50"
+            onMouseEnter={() => handleEnter(activeCategory)}
+            onMouseLeave={handleLeave}
+          >
+            <div className="max-w-screen-xl mx-auto px-4 py-6 grid grid-cols-4 gap-6">
+              {menuData.styles && (
+                <div>
+                  <h1 className="text-xl font-semibold mb-2 font-serif">
+                    All Jewellery
+                  </h1>
+                  <ul className="space-y-1 p-3 font-playfair text-lg">
+                    {menuData.styles.map((styles, idx) => (
+                      <li
+                        key={idx}
+                        className="text-sm text-gray-700 hover:text-yellow-600 cursor-pointer"
+                      >
+                        {styles}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {menuData.gender && (
+                <div>
+                  <h1 className="text-xl font-semibold mb-2 font-serif">
+                    Gender
+                  </h1>
+                  <ul className="space-y-1 p-3 font-playfair text-lg">
+                    {menuData.gender.map((gender, idx) => (
+                      <li
+                        key={idx}
+                        className="text-sm text-gray-700 hover:text-yellow-600 cursor-pointer"
+                      >
+                        {gender}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {menuData.occasion && (
+                <div>
+                  <h1 className="text-xl font-semibold mb-2 font-serif">
+                    Occasion
+                  </h1>
+                  <ul className="space-y-1 p-3 font-playfair text-lg">
+                    {menuData.occasion.map((occasion, idx) => (
+                      <li
+                        key={idx}
+                        className="text-sm text-gray-700 hover:text-yellow-600 cursor-pointer"
+                      >
+                        {occasion}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {menuData.style && (
+                <div>
+                  <h4 className="text-l font-semibold mb-2 font-serif">
+                    Style
+                  </h4>
+                  <ul className="  p-2 font-playfair text-lg">
+                    {menuData.style.map((style, idx) => (
+                      <li
+                        key={idx}
+                        className="text-sm text-gray-700 hover:text-yellow-600 cursor-pointer"
+                      >
+                        {style}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {menuData.price && (
+                <div>
+                  <h4 className="text-l font-semibold mb-2 font-serif">
+                    Shop By Price
+                  </h4>
+                  <ul className="space-y-1">
+                    {menuData.price.map((price, idx) => (
+                      <li
+                        key={idx}
+                        className="text-sm text-gray-700 hover:text-yellow-600 cursor-pointer"
+                      >
+                        {price}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {menuData.material && (
+                <div>
+                  <h4 className="text-l font-semibold mb-2 font-serif">
+                    Shop By Metal & Stone
+                  </h4>
+                  <ul className="space-y-1">
+                    {menuData.material.map((mat, idx) => (
+                      <li
+                        key={idx}
+                        className="text-sm text-gray-700 hover:text-yellow-600 cursor-pointer"
+                      >
+                        {mat}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {menuData.image && Array.isArray(menuData.image) && (
+                <div className="flex flex-col gap-5 justify-center">
+                  {menuData.image.map((imgSrc, idx) => (
+                    <img
+                      key={idx}
+                      src={imgSrc}
+                      alt={`${activeCategory} visual ${idx + 1}`}
+                      className="w-80 h-40 object-cover rounded border border-gray-300 p-2"
+                    />
+                  ))}
+                </div>
+              )}
+
+              {menuData.imageone && Array.isArray(menuData.imageone) && (
+                <div className="flex flex-row gap-5 justify-center">
+                  {menuData.imageone.map((imgSrc, idx) => (
+                    <img
+                      key={idx}
+                      src={imgSrc}
+                      alt={`${activeCategory} visual ${idx + 1}`}
+                      className="w-80 h-40 object-cover rounded border border-gray-300 p-1"
+                    />
+                  ))}
+                </div>
+              )}
+
+              {menuData.imagetwo && Array.isArray(menuData.imagetwo) && (
+                <div className="flex flex-row gap-5 justify-center">
+                  {menuData.imagetwo.map((imgSrc, idx) => (
+                    <img
+                      key={idx}
+                      src={imgSrc}
+                      alt={`${activeCategory} visual ${idx + 1}`}
+                      className="w-40 h-40 object-cover rounded border border-gray-300 p-3"
+                    />
+                  ))}
+                </div>
+              )}
+              {menuData.imageThree && Array.isArray(menuData.imageThree) && (
+                <div className="flex flex-col gap-5 justify-center">
+                  {menuData.imageThree.map((imgSrc, idx) => (
+                    <img
+                      key={idx}
+                      src={imgSrc}
+                      alt={`${activeCategory} visual ${idx + 1}`}
+                      className="w-100 h-[150px]  rounded border border-gray-300 p-1"
+                    />
+                  ))}
+                </div>
+              )}
+
+              {menuData.imageFour && Array.isArray(menuData.imageFour) && (
+                <div className="flex flex-col gap-5 justify-center">
+                  {menuData.imageFour.map((imgSrc, idx) => (
+                    <img
+                      key={idx}
+                      src={imgSrc}
+                      alt={`${activeCategory} visual ${idx + 1}`}
+                      className="w-100 h-[150px]  rounded border border-gray-300 p-1"
+                    />
+                  ))}
+                </div>
+              )}
+
+              {menuData.imageFive && Array.isArray(menuData.imageFive) && (
+                <div className="flex flex-col gap-5 justify-center">
+                  {menuData.imageFive.map((imgSrc, idx) => (
+                    <img
+                      key={idx}
+                      src={imgSrc}
+                      alt={`${activeCategory} visual ${idx + 1}`}
+                      className="w-100 h-[150px]  rounded border border-gray-300 p-1"
+                    />
+                  ))}
+                </div>
+              )}
+
+              {menuData.imageSix && Array.isArray(menuData.imageSix) && (
+                <div className="flex flex-row gap-2 justify-center">
+                  {menuData.imageSix.map((imgSrc, idx) => (
+                    <img
+                      key={idx}
+                      src={imgSrc}
+                      alt={`${activeCategory} visual ${idx + 1}`}
+                      className="w-50 h-[200px]  rounded border border-gray-300 p-1"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <style>
+          {`
           .riapps {
             display: flex;
             align-items: center;
@@ -1034,9 +1034,9 @@ const Navbar = () => {
             color: black;
           }
         `}
-      </style>
-    </nav>
-   </>
+        </style>
+      </nav>
+    </>
   );
 };
 

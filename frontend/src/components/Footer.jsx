@@ -2,6 +2,7 @@ import React from "react";
 import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { IoIosCall } from "react-icons/io";
+import logo from "../../public/assets/thiaworld.png";
 
 const Footer = () => {
   const handleBackToTop = () => {
@@ -9,13 +10,15 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-[#000000e5] text-white border-t border-gray-200 py-10 mt-10">
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* 
-          text-center for mobile 
-          md:text-left overrides to left on tablets/desktops
-        */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10  md:text-left">
+    <footer className="bg-[#000000e5] text-white border-t border-gray-200 py-12 mt-10 ">
+      <div className="px-6 sm:px-6 lg:px-8">
+        {/* Footer Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-10 text-left">
+          {/* Logo */}
+          <div className="flex flex-col items-start text-left">
+            <img src={logo} alt="logo" sizes="180" />
+          </div>
+
           {/* Quick Links */}
           <div>
             <h4 className="text-lg font-semibold mb-3">Quick Links</h4>
@@ -49,7 +52,7 @@ const Footer = () => {
             <p className="text-sm mb-3">
               Get exclusive updates and offers in your inbox.
             </p>
-            <form className="flex flex-col sm:flex-row sm:justify-center md:justify-start gap-2">
+            <form className="flex flex-col sm:flex-row gap-2">
               <input
                 type="email"
                 placeholder="Your email address"
@@ -64,25 +67,21 @@ const Footer = () => {
             </form>
           </div>
 
-          {/* Gold Jewellery Info */}
+          {/* Gold Info */}
           <div>
             <h4 className="text-lg font-semibold mb-3">Gold Jewellery Info</h4>
-            <ul className="space-y-2 text-sm leading-relaxed">
+            <ul className="space-y-2 text-sm">
               <li>
-                <strong>Purity Guide:</strong> 18K, 22K & 24K BIS-hallmarked
-                gold.
+                <strong>Purity:</strong> 18K, 22K, 24K Hallmarked
               </li>
               <li>
-                <strong>Care Tips:</strong> Store in soft pouches, avoid harsh
-                chemicals.
+                <strong>Care:</strong> Store safely, avoid chemicals
               </li>
               <li>
-                <strong>Buyback:</strong> Full gold value with transparent
-                charges.
+                <strong>Buyback:</strong> Full value & transparent
               </li>
               <li>
-                <strong>Occasions:</strong> Bridal, festive, and daily-wear
-                designs.
+                <strong>Occasions:</strong> Bridal & festive collection
               </li>
             </ul>
           </div>
@@ -90,56 +89,51 @@ const Footer = () => {
           {/* Social & Contact */}
           <div>
             <h4 className="text-lg font-semibold mb-3">Connect With Us</h4>
-            <div className="flex justify-center md:justify-start space-x-4 mb-4">
-              <a
-                href="https://www.facebook.com/profile.php?id=100090804256179"
-                className="text-blue-600 hover:text-yellow-600"
-              >
+
+            <div className="flex space-x-4 mb-4">
+              <a href="#" className="text-blue-600 hover:text-yellow-600">
                 <FaFacebookF size={20} />
               </a>
-              <a
-                href="https://www.instagram.com/bbscart/?hl=en#"
-                className="text-pink-500 hover:text-yellow-600"
-              >
+              <a href="#" className="text-pink-500 hover:text-yellow-600">
                 <FaInstagram size={22} />
               </a>
-              <a
-                href="https://www.youtube.com/channel/UCNiBeRvAW1bQOUEcaqc0hYA"
-                className="text-red-600 hover:text-yellow-600"
-              >
+              <a href="#" className="text-red-600 hover:text-yellow-600">
                 <FaYoutube size={25} />
               </a>
             </div>
-            <div className="flex justify-center md:justify-start items-center gap-2 mb-1 pb-2 border-b border-gray-300">
+
+            <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-300">
               <IoIosCall className="text-lg text-yellow-500" />
               <Link
                 to="tel:04132915916"
-                className="text-sm hover:text-yellow-600 "
+                className="text-sm hover:text-yellow-600"
               >
                 0413 291 5916
               </Link>
             </div>
-            <p className="text-sm my-3">📧 support@thiaworld.com</p>
+
+            <p className="text-sm mt-2">📧 support@thiaworld.com</p>
             <p className="text-sm">
-              📍 Floor 1, 5, 2nd Cross, Bharathy Street Extension,
-              Ellaipillaichavady, Anna Nagar, Puducherry – 605005
+              📍 Floor 1, 5, 2nd Cross, Bharathy Street, Puducherry – 605005
             </p>
           </div>
         </div>
 
-        {/* Back to Top */}
-        <div className="mt-10 text-center">
-          <button
-            onClick={handleBackToTop}
-            className="text-sm text-yellow-600 hover:underline"
-          >
-            ⬆ Back to Top
-          </button>
-        </div>
+        <div className="text-center">
+          {/* Back to Top */}
+          <div className="mt-10">
+            <button
+              onClick={handleBackToTop}
+              className="text-sm text-yellow-600 hover:underline "
+            >
+              ⬆ Back to Top
+            </button>
+          </div>
 
-        {/* Copyright */}
-        <div className="text-center text-[10px] sm:text-xs text-gray-500 mt-6">
-          © {new Date().getFullYear()} Thiaworld. All rights reserved.
+          {/* Copyright */}
+          <div className="text-[10px] sm:text-xs text-gray-500 mt-6">
+            © {new Date().getFullYear()} Thiaworld. All rights reserved.
+          </div>
         </div>
       </div>
     </footer>
