@@ -23,7 +23,7 @@ import ShopByBudget from "../components/Jewellery-page/ShopByBudget";
 import HomeProductSection from "../components/HomeProductSection"; // adjust path if needed
 import BestSellingProducts from "../components/BestSellingProducts";
 import THIAWorldExclusiveStorefrontPage from "./ThaiworldExclusiveStorefrontPage";
-import TestimonialsSection from "../components/TestimonialsSection";
+import TestimonialsSection from "../components/TestimonialSection";
 import BottonAd from "./bottonAd";
 const ThiaHomePage = () => {
   const navigate = useNavigate();
