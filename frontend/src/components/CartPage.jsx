@@ -33,7 +33,7 @@ const CartPage = () => {
             borderBottom: "2px solid rgb(207, 162, 47)",
             paddingBottom: "10px",
             fontSize: "35px",
-           ontFamily:"'Playfair Display', serif"
+           fontFamily:"'Playfair Display', serif"
           }}
         >
           My Cart
