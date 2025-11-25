@@ -26,13 +26,13 @@ const TestimonialsSection = () => {
 
   return (
     <div className="w-full bg-[#e6f7f4] py-12 px-6">
-
       {/* Heading */}
       <h2 className="text-center text-2xl font-bold text-gray-900">
         Customer Testimonials
       </h2>
       <p className="text-center text-gray-700 mt-2">
-        Hear what our happy customers say about Thiaworld and Golldex Secure Plan
+        Hear what our happy customers say about Thiaworld and Golldex Secure
+        Plan
       </p>
 
       {/* Top Images */}
@@ -54,17 +54,19 @@ const TestimonialsSection = () => {
 
       {/* --- 3D Rotating Carousel --- */}
       <div className="relative w-full max-w-7xl mx-auto py-2">
-
         <div className="relative h-[500px] flex items-center justify-center overflow-visible">
-
           {/* LEFT IMAGE */}
           <div
-            className={`absolute left-[5rem] transition-all duration-700 ease-in-out pointer-events-none
-            ${index === 1 ? "opacity-60 -translate-x-28 scale-90 -rotate-6" :
-              index === 2 ? "opacity-60 -translate-x-28 scale-90 -rotate-6" :
-              "opacity-100 translate-x-2 scale-95 rotate-0"}
+            className={`absolute left-[2rem] transition-all duration-700 ease-in-out pointer-events-none
+            ${
+              index === 1
+                ? "opacity-60 -translate-x-10 scale-90 -rotate-6"
+                : index === 2
+                ? "opacity-60 -translate-x-10 scale-90 -rotate-6"
+                : "opacity-100 translate-x-2 scale-95 rotate-0"
+            }
             `}
-            style={{ width: "30%", maxWidth: 420 }}
+            style={{ width: "22%", maxWidth: 250 }}
           >
             <img
               src={imgs[(index + 2) % 3]}
@@ -76,7 +78,7 @@ const TestimonialsSection = () => {
           {/* CENTER IMAGE */}
           <div
             className="relative z-30 transition-all duration-700 scale-105"
-            style={{ width: "600px", height: "400px" }}
+            style={{ width: "80%", maxWidth: "380px", height: "280px" }}
           >
             <img
               src={imgs[index]}
@@ -87,12 +89,16 @@ const TestimonialsSection = () => {
 
           {/* RIGHT IMAGE */}
           <div
-            className={`absolute right-[5rem] transition-all duration-700 ease-in-out pointer-events-none
-            ${index === 1 ? "opacity-60 translate-x-28 scale-90 rotate-1" :
-              index === 0 ? "opacity-60 translate-x-28 scale-90 rotate-6" :
-              "opacity-100 -translate-x-2 scale-95 rotate-0"}
+            className={`absolute right-[2rem] transition-all duration-700 ease-in-out pointer-events-none
+            ${
+              index === 1
+                ? "opacity-60 translate-x-10 scale-90 rotate-1"
+                : index === 0
+                ? "opacity-60 translate-x-10 scale-90 rotate-6"
+                : "opacity-100 -translate-x-2 scale-95 rotate-0"
+            }
             `}
-            style={{ width: "28%", maxWidth: 420 }}
+            style={{ width: "22%", maxWidth: 250 }}
           >
             <img
               src={imgs[(index + 1) % 3]}
@@ -100,7 +106,6 @@ const TestimonialsSection = () => {
               className="w-full h-full object-cover rounded-xl shadow-lg border border-gray-200"
             />
           </div>
-
         </div>
 
         {/* Dots */}
@@ -115,9 +120,7 @@ const TestimonialsSection = () => {
             />
           ))}
         </div>
-
       </div>
-
     </div>
   );
 };
