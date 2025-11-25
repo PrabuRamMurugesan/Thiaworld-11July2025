@@ -88,6 +88,7 @@ import WishlistPage from "./pages/WishlistPage";
 import MediaLibrary from "./pages/admin/MediaLibrary";
 import AdminSignup from "./pages/admin/AdminSignup";
 import AdminLogin from "./pages/AdminLogin";
+import EditProfile from "./pages/EditProfile";
 
 export default function App() {
   return (
@@ -101,6 +102,7 @@ export default function App() {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/virtual-jewelry-on" element={<VirtualJewelryOn />} />
       <Route path="/user-settings" element={<UserSettings />} />
+      <Route path="/edit-profile" element={<EditProfile />} />
       <Route
         path="/product-card"
         element={
