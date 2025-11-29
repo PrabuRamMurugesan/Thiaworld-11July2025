@@ -78,6 +78,7 @@ const Header = () => {
   const { cartCount } = useContext(CartContext);
   const { ids } = useWishlist(); // Set of productIds in wishlist
   const wishlistCount = ids.size;
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [user, setUser] = useState(null);
   useEffect(() => {
@@ -199,6 +200,14 @@ const Header = () => {
               <input
                 type="text"
                 placeholder="Search jewelry, collections, categories..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && searchTerm.trim() !== "") {
+                    navigate(`/all-jewellery?search=${searchTerm.trim()}`);
+                    window.location.reload(); // Your site uses full reload everywhere
+                  }
+                }}
                 className="w-full pl-3 pr-8 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
               />
             </div>
@@ -235,6 +244,15 @@ const Header = () => {
                 <input
                   type="text"
                   placeholder="Search jewelry, collections, categories..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && searchTerm.trim() !== "") {
+                      navigate(`/all-jewellery?search=${searchTerm.trim()}`);
+                      setMobileOpen(false);
+                      window.location.reload();
+                    }
+                  }}
                   className="w-full pl-3 pr-8 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
                 />
               </div>
@@ -300,7 +318,7 @@ const Header = () => {
               }}
               className="cursor-pointer hover:underline"
             >
-              Contact
+              Contact Us
             </span>
           </nav>
 
