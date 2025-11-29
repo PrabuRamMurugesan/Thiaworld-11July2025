@@ -6,6 +6,7 @@ import { TiFilter } from "react-icons/ti";
 import { CartContext } from "../../context/CartContext";
 import { IoHeart, IoStar } from "react-icons/io5";
 import { Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const AllJewellery = () => {
   const [products, setProducts] = useState([]);
@@ -13,6 +14,11 @@ const AllJewellery = () => {
   const [categoryFilter, setCategoryFilter] = useState([]);
   const [purityFilter, setPurityFilter] = useState([]);
   const [metalFilter, setMetalFilter] = useState([]);
+  const [genderFilter, setGenderFilter] = useState([]);
+  const [occasionFilter, setOccasionFilter] = useState([]);
+const [tagsFilter, setTagsFilter] = useState([]);
+const [ready, setReady] = useState(false);
+
   const [sortOption, setSortOption] = useState("");
   const [loading, setLoading] = useState(true);
   const { addToCart } = useContext(CartContext);
@@ -23,10 +29,44 @@ const AllJewellery = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
   const totalPages = Math.ceil(products.length / itemsPerPage);
+const location = useLocation();
 
-  useEffect(() => {
-    fetchAllJewellery();
-  }, [search, categoryFilter, purityFilter, metalFilter, sortOption]);
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  // NEW: read search from URL
+  const keyword = params.get("search");
+  if (keyword) setSearch(keyword);
+
+  const tag = params.get("tags");
+  const gender = params.get("gender");
+
+  if (tag) {
+    setTagsFilter([tag]);
+  }
+  if (gender) {
+    setGenderFilter([gender]);
+  }
+  const occasion = params.get("occasion");
+  if (occasion) setOccasionFilter([occasion]);
+  setReady(true); // <-- IMPORTANT
+}, [location.search]);
+
+
+
+useEffect(() => {
+  if (!ready) return; // <-- prevent early fetch
+  fetchAllJewellery();
+}, [
+  ready,
+  search,
+  categoryFilter,
+  purityFilter,
+  metalFilter,
+  sortOption,
+  tagsFilter,
+  genderFilter,
+  occasionFilter,
+]);
 
   const fetchAllJewellery = async () => {
     try {
@@ -35,7 +75,14 @@ const AllJewellery = () => {
         query.push(`category=${categoryFilter.join(",")}`);
       if (purityFilter.length) query.push(`purity=${purityFilter.join(",")}`);
       if (metalFilter.length) query.push(`metalType=${metalFilter.join(",")}`);
-      if (search) query.push(`name=${search}`);
+     if (tagsFilter.length)
+       query.push(`tags=${tagsFilter.join(",")}`);
+
+      if (genderFilter.length) query.push(`gender=${genderFilter.join(",")}`);
+      if (occasionFilter.length)
+        query.push(`occasion=${occasionFilter.join(",")}`);
+
+if (search) query.push(`search=${search}`);
       if (sortOption) {
         if (sortOption === "Price: Low to High")
           query.push("sort=priceLowToHigh");
@@ -59,14 +106,20 @@ const AllJewellery = () => {
       category: [categoryFilter, setCategoryFilter],
       purity: [purityFilter, setPurityFilter],
       metalType: [metalFilter, setMetalFilter],
+      tags: [tagsFilter, setTagsFilter], // ← Add this
+      gender: [genderFilter, setGenderFilter],
+      occasion: [occasionFilter, setOccasionFilter],
     };
+
     const [filter, setFilter] = filterMap[type];
+
     setFilter(
       filter.includes(value)
         ? filter.filter((v) => v !== value)
         : [...filter, value]
     );
   };
+
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -87,9 +140,9 @@ const AllJewellery = () => {
       <div className="necklace-location">
         <span className="d-flex align-items-center" style={{ color: "black" }}>
           <Link to="/" className="text-black-600 hover:underline">
-                      Home
-                    </Link>
-                     <IoMdArrowDropright /> All Jewellery
+            Home
+          </Link>
+          <IoMdArrowDropright /> All Jewellery
         </span>
       </div>
 
@@ -141,14 +194,15 @@ const AllJewellery = () => {
         {["Rings", "Chains", "Necklace", "Earrings"].map((cat) => (
           <button
             key={cat}
-            onClick={() => toggleFilter("category", cat)}
+            onClick={() => toggleFilter("tags", cat)}
             className={`filter-btn ${
-              categoryFilter.includes(cat) ? "active" : ""
+              tagsFilter.includes(cat) ? "active" : ""
             }`}
           >
             {cat}
           </button>
         ))}
+
         {["18K", "22K", "24K", "SI", "VVS", "95"].map((pur) => (
           <button
             key={pur}

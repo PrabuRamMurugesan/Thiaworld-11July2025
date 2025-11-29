@@ -41,15 +41,8 @@ const AccountMenu = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
         {/* Left: Your Lists */}
         <div>
-          <h3 className="font-semibold text-gray-900 mb-2">Your Lists</h3>
           <ul className="space-y-1 text-gray-700">
             <li>Shopping List</li>
-            <li>Shopping List</li>
-            <li>Shopping List</li>
-            <li>Shopping List</li>
-            <li className="text-blue-600 cursor-pointer hover:underline">
-              See more
-            </li>
           </ul>
           <hr className="my-3" />
           <ul className="space-y-1 text-gray-700">
@@ -74,18 +67,14 @@ const AccountMenu = () => {
             <hr className="my-2" />
             <li>Your Account</li>
             <li>Your Orders</li>
-            <li>Your Wish List</li>
             <li>Keep shopping for</li>
             <li>Your Recommendations</li>
-            <li>Recalls and Product Safety Alerts</li>
-            <li>Your Prime Membership</li>
-            <li>Your Prime Video</li>
             <li>Your Subscribe & Save Items</li>
             <li>Memberships & Subscriptions</li>
             <li>Your Seller Account</li>
             <li>Content Library</li>
             <li>Devices</li>
-            <li>Register for a free Business Account</li>
+            <li>Register free Business Account</li>
           </ul>
         </div>
       </div>

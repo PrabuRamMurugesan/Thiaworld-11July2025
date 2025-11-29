@@ -70,6 +70,7 @@ const UserSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    status: { type: String, default: "active" },
   },
   { timestamps: true }
 );

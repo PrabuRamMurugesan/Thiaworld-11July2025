@@ -61,6 +61,11 @@ exports.login = async (req, res) => {
     const isMatch = await user.matchPassword(password);
     if (!isMatch)
       return res.status(400).json({ message: "Invalid email or password" });
+    if (user.status === "deactivated") {
+      return res.status(403).json({
+        message: "Your account is deactivated. Contact support.",
+      });
+    }
 
     // create token FIRST
     const token = generateToken(user);
@@ -77,6 +82,7 @@ exports.login = async (req, res) => {
       message: "Login success",
       token,
       user: {
+        _id: user._id,
         name: user.name,
         email: user.email,
         roleTags: user.roleTags,
@@ -86,5 +92,63 @@ exports.login = async (req, res) => {
   } catch (err) {
     console.error("Login Error:", err);
     return res.status(500).json({ message: "Server Error" });
+  }
+};
+// ------------------------------------------------------
+exports.getMyProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select("-password");
+
+    if (!user)
+      return res.status(404).json({ message: "User not found" });
+
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+exports.updateMyProfile = async (req, res) => {
+  try {
+    const { name, email, phone } = req.body;
+
+    const updated = await User.findByIdAndUpdate(
+      req.user.userId,
+      { name, email, phone },
+      { new: true }
+    ).select("-password");
+
+    res.json({
+      message: "Profile updated successfully",
+      user: updated,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Update failed", error: err.message });
+  }
+};
+// Deactivate Account (Soft Delete)
+exports.deactivateAccount = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const updated = await User.findByIdAndUpdate(
+      userId,
+      {
+        status: "deactivated",
+        updated_at: new Date()
+      },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.json({
+      message: "Account deactivated successfully",
+      user: updated
+    });
+  } catch (error) {
+    console.error("Deactivate error:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };

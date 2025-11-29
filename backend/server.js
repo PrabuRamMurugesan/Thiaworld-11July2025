@@ -80,6 +80,8 @@ app.use("/api/checkout", checkoutRoutes);
 app.use("/api/goldrate", metalRateRoutes);
 app.use("/api/products", productRoutes); // ✅ this must be exact
 app.use("/api/auth", authRoutes);
+app.use("/api/subscribe", require("./routes/subscribeRoutes"));
+
 app.use("/api/export", exportRoutes);
 app.use("/api/razorpay", razorpayRoutes);
 app.use("/api/testimonials", testimonialRoutes);
@@ -88,7 +90,6 @@ app.use("/api/media", mediaRoutes);
 app.use("/api/goldrate", goldrateRoutes);
 app.use("/api/admin", adminAuthRoutes);
 
-// Health check (useful for curl and Nginx)
 app.get("/api/health", (_req, res) => res.status(200).send("OK"));
 
 // Static uploads
