@@ -33,6 +33,40 @@ const productSchema = new mongoose.Schema(
     isCombo: { type: Boolean, default: false },
     isPublished: { type: Boolean, default: false }, // <-- add this
     comboGroupId: { type: String },
+    jewelleryType: {
+      type: String,
+      enum: [
+        "Earrings",
+        "Pendants",
+        "Rings",
+        "Bangles & Bracelets",
+        "Mangalsutra",
+        "Chain",
+        "Necklace",
+        "Nosepin",
+        "Toe Rings",
+      ],
+      default: null,
+    },
+
+    gender: {
+      type: String,
+      enum: ["Men", "Women", "Unisex", "Kids & Teens"],
+      default: null,
+    },
+
+    occasion: {
+      type: String,
+      enum: [
+        "Casual Wear",
+        "Wedding",
+        "Formal Wear",
+        "Daily Wear",
+        "Party Wear",
+        "Traditional Wear",
+      ],
+      default: null,
+    },
     tags: [{ type: String }],
     isAvailable: { type: Boolean, default: true },
     isSecurePlanEnabled: { type: Boolean, default: false },

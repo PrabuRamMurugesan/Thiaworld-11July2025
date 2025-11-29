@@ -10,7 +10,7 @@ const thiaAPI = axios.create({
 thiaAPI.interceptors.request.use((config) => {
   if (!config.headers.Authorization) {
     try {
-      const raw = localStorage.getItem("bbUser"); // { message, token, user }
+      const raw = localStorage.getItem("bbsUser"); // { message, token, user }
       const parsed = raw ? JSON.parse(raw) : null;
       const token = parsed?.token || localStorage.getItem("auth_token");
       if (token) config.headers.Authorization = `Bearer ${token}`;
