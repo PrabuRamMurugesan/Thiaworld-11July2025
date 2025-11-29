@@ -829,7 +829,9 @@ const Navbar = () => {
                         key={idx}
                         className="text-sm text-gray-700 hover:text-yellow-600 cursor-pointer"
                       >
-                        {styles}
+                        <Link to={`/all-jewellery?tags=${styles}`}>
+                          {styles}
+                        </Link>
                       </li>
                     ))}
                   </ul>
@@ -847,7 +849,9 @@ const Navbar = () => {
                         key={idx}
                         className="text-sm text-gray-700 hover:text-yellow-600 cursor-pointer"
                       >
-                        {gender}
+                        <Link to={`/all-jewellery?gender=${gender}`}>
+                          {gender}
+                        </Link>
                       </li>
                     ))}
                   </ul>
@@ -865,7 +869,9 @@ const Navbar = () => {
                         key={idx}
                         className="text-sm text-gray-700 hover:text-yellow-600 cursor-pointer"
                       >
-                        {occasion}
+                        <Link to={`/all-jewellery?occasion=${occasion}`}>
+                          {occasion}
+                        </Link>
                       </li>
                     ))}
                   </ul>

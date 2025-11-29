@@ -1,14 +1,37 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { IoIosCall } from "react-icons/io";
 import logo from "../../public/assets/thiaworld.png";
+import axios from "axios";
 
 const Footer = () => {
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
   const handleBackToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleSubscribe = async () => {
+    if (!email) {
+      setMessage("Please enter your email");
+      return;
+    }
+
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URI}/subscribe`,
+        { email }
+      );
+
+      if (res.data.success) {
+        setMessage("Subscribed successfully!");
+        setEmail("");
+      }
+    } catch (err) {
+      setMessage("Subscription failed. Try again.");
+    }
+  };
   return (
     <footer className="bg-[#000000e5] text-white border-t border-gray-200 py-12 mt-10 ">
       <div className="px-6 sm:px-6 lg:px-8">
@@ -52,19 +75,28 @@ const Footer = () => {
             <p className="text-sm mb-3">
               Get exclusive updates and offers in your inbox.
             </p>
-            <form className="flex flex-col sm:flex-row gap-2">
-              <input
-                type="email"
-                placeholder="Your email address"
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none text-sm"
-              />
-              <button
-                type="submit"
-                className="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-4 py-2 rounded font-medium"
-              >
-                Subscribe
-              </button>
-            </form>
+              <div className="subscribe-section">
+                <input
+                  type="email"
+                  placeholder="Your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="border p-2 rounded"
+                />
+                <button
+                  onClick={handleSubscribe}
+                  className="ml-2 bg-yellow-500 px-4 py-2 rounded text-white"
+                >
+                  Subscribe
+                </button>
+
+                {message && (
+                  <p className="text-sm mt-2" style={{ color: "white" }}>
+                    {message}
+                  </p>
+                )}
+              </div>
+       
           </div>
 
           {/* Gold Info */}
@@ -91,13 +123,22 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-3">Connect With Us</h4>
 
             <div className="flex space-x-4 mb-4">
-              <a href="#" className="text-blue-600 hover:text-yellow-600">
+              <a
+                href="https://www.facebook.com/profile.php?id=100090804256179"
+                className="text-blue-600 hover:text-yellow-600"
+              >
                 <FaFacebookF size={20} />
               </a>
-              <a href="#" className="text-pink-500 hover:text-yellow-600">
+              <a
+                href="https://www.instagram.com/bbscart/?hl=en"
+                className="text-pink-500 hover:text-yellow-600"
+              >
                 <FaInstagram size={22} />
               </a>
-              <a href="#" className="text-red-600 hover:text-yellow-600">
+              <a
+                href="https://www.youtube.com/channel/UCNiBeRvAW1bQOUEcaqc0hYA"
+                className="text-red-600 hover:text-yellow-600"
+              >
                 <FaYoutube size={25} />
               </a>
             </div>

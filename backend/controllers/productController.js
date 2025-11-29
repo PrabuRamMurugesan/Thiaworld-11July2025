@@ -70,16 +70,76 @@ const deleteProduct = async (req, res) => {
 };
 
 // 🔹 GET ALL PRODUCTS
+// 🔹 GET ALL PRODUCTS
+// 🔹 GET ALL PRODUCTS (FIXED WITH TAG FILTER)
 const getAllProducts = async (req, res) => {
   try {
-    const { category, purity, metalType, name, sort } = req.query;
+    const {
+      category,
+      purity,
+      metalType,
+      name,
+      sort,
+      gender,
+      occasion,
+      tags,            // <-- NEW (primary filter for All Categories)
+    } = req.query;
+const search = req.query.search;
+
     const filter = {};
 
-    if (category) filter.category = { $in: category.split(",") };
-    if (purity) filter.purity = { $in: purity.split(",") };
-    if (metalType) filter.metalType = { $in: metalType.split(",") };
-    if (name) filter.name = { $regex: name, $options: "i" };
+    // 🔸 1. Category filter (gold, silver, diamond, etc.)
+    if (category) {
+      filter.category = { $in: String(category).split(",") };
+    }
 
+    // 🔸 2. Purity filter (22K, 18K, etc.)
+    if (purity) {
+      filter.purity = { $in: String(purity).split(",") };
+    }
+
+    // 🔸 3. Metal type (gold, silver, platinum)
+    if (metalType) {
+      filter.metalType = { $in: String(metalType).split(",") };
+    }
+
+    // 🔸 4. Search by name
+    if (name) {
+      filter.name = { $regex: String(name), $options: "i" };
+    }
+
+    // 🔸 5. Gender filter
+    if (gender) {
+      filter.gender = { $in: String(gender).split(",") };
+    }
+
+    // 🔸 6. Occasion filter
+    if (occasion) {
+      filter.occasion = { $in: String(occasion).split(",") };
+    }
+
+    // 🔸 7. FIXED — TAG FILTER (Earrings, Rings, Wedding, etc.)
+    if (tags) {
+      const tagList = String(tags)
+        .split(",")
+        .map((t) => t.trim());
+
+      filter.tags = { $in: tagList };
+    }
+if (search) {
+  const s = String(search).trim();
+  filter.$or = [
+    { name: { $regex: s, $options: "i" } },
+    { category: { $regex: s, $options: "i" } },
+    { metalType: { $regex: s, $options: "i" } },
+    { description: { $regex: s, $options: "i" } },
+    { tags: { $in: [s] } },
+  ];
+}
+
+    // -------------------
+    // 🔸 Sorting Logic
+    // -------------------
     let query = Product.find(filter);
 
     if (sort === "priceLowToHigh") query = query.sort({ price: 1 });
@@ -89,9 +149,12 @@ const getAllProducts = async (req, res) => {
     const products = await query;
     res.status(200).json(products);
   } catch (error) {
+    console.error("getAllProducts error:", error);
     res.status(500).json({ error: "Failed to fetch products" });
   }
 };
+
+
 
 // 🔹 GET SINGLE PRODUCT BY ID
 const getProductById = async (req, res) => {
