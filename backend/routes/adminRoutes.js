@@ -4,7 +4,7 @@ const router = express.Router();
 const {
   updateGoldRate,
   getGoldRates,
-} = require("../controllers/goldRateController");
+} = require("../controllers/goldrateController");
 
 const {
   createProduct,
