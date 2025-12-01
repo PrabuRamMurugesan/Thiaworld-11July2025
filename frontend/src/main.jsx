@@ -9,6 +9,7 @@ import { WishlistProvider } from "./context/WishlistContext";
 import App from "./App";
 import "./index.css";
 import ScrollToTop from "./components/ScrollToTop";
+import BrandAIWidget from "./components/BrandAIWidget";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -18,6 +19,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <AuthProvider>
           <WishlistProvider>
             <App />
+            <BrandAIWidget brand="thia" />
           </WishlistProvider>
         </AuthProvider>
       </BrowserRouter>
