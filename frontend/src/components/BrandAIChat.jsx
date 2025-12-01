@@ -63,7 +63,7 @@ const sendMessage = async () => {
 
     // Save in DB
     try {
-      await fetch("http://localhost:5001/api/leads/save", {
+      await fetch(`${import.meta.env.VITE_API_URI}/leads/save`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(leadData),
@@ -85,7 +85,7 @@ const sendMessage = async () => {
   --------------------------------------------------- */
   if (phase === "completed") {
     try {
-      const res = await fetch("http://localhost:5001/api/ai/chat", {
+      const res = await fetch(`${import.meta.env.VITE_API_URI}/ai/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ brand, message: userText }),
