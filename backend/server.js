@@ -24,6 +24,11 @@ const exportRoutes = require("./routes/exportRoutes");
 const mediaRoutes = require("./routes/mediaRoutes");
 const goldrateRoutes = require("./routes/goldrate");
 const adminAuthRoutes = require("./routes/adminAuthRoutes");
+const aiRoutes = require("./routes/aiRoutes.js");
+const leadRoutes = require("./routes/leadRoutes.js");
+
+
+
 
 const app = express();
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -89,6 +94,8 @@ app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/media", mediaRoutes);
 app.use("/api/goldrate", goldrateRoutes);
 app.use("/api/admin", adminAuthRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/api/leads", leadRoutes);
 
 app.get("/api/health", (_req, res) => res.status(200).send("OK"));
 
