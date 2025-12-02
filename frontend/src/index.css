@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.animate-marquee-slow {
+  animation: marqueeSlow 20s linear infinite; /* slower speed */
+}
+
+@keyframes marqueeSlow {
+  0%   { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+

@@ -184,17 +184,43 @@ const Header = () => {
           </button>
 
           <div className="hidden md:flex flex-col md:flex-row items-center flex-1 gap-4">
-            <div className="text-sm text-black overflow-hidden whitespace-nowrap w-full">
-              <div className="animate-marquee bg-white text-black px-4 py-1 w-100  flex flex-row items-center">
-                <span className="text-yellow-600 flex flex-row items-center gap-1">
-                  <PiCoinVertical size={25} className="animate-coin-rotate" />
-                  Matte Finish Bangles
+            {/* 🔥 FIXED SINGLE-LINE DESKTOP MARQUEE */}
+            <div
+              className="relative w-full overflow-hidden bg-white text-black"
+              style={{ height: "32px" }}
+            >
+              <div
+                className="absolute top-0 left-0 animate-marquee-slow flex items-center"
+                style={{
+                  whiteSpace: "nowrap",
+                  lineHeight: "32px",
+                  display: "inline-flex",
+                  gap: "50px", // spacing between duplicates
+                }}
+              >
+                {/* COPY 1 */}
+                <span className="flex items-center gap-2">
+                  <span className="text-yellow-600 flex items-center gap-1">
+                    <PiCoinVertical size={25} className="animate-coin-rotate" />
+                    Matte Finish Bangles
+                  </span>
+                  · 22K Necklaces · Antique Temple Jewelry · Lightweight Gold
+                  Chains
                 </span>
-                · 22K Necklaces · Antique Temple Jewelry · Lightweight Gold
-                Chains
+
+                {/* COPY 2 (duplicate for smooth infinite scroll) */}
+                <span className="flex items-center gap-2">
+                  <span className="text-yellow-600 flex items-center gap-1">
+                    <PiCoinVertical size={25} className="animate-coin-rotate" />
+                    Matte Finish Bangles
+                  </span>
+                  · 22K Necklaces · Antique Temple Jewelry · Lightweight Gold
+                  Chains
+                </span>
               </div>
             </div>
 
+            {/* Search Input */}
             <div className="relative w-full max-w-md">
               <FaSearch className="absolute right-3 top-3 text-gray-400 text-sm" />
               <input
@@ -205,13 +231,14 @@ const Header = () => {
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && searchTerm.trim() !== "") {
                     navigate(`/all-jewellery?search=${searchTerm.trim()}`);
-                    window.location.reload(); // Your site uses full reload everywhere
+                    window.location.reload();
                   }
                 }}
                 className="w-full pl-3 pr-8 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
               />
             </div>
           </div>
+
           <div className="hidden md:flex items-start pb-2 gap-4">
             <div
               style={{
