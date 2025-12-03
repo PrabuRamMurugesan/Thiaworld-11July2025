@@ -98,7 +98,7 @@ const ProductDetailPage = () => {
 
     // Prefer dynamic gold-based sale price if available
     const base = Number(
-      product.displaySale || product.totalPayable || product.price || 0
+      product.finalPrice || product.totalPayable || 0
     );
 
     return Number.isFinite(base) ? base : 0;
