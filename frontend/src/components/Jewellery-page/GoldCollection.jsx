@@ -238,15 +238,6 @@ const GoldCollection = () => {
         <section className="d-flex flex-row flex-wrap justify-start gap-4">
           {paginatedProducts.map((prod) => {
             const firstImg = pickFirstImageSrc(prod.images);
-
-
-         const payableBase = Number(prod.finalPrice || prod.price || 0);
-
-            const strike =
-              Number(prod.discount || 0) > 0 &&
-              Number(prod.displayActual || 0) > 0
-                ? Number(prod.displayActual)
-                : null;
             const payableBase = Number(prod.finalPrice || prod.price || 0);
             // auto strike price: 20% higher than sale price
             let strike = null;
