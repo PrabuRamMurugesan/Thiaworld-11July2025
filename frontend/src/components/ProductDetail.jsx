@@ -15,11 +15,7 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 import { CartContext } from "../context/CartContext";
-import {
-  buildImgSrc,
-  normalizeImages,
-  pickFirstImageSrc,
-} from "../utils/imageTools";
+import { normalizeImages } from "../utils/imageTools";
 
 function apiOrigin() {
   const base =
@@ -27,6 +23,21 @@ function apiOrigin() {
   return base.replace(/\/api\/?$/, "");
 }
 
+// Money format
+function formatINR(n) {
+  return Number(n || 0).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+// Image
+function buildImgSrc(img) {
+  if (!img) return "/default-product.jpg";
+  if (/^https?:\/\//i.test(img)) return img;
+  if (img.startsWith("/uploads/")) return `${apiOrigin()}${img}`;
+  return `${apiOrigin()}/uploads/${img}`;
+}
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -34,33 +45,24 @@ const ProductDetailPage = () => {
   const { addToCart } = useContext(CartContext);
 
   const [product, setProduct] = useState(null);
+  const [galleryList, setGalleryList] = useState([]);
   const [selectedImage, setSelectedImage] = useState("/default-product.jpg");
+
   const [usePartial, setUsePartial] = useState(false);
   const [advancePct, setAdvancePct] = useState(40);
-  const mainImageSize = 500;
+
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-  const [galleryList, setGalleryList] = useState([]);
 
-  // Lens Zoom States
+  // Zoom
+  const imgRef = useRef(null);
   const [lensPos, setLensPos] = useState({ x: 10, y: 0 });
   const [showLens, setShowLens] = useState(false);
-  const imgRef = useRef(null);
   const lensSize = 150;
   const zoom = 2;
-  function formatINR(n) {
-    return Number(n || 0).toLocaleString("en-IN", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-  }
+  const mainImageSize = 500;
 
-  function buildImgSrc(img) {
-    if (!img) return "/default-product.jpg";
-    if (/^https?:\/\//i.test(img)) return img;
-    if (img.startsWith("/uploads/")) return `${apiOrigin()}${img}`;
-    return `${apiOrigin()}/uploads/${img}`;
-  }
+  // Fetch product
   const fetchProduct = async () => {
     try {
       const res = await axios.get(
@@ -70,51 +72,67 @@ const ProductDetailPage = () => {
       prod.category = prod.category || prod.metalType;
       setProduct(prod);
 
-      const normalizedGallery = normalizeImages(prod?.images);
-      setGalleryList(normalizedGallery);
-
-      if (normalizedGallery.length > 0) {
-        setSelectedImage(buildImgSrc(normalizedGallery[0]));
-      }
+      const imgs = normalizeImages(prod?.images || []);
+      setGalleryList(imgs);
+      if (imgs.length > 0) setSelectedImage(buildImgSrc(imgs[0]));
     } catch (err) {
       console.error("Failed to fetch product:", err);
     }
   };
+
   useEffect(() => {
     fetchProduct();
     setUsePartial(false);
     setAdvancePct(40);
   }, [id]);
 
+  // Safe slider value
   const setAdvanceSafe = (val) => {
     const n = Number(val);
-    const clamped = Math.min(90, Math.max(40, Number.isFinite(n) ? n : 40));
-    setAdvancePct(clamped);
+    setAdvancePct(Math.min(90, Math.max(40, Number.isFinite(n) ? n : 40)));
   };
 
-  // new
+  // ================================
+  // SALE PRICE
+  // ================================
   const payableBase = useMemo(() => {
     if (!product) return 0;
-
-    // Prefer dynamic gold-based sale price if available
-    const base = Number(
-      product.finalPrice || product.totalPayable || 0
+    return Number(
+      product.finalPrice || product.totalPayable || product.price || 0
     );
-
-    return Number.isFinite(base) ? base : 0;
   }, [product]);
+
+  // ================================
+  // AUTO STRIKE PRICE
+  // Always greater than sale price
+  // ================================
+  const strike = useMemo(() => {
+    if (!payableBase) return null;
+
+    // 20% higher than sale price
+    const s = payableBase * 1.2;
+
+    return Math.round(s);
+  }, [payableBase]);
+
+  // ================================
+  // PARTIAL PAYMENT
+  // ================================
 
   const advanceAmount = useMemo(
     () => (usePartial ? Math.round((payableBase * advancePct) / 100) : 0),
     [usePartial, advancePct, payableBase]
   );
+
   const remainingAmount = useMemo(
     () => (usePartial ? Math.max(0, payableBase - advanceAmount) : payableBase),
     [usePartial, payableBase, advanceAmount]
   );
 
+  // Cart
   const handleAddToCart = (directBuy = false) => {
     if (!product) return;
+
     const cartPayload = {
       ...product,
       _partial:
@@ -122,31 +140,27 @@ const ProductDetailPage = () => {
           ? { enabled: true, advancePct, advanceAmount, remainingAmount }
           : { enabled: false },
     };
+
     addToCart(cartPayload);
 
-    // ✅ Show in-page alert
-    setAlertMessage("✅ Product added to cart!");
+    setAlertMessage("Product added to cart!");
     setShowAlert(true);
     setTimeout(() => setShowAlert(false), 3000);
 
     if (directBuy) navigate("/cart");
   };
 
+  // Zoom move
   const handleMouseMove = (e) => {
     const img = imgRef.current;
     const rect = img.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const lensX = Math.max(
-      lensSize / 2,
-      Math.min(x, rect.width - lensSize / 2)
-    );
-    const lensY = Math.max(
-      lensSize / 2,
-      Math.min(y, rect.height - lensSize / 2)
-    );
-    setLensPos({ x: lensX, y: lensY });
+    const lx = Math.max(lensSize / 2, Math.min(x, rect.width - lensSize / 2));
+    const ly = Math.max(lensSize / 2, Math.min(y, rect.height - lensSize / 2));
+
+    setLensPos({ x: lx, y: ly });
   };
 
   if (!product)
@@ -156,26 +170,25 @@ const ProductDetailPage = () => {
       </p>
     );
 
-  // Use backend-computed actual price when available
-  const displayActual = Number(product.displayActual || product.price || 0);
-
-  // Only show strike if it is actually higher than sale price
-  const strike = displayActual > payableBase ? displayActual : null;
   const altText = product.name || "Product Image";
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+
+  // ================================
+  // RENDER
+  // ================================
+
   return (
     <>
       <Header />
 
-      {/* Floating Centered Gold Alert */}
+      {/* Alert */}
       {showAlert && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div
-            className="bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 text-gray-900 font-semibold px-4 pb-2
-    rounded-2xl shadow-2xl border-2 border-yellow-600 pointer-events-auto animate-fadeInOut text-center max-w-xs"
+            className="bg-yellow-300 text-gray-900 font-semibold px-4 pb-2
+            rounded-2xl shadow-2xl border-2 border-yellow-600 pointer-events-auto text-center max-w-xs"
           >
-            <span className="text-2xl"></span> {alertMessage}{" "}
-            <span className="text-2xl"></span>
+            {alertMessage}
           </div>
         </div>
       )}
@@ -188,8 +201,8 @@ const ProductDetailPage = () => {
         </HelmetProvider>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Main Zoom Image */}
-          <div className="flex justify-center gap-2">
+          {/* Image */}
+          <div className="flex flex-col items-center">
             <div
               className={`relative w-[${mainImageSize}px] h-[${mainImageSize}px] overflow-hidden cursor-zoom-in`}
               onMouseMove={handleMouseMove}
@@ -226,7 +239,6 @@ const ProductDetailPage = () => {
               )}
             </div>
 
-            {/* Thumbnail Images */}
             <div className="flex gap-2 mt-4 flex-wrap justify-center">
               {galleryList.map((img) => (
                 <img
@@ -245,27 +257,29 @@ const ProductDetailPage = () => {
             </div>
           </div>
 
-          {/* Product Info */}
+          {/* Info */}
           <div>
             <h1 className="text-2xl font-bold mb-2">{product.name}</h1>
             <p className="text-sm text-gray-500 mb-2">{product.description}</p>
 
-            <div className="text-yellow-700 text-3xl font-bold mb-2">
-              <h2 className="text-3xl font-bold text-yellow-700 mr-3">
+            {/* PRICE BLOCK */}
+            <div className="flex items-center gap-3 mb-4">
+              <h2 className="text-3xl font-bold text-yellow-700">
                 ₹{formatINR(payableBase)}
               </h2>
 
               {strike && (
-                <span className="text-gray-400 line-through text-lg">
+                <span className="text-gray-500 line-through text-lg">
                   ₹{formatINR(strike)}
                 </span>
               )}
             </div>
 
+            {/* Tags */}
             <div className="flex gap-2 mb-4">
               {product.isSecurePlanEnabled && (
                 <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
-                  Secure Plan Available
+                  Secure Plan
                 </span>
               )}
               {product.isPartialPaymentEnabled && (
@@ -275,12 +289,12 @@ const ProductDetailPage = () => {
               )}
               {product.isCombo && (
                 <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs">
-                  Combo Product
+                  Combo
                 </span>
               )}
             </div>
 
-            {/* Partial Payment */}
+            {/* Partial */}
             {product.isPartialPaymentEnabled && (
               <div className="mt-2 mb-4 bg-yellow-50 border border-yellow-300 rounded p-3">
                 <label className="flex items-center gap-2 font-semibold text-yellow-800">
@@ -291,82 +305,48 @@ const ProductDetailPage = () => {
                   />
                   Enable partial payment
                 </label>
+
                 {usePartial && (
-                  <div className="mt-3 grid gap-2">
-                    <div className="flex items-center gap-3">
-                      <label className="text-sm text-gray-700">Advance %</label>
-                      <input
-                        type="range"
-                        min={10}
-                        max={90}
-                        step={5}
-                        value={advancePct}
-                        onChange={(e) => setAdvanceSafe(e.target.value)}
-                        className="w-48"
-                      />
-                      <input
-                        type="number"
-                        min={40}
-                        max={90}
-                        step={5}
-                        value={advancePct}
-                        onChange={(e) => setAdvanceSafe(e.target.value)}
-                        className="w-16 border rounded px-2 py-1 text-sm"
-                      />
-                      <span className="text-sm text-gray-600">%</span>
+                  <div className="mt-3 grid gap-1 text-sm text-gray-700">
+                    <div>
+                      <strong>Advance ({advancePct}%):</strong> ₹
+                      {formatINR(advanceAmount)}
                     </div>
-                    <div className="text-sm text-gray-700 grid gap-1">
-                      <div>
-                        <strong>Advance Payment ({advancePct}%):</strong> ₹
-                        {formatINR(advanceAmount)}
-                      </div>
-                      <div>
-                        <strong>
-                          Remaining on Delivery ({100 - advancePct}%):
-                        </strong>{" "}
-                        ₹{formatINR(remainingAmount)}
-                      </div>
+                    <div>
+                      <strong>Remaining:</strong> ₹{formatINR(remainingAmount)}
                     </div>
                   </div>
                 )}
               </div>
             )}
 
-            {/* Other Info */}
+            {/* Specs */}
             <p className="text-sm text-gray-600 mb-1">
-              Metal: {product.metalType} | Color: {product.metalColor} | Purity:{" "}
-              {product.purity}
+              Metal: {product.metalType} | Purity: {product.purity}
             </p>
+
             <p className="text-sm text-gray-600 mb-1">
-              Net Weight: {product.netWeight}g | Gross Weight:{" "}
-              {product.grossWeight}g
+              Net Weight: {product.netWeight}g | Gross: {product.grossWeight}g
             </p>
+
             <p className="text-sm text-gray-600 mb-1">
-              Making Charges: ₹{formatINR(product.makingCharges)} | GST:{" "}
-              {product.gst}%
+              Making: ₹{formatINR(product.makingCharges)} | GST: {product.gst}%
             </p>
 
             <p className="text-sm text-gray-600 mb-1">
               Category: {product.category}
             </p>
+
             <p className="text-sm text-gray-600 mb-1">
               Stock: {product.stockStatus || "Available"}
             </p>
+
             <p className="text-sm text-gray-600 mb-1">
-              Size: {product.size || "2mm x 1mm x 0.5mm"}
-            </p>
-            <p className="text-sm text-gray-600 mb-1">
-              Tax: {product.taxType || "taxable (standard)"}
-            </p>
-            <p className="text-sm text-gray-600 mb-1">
-              Tags:{" "}
-              {Array.isArray(product.tags)
-                ? product.tags.join(", ")
-                : "BIS, 22K, Hallmarked"}
+              Tags: {Array.isArray(product.tags) ? product.tags.join(", ") : ""}
             </p>
 
             <p className="text-sm text-blue-600 mt-2">
-              Note: Thank you for shopping with Thiaworld!
+              Thank you for shopping with Thiaworld!
             </p>
 
             {/* Share */}
@@ -381,13 +361,15 @@ const ProductDetailPage = () => {
               />
               <FaEnvelope className="cursor-pointer" />
             </div>
+
             <Link
               to={`/write-testimonial/${product._id}`}
-              className="btn btn-primary  gap-4 mt-4 bg-orange-500"
+              className="btn btn-primary gap-4 mt-4 bg-orange-500"
             >
               Write a Testimonial
             </Link>
-            {/* Action Buttons */}
+
+            {/* Buttons */}
             <div className="flex gap-4 mt-4">
               <button
                 className="bg-yellow-500 px-5 py-2 text-white rounded hover:bg-yellow-600"
@@ -402,24 +384,20 @@ const ProductDetailPage = () => {
                 Buy Now
               </button>
             </div>
-            {/* Video Call & WhatsApp Blocks */}
+
+            {/* Call & WhatsApp */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
               <div className="bg-yellow-50 border border-yellow-300 p-4 rounded">
                 <h4 className="font-semibold mb-2">📹 Video Call Us</h4>
-                <p className="text-sm mb-2">
-                  Speak with our expert jeweller directly and examine the piece
-                  in real-time over a video call.
-                </p>
+                <p className="text-sm mb-2">Speak with our expert jeweller.</p>
                 <button className="bg-yellow-600 text-white px-4 py-2 rounded">
                   Video call
                 </button>
               </div>
+
               <div className="bg-green-50 border border-green-300 p-4 rounded">
                 <h4 className="font-semibold mb-2">💬 Whatsapp</h4>
-                <p className="text-sm mb-2">
-                  Have questions? Chat with our support team anytime on
-                  WhatsApp.
-                </p>
+                <p className="text-sm mb-2">Chat with support anytime.</p>
                 <button className="bg-green-600 text-white px-4 py-2 rounded">
                   Chat with Us
                 </button>
@@ -428,6 +406,7 @@ const ProductDetailPage = () => {
           </div>
         </div>
       </div>
+
       <Footer />
     </>
   );
