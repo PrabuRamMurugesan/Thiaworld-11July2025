@@ -239,15 +239,13 @@ const GoldCollection = () => {
           {paginatedProducts.map((prod) => {
             const firstImg = pickFirstImageSrc(prod.images);
 
-         const payableBase = Number(prod.finalPrice || prod.price || 0);
+            const payableBase = Number(prod.finalPrice || prod.price || 0);
 
-
-            const strike =
-              Number(prod.discount || 0) > 0 &&
-              Number(prod.displayActual || 0) > 0
-                ? Number(prod.displayActual)
-                : null;
-
+            // auto strike price: 20% higher than sale price
+            let strike = null;
+            if (payableBase && payableBase > 0) {
+              strike = Math.round(payableBase * 1.2);
+            }
             return (
               <motion.div
                 key={prod._id}
