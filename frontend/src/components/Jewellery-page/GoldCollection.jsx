@@ -320,7 +320,7 @@ const GoldCollection = () => {
                         {" "}
                         <button
                           onClick={() =>
-                            (window.location.href = "/virtual-try-on")
+                            (window.location.href = "/virtual-jewelry-on")
                           }
                           className="text-xs text-nowrap  flex flex-row gap-2 items-center  py-1 px-2 rounded"
                         >
