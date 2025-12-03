@@ -239,8 +239,19 @@ const GoldCollection = () => {
           {paginatedProducts.map((prod) => {
             const firstImg = pickFirstImageSrc(prod.images);
 
+<<<<<<< Updated upstream
          const payableBase = Number(prod.finalPrice || prod.price || 0);
 
+=======
+            // SAME pricing logic as ProductDetail (current + MRP)
+            const payableBase = Number(
+              prod.displaySale ||
+                prod.displayPrice ||
+                prod.displayActual ||
+                prod.totalPayable ||
+                0
+            );
+>>>>>>> Stashed changes
 
             const strike =
               Number(prod.discount || 0) > 0 &&

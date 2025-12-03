@@ -1,4 +1,4 @@
-const Testimonial = require("../models/testimonial");
+const Testimonial = require("../models/Testimonial");
 
 // GET /api/testimonials?productId=...
 exports.getTestimonials = async (req, res) => {
