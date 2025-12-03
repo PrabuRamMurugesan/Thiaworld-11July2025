@@ -33,7 +33,8 @@ const HomeProductSection = () => {
       </h2>
       <div className="row justify-content-center g-4">
         {products.map((product) => {
-          const currentPrice = product.price;
+          const currentPrice = Number(product.price).toFixed(0);
+
           const previousPrice = Math.round(
             currentPrice / (1 - product.discount / 100)
           );
