@@ -5,8 +5,7 @@ import { IoMdArrowDropright } from "react-icons/io";
 import { TiFilter } from "react-icons/ti";
 import { CartContext } from "../../context/CartContext";
 import { IoHeart, IoStar } from "react-icons/io5";
-import { Link } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const AllJewellery = () => {
   const [products, setProducts] = useState([]);
@@ -16,8 +15,8 @@ const AllJewellery = () => {
   const [metalFilter, setMetalFilter] = useState([]);
   const [genderFilter, setGenderFilter] = useState([]);
   const [occasionFilter, setOccasionFilter] = useState([]);
-const [tagsFilter, setTagsFilter] = useState([]);
-const [ready, setReady] = useState(false);
+  const [tagsFilter, setTagsFilter] = useState([]);
+  const [ready, setReady] = useState(false);
 
   const [sortOption, setSortOption] = useState("");
   const [loading, setLoading] = useState(true);
@@ -29,60 +28,56 @@ const [ready, setReady] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
   const totalPages = Math.ceil(products.length / itemsPerPage);
-const location = useLocation();
+  const location = useLocation();
 
-useEffect(() => {
-  const params = new URLSearchParams(location.search);
-  // NEW: read search from URL
-  const keyword = params.get("search");
-  if (keyword) setSearch(keyword);
+  // ======= READ URL SEARCH PARAMS =======
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const keyword = params.get("search");
+    if (keyword) setSearch(keyword);
 
-  const tag = params.get("tags");
-  const gender = params.get("gender");
+    const tag = params.get("tags");
+    const gender = params.get("gender");
+    const occasion = params.get("occasion");
 
-  if (tag) {
-    setTagsFilter([tag]);
-  }
-  if (gender) {
-    setGenderFilter([gender]);
-  }
-  const occasion = params.get("occasion");
-  if (occasion) setOccasionFilter([occasion]);
-  setReady(true); // <-- IMPORTANT
-}, [location.search]);
+    if (tag) setTagsFilter([tag]);
+    if (gender) setGenderFilter([gender]);
+    if (occasion) setOccasionFilter([occasion]);
 
+    setReady(true);
+  }, [location.search]);
 
-
-useEffect(() => {
-  if (!ready) return; // <-- prevent early fetch
-  fetchAllJewellery();
-}, [
-  ready,
-  search,
-  categoryFilter,
-  purityFilter,
-  metalFilter,
-  sortOption,
-  tagsFilter,
-  genderFilter,
-  occasionFilter,
-]);
+  // ======= FETCH PRODUCTS WHEN FILTERS CHANGE =======
+  useEffect(() => {
+    if (!ready) return;
+    fetchAllJewellery();
+  }, [
+    ready,
+    search,
+    categoryFilter,
+    purityFilter,
+    metalFilter,
+    sortOption,
+    tagsFilter,
+    genderFilter,
+    occasionFilter,
+  ]);
 
   const fetchAllJewellery = async () => {
     try {
       let query = [];
+
       if (categoryFilter.length)
         query.push(`category=${categoryFilter.join(",")}`);
       if (purityFilter.length) query.push(`purity=${purityFilter.join(",")}`);
       if (metalFilter.length) query.push(`metalType=${metalFilter.join(",")}`);
-     if (tagsFilter.length)
-       query.push(`tags=${tagsFilter.join(",")}`);
-
+      if (tagsFilter.length) query.push(`tags=${tagsFilter.join(",")}`);
       if (genderFilter.length) query.push(`gender=${genderFilter.join(",")}`);
       if (occasionFilter.length)
         query.push(`occasion=${occasionFilter.join(",")}`);
 
-if (search) query.push(`search=${search}`);
+      if (search) query.push(`search=${search}`);
+
       if (sortOption) {
         if (sortOption === "Price: Low to High")
           query.push("sort=priceLowToHigh");
@@ -93,6 +88,7 @@ if (search) query.push(`search=${search}`);
       const res = await axios.get(
         `${import.meta.env.VITE_API_URI}/products/all?${query.join("&")}`
       );
+
       setProducts(res.data);
       setLoading(false);
     } catch (err) {
@@ -106,7 +102,7 @@ if (search) query.push(`search=${search}`);
       category: [categoryFilter, setCategoryFilter],
       purity: [purityFilter, setPurityFilter],
       metalType: [metalFilter, setMetalFilter],
-      tags: [tagsFilter, setTagsFilter], // ← Add this
+      tags: [tagsFilter, setTagsFilter],
       gender: [genderFilter, setGenderFilter],
       occasion: [occasionFilter, setOccasionFilter],
     };
@@ -120,19 +116,29 @@ if (search) query.push(`search=${search}`);
     );
   };
 
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  const handleNextPage = () => {
-    setCurrentPage((prev) => (prev === totalPages ? 1 : prev + 1));
-  };
+  const handlePageChange = (page) => setCurrentPage(page);
 
   const paginatedProducts = products.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  // ========= IMAGE RESOLVER ==========
+  const resolveImage = (prod) => {
+    try {
+      if (!prod.images || !prod.images.length) return "/default-product.jpg";
+
+      const raw = prod.images[0]; // string with pipes
+      if (typeof raw !== "string") return "/default-product.jpg";
+
+      const parts = raw.split("|");
+      if (!parts.length) return "/default-product.jpg";
+
+      return `${import.meta.env.VITE_API_URI}/uploads/${parts[0]}`;
+    } catch (e) {
+      return "/default-product.jpg";
+    }
+  };
 
   return (
     <>
@@ -195,9 +201,7 @@ if (search) query.push(`search=${search}`);
           <button
             key={cat}
             onClick={() => toggleFilter("tags", cat)}
-            className={`filter-btn ${
-              tagsFilter.includes(cat) ? "active" : ""
-            }`}
+            className={`filter-btn ${tagsFilter.includes(cat) ? "active" : ""}`}
           >
             {cat}
           </button>
@@ -233,50 +237,59 @@ if (search) query.push(`search=${search}`);
         ) : paginatedProducts.length === 0 ? (
           <p>No products found.</p>
         ) : (
-          paginatedProducts.map((prod) => (
-            <div key={prod._id} className="necklace-products-box">
-              <div className="d-flex justify-content-between position-absolute top-0 start-0 end-0 px-4 mt-4">
-                <IoStar
-                  className="sicon"
-                  style={{ color: liked ? "#ffb703" : "gray" }}
-                />
-                <IoHeart
-                  onClick={toggleLike}
-                  className="sicon"
-                  style={{ color: liked ? "#ffb703" : "gray" }}
-                />
-              </div>
-              <img
-                src={
-                  prod.images?.[0]
-                    ? prod.images[0] // ✅ use as-is
-                    : "/default-product.jpg"
-                }
-                style={{ width: "400px", height: "300px" }}
-                alt={prod.name}
-                onError={(e) => (e.target.src = "/default-product.jpg")}
-              />
+           paginatedProducts.map((prod) => {
+            const img = resolveImage(prod);
 
-              <h1>{prod.name}</h1>
-              <p>₹ {Number(prod.price).toLocaleString("en-IN")}</p>
-              <button
-                onClick={() => addToCart?.(prod)}
-                style={{
-                  marginTop: "10px",
-                  padding: "5px 15px",
-                  borderRadius: "10px",
-                  backgroundColor: "#ffb703",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                🛒 Add to Cart
-              </button>
-            </div>
-          ))
+            return (
+              <div key={prod._id} className="necklace-products-box">
+                <div className="d-flex justify-content-between position-absolute top-0 start-0 end-0 px-4 mt-4">
+                  <IoStar
+                    className="sicon"
+                    style={{ color: liked ? "#ffb703" : "gray" }}
+                  />
+
+                  <IoHeart
+                    onClick={toggleLike}
+                    className="sicon"
+                    style={{ color: liked ? "#ffb703" : "gray" }}
+                  />
+                </div>
+
+                <img
+                  src={img}
+                  style={{
+                    width: "250px",
+                    height: "250px",
+                    objectFit: "contain",
+                  }}
+                  alt={prod.name}
+                  // onError={(e) => (e.target.src = "/default-product.jpg")}
+                />
+
+                <h1>{prod.name}</h1>
+
+                <p>₹ {Number(prod.price).toLocaleString("en-IN")}</p>
+
+                <button
+                  onClick={() => addToCart?.(prod)}
+                  style={{
+                    marginTop: "10px",
+                    padding: "5px 15px",
+                    borderRadius: "10px",
+                    backgroundColor: "#ffb703",
+                    border: "none",
+                    cursor: "pointer",
+                  }}
+                >
+                  🛒 Add to Cart
+                </button>
+              </div>
+            );
+          })
+     
+
         )}
       </div>
-
       {/* Pagination Controls */}
       <div className="d-flex justify-content-center my-4 gap-2 align-items-center">
         <button

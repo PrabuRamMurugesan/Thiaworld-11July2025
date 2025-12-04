@@ -1,6 +1,10 @@
-import React from 'react';
+import React from "react";
 
 function BottomAd() {
+  const handleImageClick = (tag) => {
+    window.location.href = `/all-jewellery?tags=${encodeURIComponent(tag)}`;
+  };
+
   return (
     <>
       {/* Heading Section */}
@@ -80,45 +84,38 @@ function BottomAd() {
         {[
           {
             img: "https://images-static.nykaa.com/media/catalog/product/tr:h-800,w-800,cm-pad_resize/e/5/e5d7939QPRIYA00001589_1.jpg",
-            title: "Gold Earrings",
-            link: "https://example.com/earrings",
+            title: "Earrings",
           },
           {
             img: "https://img.freepik.com/premium-photo/crystal-clear-attractive-girl-wearing-jewelry-with-diamond_1265719-569.jpg",
-            title: "Diamond Ring",
-            link: "https://example.com/diamond-ring",
+            title: "Diamond",
           },
           {
             img: "https://www.caratlane.com/blog/wp-content/uploads/2025/03/22k-gold-bracelets.jpg",
-            title: "Bangles Collection",
-            link: "https://example.com/bangles",
+            title: "Bangles",
           },
           {
             img: "https://img.freepik.com/premium-photo/woman-wearing-necklace-with-necklace-that-says-she-s-wearing-it_910054-10194.jpg?w=900",
-            title: "Necklace Set",
-            link: "https://example.com/necklace",
+            title: "Necklace",
           },
           {
             img: "https://i.pinimg.com/originals/92/1b/0d/921b0d7d1a9e17c6b94eec40b81d233e.png",
-            title: "Casual Lifestyle",
-            link: "https://example.com/casual",
+            title: "Casual Wear",
           },
           {
             img: "https://img.freepik.com/premium-photo/beautiful-girl-wearing-traditional-bridal-dress-with-jewelry_615731-7750.jpg?w=2000",
-            title: "Bridal Look",
-            link: "https://example.com/bridal",
+            title: "Bridal",
           },
         ].map((item, index) => (
-          <a
+          <div
             key={index}
-            href={item.link}
-            target="_blank"
-            rel="noopener noreferrer"
+            onClick={() => handleImageClick(item.title)}
             style={{
               textDecoration: "none",
               color: "#000",
               textAlign: "center",
               width: "200px",
+              cursor: "pointer",
             }}
           >
             <img
@@ -138,7 +135,7 @@ function BottomAd() {
             <h6 style={{ marginTop: "10px", fontWeight: "600" }}>
               {item.title}
             </h6>
-          </a>
+          </div>
         ))}
       </div>
     </>
