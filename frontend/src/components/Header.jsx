@@ -359,10 +359,8 @@ const Header = () => {
               >
                 {/* Welcome Text */}
                 <div className="flex flex-col  items-start justify-start whitespace-nowrap text-decoration-none cursor-pointer">
-                  <span className="font-semibold text-black text-sm font-bold font-serif  flex flex-wrap text-xs">
-                    Welcome
-                  </span>
-                  <span className="font-semibold text-opacity-10 flex flex-wrap text-xs ">
+                  <span className="hidden sm:inline text-black">Welcome</span>
+                  <span className="hidden sm:inline text-black">
                     {user.name || "Profile"}
                   </span>
                 </div>
@@ -384,7 +382,9 @@ const Header = () => {
               >
                 <button className="flex items-center text-sm">
                   <FaUserAlt className="mr-2 text-xl text-black" />
-                  <span className="hidden sm:inline text-black">Account</span>
+                  <span className="hidden sm:inline text-black">
+                    Hey There!
+                  </span>
                 </button>
 
                 {/* Dropdown */}
