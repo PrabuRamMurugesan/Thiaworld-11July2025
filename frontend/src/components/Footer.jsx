@@ -82,23 +82,23 @@ const Footer = () => {
               Get exclusive updates and offers in your inbox.
             </p>
 
-            <div className="subscribe-section">
-              <input
-                type="email"
-                placeholder="Your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="border p-2 rounded text-black placeholder-black w-full"
-                style={{ backgroundColor: "white" }}
-              />
+     <div className="subscribe-section">
+  <input
+    type="email"
+    placeholder="Your email"
+    value={email}
+    onChange={(e) => setEmail(e.target.value)}
+    className="border p-2 rounded text-black placeholder-black w-full py-2 mb-3"
+    style={{ backgroundColor: "white" }}
+  />
 
-              <button
-                onClick={handleSubscribe}
-                className="ml-2 bg-yellow-500 px-4 py-2 rounded text-black"
-              >
-                Subscribe
-              </button>
-            </div>
+  <button
+    onClick={handleSubscribe}
+    className="ml-2 bg-yellow-500 px-4 py-2 rounded text-black"
+  >
+    Subscribe
+  </button>
+</div>
           </div>
 
           {/* Gold Info */}

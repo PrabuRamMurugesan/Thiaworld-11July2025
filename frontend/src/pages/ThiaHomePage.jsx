@@ -13,7 +13,6 @@ import PromoBanner from "../components/PromoBanner";
 import Testimonials from "../components/Testimonials";
 import Footer from "../components/Footer";
 import axios from "axios";
-import AiBox from "../components/AiBox";
 import ProductList from "../components/ProductList";
 import { useNavigate, Link } from "react-router-dom";
 import MainStyles from "../components/MainStyles";
@@ -109,19 +108,6 @@ const ThiaHomePage = () => {
         <Testimonials />
       </section>
 
-      <div className="fixed bottom-12 right-1 z-50 flex flex-col items-end gap-2">
-        {isOpen && (
-          <div className="w-[300px] shadow-lg rounded-lg bg-white border border-gray-300">
-            <AiBox />
-          </div>
-        )}
-        <button onClick={toggleChat}>
-          <img
-            src="/assets/chat.png"
-            className="text-5xl hover:scale-105 transition-transform p-1 w-[100px] h-[100px]"
-          />
-        </button>
-      </div>
 
       <Footer />
     </div>
