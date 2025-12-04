@@ -33,7 +33,7 @@ const HomeProductSection = () => {
       </h2>
       <div className="row justify-content-center g-4">
         {products.map((product) => {
-          const currentPrice = Number(product.price).toFixed(0);
+const currentPrice = Number(product.price).toFixed(2);
 
           const previousPrice = Math.round(
             currentPrice / (1 - product.discount / 100)
@@ -41,7 +41,7 @@ const HomeProductSection = () => {
           const saveRate = Math.round(
             ((previousPrice - currentPrice) / previousPrice) * 100
           );
- const firstImg = pickFirstImageSrc(normalizeImages(product.images));
+          const firstImg = pickFirstImageSrc(normalizeImages(product.images));
           return (
             <div
               className="col-12 col-sm-6 col-md-4 col-lg-3 "
@@ -86,33 +86,47 @@ const HomeProductSection = () => {
                     />
                   </button>
 
-                  {/* Product Image */}
-                  <div></div>
-                  {/* <img
-                    src={
-                      product.images?.[0]
-                        ? product.images[0]
-                        : "/default-product.jpg"
-                    }
-                    className="w-full h-[300px] object-cover rounded-t-xl p-2"
-                    alt={product.name}
-                    onError={(e) => (e.target.src = "/default-product.jpg")}
-                  /> */}
-                  <img
-                  src={buildImgSrc(firstImg) || "/default-product.jpg"}
-                   alt={product.name}
-                   style={{ width: 250, height: 250, objectFit: "cover" }}
-                   onError={(e) => (e.currentTarget.src = "/default-product.jpg")}
-                   />
-
+                  <div
+                    className="w-full d-flex align-items-center justify-content-center"
+                    style={{
+                      height: "260px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      overflow: "hidden",
+                      padding: "8px",
+                    }}
+                  >
+                    <img
+                      src={buildImgSrc(firstImg) || "/default-product.jpg"}
+                      alt={product.name}
+                      style={{
+                        width: "240px",
+                        height: "240px",
+                        objectFit: "contain", // <-- stops stretching and keeps full image visible
+                        display: "block",
+                      }}
+                      onError={(e) =>
+                        (e.currentTarget.src = "/default-product.jpg")
+                      }
+                    />
+                  </div>
                   <div className="card-body text-center">
                     <h6 className="card-title mb-2">{product.name}</h6>
                     <div className="d-flex justify-content-center align-items-center gap-2">
                       <span className="fw-bold text-success">
-                        ₹{currentPrice}
+                        ₹
+                        {Number(currentPrice).toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                        })}
                       </span>
+
                       <span className="text-muted text-decoration-line-through">
-                        ₹{previousPrice}
+                        ₹
+                        {Number(previousPrice).toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
                       </span>
                     </div>
 

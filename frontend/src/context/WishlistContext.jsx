@@ -61,6 +61,7 @@ export const WishlistProvider = ({ children }) => {
       if (res?.wished) next.add(id);
       else next.delete(id);
       setIds(next);
+      
     } catch {
       // guest path -> localStorage
       const next = new Set(ids);
@@ -70,9 +71,18 @@ export const WishlistProvider = ({ children }) => {
       localStorage.setItem("guest_wishlist", JSON.stringify(Array.from(next)));
     }
   };
+const refresh = async () => {
+  try {
+    const res = await getWishlist();
+    if (res?.ok) {
+      const set = new Set(res.items.map((it) => String(it.product._id)));
+      setIds(set);
+    }
+  } catch {}
+};
 
   const value = useMemo(
-    () => ({ ids, isWished, toggle, loading }),
+    () => ({ ids, isWished, toggle,refresh, loading }),
     [ids, loading]
   );
   return (
