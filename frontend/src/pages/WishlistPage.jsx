@@ -2,11 +2,15 @@ import React, { useEffect, useState } from "react";
 import { getWishlist, removeWishlist } from "../services/wishlistAPI";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
+import { useWishlist } from "../context/WishlistContext";
 
 const WishlistPage = () => {
   const [items, setItems] = useState([]);
   const [err, setErr] = useState("");
 
+  const { refresh } = useWishlist();
+
+  // Load wishlist items
   const load = async () => {
     try {
       const r = await getWishlist();
@@ -20,70 +24,88 @@ const WishlistPage = () => {
     load();
   }, []);
 
+  // Remove item from wishlist
   const onRemove = async (productId) => {
     try {
       await removeWishlist(productId);
+
       setItems((prev) =>
         prev.filter((it) => String(it.product._id) !== String(productId))
       );
+
+      // update header count instantly
+      refresh();
     } catch {}
   };
 
-  // --- image resolver (prefix non-http paths with site origin) ---
-  const apiOrigin = new URL(import.meta.env.VITE_API_URI).origin;
-  const resolveImg = (img) =>
-    img && img.startsWith("http")
-      ? img
-      : `${apiOrigin}${img?.startsWith("/") ? "" : "/"}${img || ""}`;
-  // ---------------------------------------------------------------
+  // ------------ Fix Image Resolver (uploads path) ------------
+  const resolveImg = (img) => {
+    if (!img) return "/default-product.jpg";
+
+    const base =
+      import.meta.env.VITE_UPLOADS_URI || "http://localhost:5001/uploads/";
+
+    return `${base}${img}`;
+  };
+  // -----------------------------------------------------------
 
   if (err) return <div className="p-6 text-center">{err}</div>;
 
   return (
     <>
-      {" "}
       <Header />
+
       <div className="container py-6">
         <h2 className="text-xl font-bold mb-4">My Wishlist</h2>
+
         <div className="d-flex flex-wrap gap-3">
-          {items.map((it) => (
-            <div
-              key={it._id}
-              className="border rounded p-3"
-              style={{ width: 260 }}
-            >
-              <Link to={`/product/${it.product._id}`}>
-                <img
-                  src={
-                    resolveImg(it.product.images?.[0]) || "/default-product.jpg"
-                  }
-                  alt={it.product.name}
-                  style={{ width: 240, height: 240, objectFit: "cover" }}
-                  onError={(e) => (e.target.src = "/default-product.jpg")}
-                />
-              </Link>
-              <div className="mt-2">
-                <div className="fw-bold">{it.product.name}</div>
-                <div className="text-muted">
-                  ₹{Number(it.product.price || 0).toLocaleString("en-IN")}
+          {items.map((it) => {
+            // ---------- Extract first image correctly -----------
+            const firstImage = it.product.images?.[0]
+              ? it.product.images[0].split("|")[0]
+              : null;
+            // ----------------------------------------------------
+
+            return (
+              <div
+                key={it._id}
+                className="border rounded p-3"
+                style={{ width: 260 }}
+              >
+                <Link to={`/product/${it.product._id}`}>
+                  <img
+                    src={resolveImg(firstImage)}
+                    alt={it.product.name}
+                    style={{ width: 240, height: 240, objectFit: "cover" }}
+                    onError={(e) => (e.target.src = "/default-product.jpg")}
+                  />
+                </Link>
+
+                <div className="mt-2">
+                  <div className="fw-bold">{it.product.name}</div>
+                  <div className="text-muted">
+                    ₹{Number(it.product.price || 0).toLocaleString("en-IN")}
+                  </div>
+                </div>
+
+                <div className="mt-2 d-flex gap-2">
+                  <Link
+                    to={`/product/${it.product._id}`}
+                    className="btn btn-sm btn-light"
+                  >
+                    View
+                  </Link>
+
+                  <button
+                    onClick={() => onRemove(it.product._id)}
+                    className="btn btn-sm btn-outline-danger"
+                  >
+                    Remove
+                  </button>
                 </div>
               </div>
-              <div className="mt-2 d-flex gap-2">
-                <Link
-                  to={`/product/${it.product._id}`}
-                  className="btn btn-sm btn-light"
-                >
-                  View
-                </Link>
-                <button
-                  onClick={() => onRemove(it.product._id)}
-                  className="btn btn-sm btn-outline-danger"
-                >
-                  Remove
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
 
           {!items.length && <div>No items yet.</div>}
         </div>
