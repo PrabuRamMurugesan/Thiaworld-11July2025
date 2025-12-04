@@ -33,7 +33,7 @@ const HomeProductSection = () => {
       </h2>
       <div className="row justify-content-center g-4">
         {products.map((product) => {
-          const currentPrice = Number(product.price).toFixed(0);
+const currentPrice = Number(product.price).toFixed(2);
 
           const previousPrice = Math.round(
             currentPrice / (1 - product.discount / 100)
@@ -115,10 +115,18 @@ const HomeProductSection = () => {
                     <h6 className="card-title mb-2">{product.name}</h6>
                     <div className="d-flex justify-content-center align-items-center gap-2">
                       <span className="fw-bold text-success">
-                        ₹{currentPrice}
+                        ₹
+                        {Number(currentPrice).toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                        })}
                       </span>
+
                       <span className="text-muted text-decoration-line-through">
-                        ₹{previousPrice}
+                        ₹
+                        {Number(previousPrice).toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
                       </span>
                     </div>
 
