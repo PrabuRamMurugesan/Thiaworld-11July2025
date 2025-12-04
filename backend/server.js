@@ -31,7 +31,7 @@ const leadRoutes = require("./routes/leadRoutes.js");
 
 
 const app = express();
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
 // If you’re behind Nginx/HTTPS, this lets secure cookies work correctly
 app.set("trust proxy", 1);
 
