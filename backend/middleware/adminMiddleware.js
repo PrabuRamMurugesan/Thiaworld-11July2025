@@ -6,6 +6,6 @@ const adminMiddleware = (req, res, next) => {
   } else {
     res.status(401).json({ error: "Unauthorized access" });
   }
-};
+};    
 
 module.exports = adminMiddleware;

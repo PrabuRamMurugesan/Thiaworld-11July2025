@@ -518,7 +518,6 @@ const FIELD_MAP = {
   price: "price",
   sku: "sku", // <-- add this
   ispublished: "isPublished",
-
   slug: "slug",
   shortdescription: "description", // CSV: shortDescription → description
   description: "description",

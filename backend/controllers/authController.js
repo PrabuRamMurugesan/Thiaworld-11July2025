@@ -1,5 +1,7 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const sendEmail = require("../utils/sendEmail");
+const crypto = require("crypto");
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -150,5 +152,178 @@ exports.deactivateAccount = async (req, res) => {
   } catch (error) {
     console.error("Deactivate error:", error);
     return res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Forgot Password - Send OTP
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      // Don't reveal if email exists or not for security
+      return res.json({ 
+        message: "If the email exists, an OTP has been sent to your email." 
+      });
+    }
+
+    if (user.status === "deactivated") {
+      return res.status(403).json({
+        message: "Your account is deactivated. Contact support.",
+      });
+    }
+
+    // Generate 6-digit OTP
+    const otp = crypto.randomInt(100000, 999999).toString();
+
+    // Save OTP and expiration (10 minutes)
+    user.resetPasswordOTP = otp;
+    user.resetPasswordOTPExpires = new Date(Date.now() + 10 * 60 * 1000);
+    await user.save();
+
+    // Send OTP email
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">Password Reset Request</h2>
+        <p>Hello ${user.name},</p>
+        <p>You have requested to reset your password. Use the OTP below to verify your identity:</p>
+        <div style="background-color: #f4f4f4; padding: 20px; text-align: center; margin: 20px 0;">
+          <h1 style="color: #d97706; font-size: 32px; margin: 0; letter-spacing: 5px;">${otp}</h1>
+        </div>
+        <p>This OTP will expire in 10 minutes.</p>
+        <p>If you didn't request this, please ignore this email.</p>
+        <p>Best regards,<br/>Thiaworld Team</p>
+      </div>
+    `;
+
+    try {
+      await sendEmail(user.email, "Password Reset OTP - Thiaworld", html);
+    } catch (emailError) {
+      console.error("Email sending error:", emailError);
+      console.error("Error details:", {
+        message: emailError.message,
+        code: emailError.code,
+        command: emailError.command,
+      });
+      // Clear OTP if email fails
+      user.resetPasswordOTP = null;
+      user.resetPasswordOTPExpires = null;
+      await user.save();
+      
+      // Provide more detailed error message in development
+      const errorMessage = process.env.NODE_ENV === "production" 
+        ? "Failed to send OTP email. Please try again later or contact support."
+        : `Failed to send OTP email: ${emailError.message}. Please check SMTP configuration.`;
+      
+      return res.status(500).json({ 
+        message: errorMessage 
+      });
+    }
+
+    return res.json({ 
+      message: "If the email exists, an OTP has been sent to your email." 
+    });
+  } catch (err) {
+    console.error("Forgot Password Error:", err);
+    return res.status(500).json({ 
+      message: err.message || "Server Error. Please try again later." 
+    });
+  }
+};
+
+// Verify OTP
+exports.verifyOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({ message: "Email and OTP are required" });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid email or OTP" });
+    }
+
+    if (!user.resetPasswordOTP || !user.resetPasswordOTPExpires) {
+      return res.status(400).json({ message: "OTP not found or expired" });
+    }
+
+    if (user.resetPasswordOTPExpires < new Date()) {
+      user.resetPasswordOTP = null;
+      user.resetPasswordOTPExpires = null;
+      await user.save();
+      return res.status(400).json({ message: "OTP has expired. Please request a new one." });
+    }
+
+    if (user.resetPasswordOTP !== otp) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    // OTP is valid
+    return res.json({ 
+      message: "OTP verified successfully",
+      verified: true 
+    });
+  } catch (err) {
+    console.error("Verify OTP Error:", err);
+    return res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// Reset Password
+exports.resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ message: "Email, OTP, and new password are required" });
+    }
+
+    // Validate password strength
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!strongPasswordRegex.test(newPassword)) {
+      return res.status(400).json({
+        message: "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character."
+      });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid email or OTP" });
+    }
+
+    if (!user.resetPasswordOTP || !user.resetPasswordOTPExpires) {
+      return res.status(400).json({ message: "OTP not found or expired" });
+    }
+
+    if (user.resetPasswordOTPExpires < new Date()) {
+      user.resetPasswordOTP = null;
+      user.resetPasswordOTPExpires = null;
+      await user.save();
+      return res.status(400).json({ message: "OTP has expired. Please request a new one." });
+    }
+
+    if (user.resetPasswordOTP !== otp) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    // Update password
+    user.password = newPassword;
+    user.resetPasswordOTP = null;
+    user.resetPasswordOTPExpires = null;
+    await user.save();
+
+    return res.json({ 
+      message: "Password reset successfully. Please login with your new password." 
+    });
+  } catch (err) {
+    console.error("Reset Password Error:", err);
+    return res.status(500).json({ message: "Server Error" });
   }
 };
