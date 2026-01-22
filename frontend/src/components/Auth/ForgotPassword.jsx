@@ -7,10 +7,14 @@ import {
   Row,
   Col,
   Card,
+  Spinner,
+  InputGroup,
 } from "react-bootstrap";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import Header from "../Header";
 import Footer from "../Footer";
+import { forgotPassword, verifyOTP, resetPassword } from "../../services/authAPI";
 
 function ForgotPasswordPage() {
   const navigate = useNavigate(); // Initialize navigate
@@ -22,35 +26,61 @@ function ForgotPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleEmailSubmit = (e) => {
+  const handleEmailSubmit = async (e) => {
     e.preventDefault();
     if (!email) {
       setError("Please enter your email address.");
       return;
     }
-    setOtpSent(true);
+
+    setLoading(true);
     setError("");
-    setSuccess("OTP has been sent to your email.");
+    setSuccess("");
+
+    try {
+      const res = await forgotPassword({ email });
+      setOtpSent(true);
+      setSuccess(res.data.message || "OTP has been sent to your email.");
+    } catch (err) {
+      console.error("Forgot password error:", err);
+      const errorMessage = err.response?.data?.message || err.message || "Failed to send OTP. Please try again.";
+      setError(errorMessage);
+      // Don't set otpSent to true if there's an error
+      setOtpSent(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleOtpVerify = (e) => {
+  const handleOtpVerify = async (e) => {
     e.preventDefault();
     const otpRegex = /^\d{6}$/;
     if (!otpRegex.test(otp)) {
       setError("OTP must be exactly 6 digits.");
       return;
     }
-    if (otp !== "123456") {
-      setError("Invalid OTP. Please try again.");
-      return;
-    }
+
+    setLoading(true);
     setError("");
     setSuccess("");
-    setStep(2);
+
+    try {
+      const res = await verifyOTP({ email, otp });
+      setError("");
+      setSuccess(res.data.message || "OTP verified successfully!");
+      setStep(2);
+    } catch (err) {
+      setError(err.response?.data?.message || "Invalid OTP. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handlePasswordReset = (e) => {
+  const handlePasswordReset = async (e) => {
     e.preventDefault();
     if (!newPassword || !confirmPassword) {
       setError("Please fill in all password fields.");
@@ -69,13 +99,24 @@ function ForgotPasswordPage() {
       return;
     }
 
+    setLoading(true);
     setError("");
-    setSuccess("Password successfully updated!");
+    setSuccess("");
 
-    // Redirect to login page after 2 seconds
-    setTimeout(() => {
-      navigate("/login");
-    }, 2000);
+    try {
+      const res = await resetPassword({ email, otp, newPassword });
+      setError("");
+      setSuccess(res.data.message || "Password successfully updated!");
+
+      // Redirect to login page after 2 seconds
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to reset password. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -124,8 +165,16 @@ function ForgotPasswordPage() {
                   variant="primary"
                   type="submit"
                   className="w-full bg-white text-orange-500 font-semibold py-1.5 rounded hover:bg-orange-100 text-sm"
+                  disabled={loading}
                 >
-                  {otpSent ? "Verify OTP" : "Send OTP"}
+                  {loading ? (
+                    <>
+                      <Spinner animation="border" size="sm" className="me-2" />
+                      {otpSent ? "Verifying..." : "Sending..."}
+                    </>
+                  ) : (
+                    otpSent ? "Verify OTP" : "Send OTP"
+                  )}
                 </Button>
               </Form>
             )}
@@ -134,28 +183,68 @@ function ForgotPasswordPage() {
               <Form onSubmit={handlePasswordReset}>
                 <Form.Group className="mb-3" controlId="formNewPassword">
                   <Form.Label>New Password</Form.Label>
-                  <Form.Control
-                    type="password"
-                    placeholder="Enter new password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    required
-                  />
+                  <InputGroup>
+                    <Form.Control
+                      type={showNewPassword ? "text" : "password"}
+                      placeholder="Enter new password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                    />
+                    <Button
+                      variant="outline-secondary"
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      style={{
+                        borderLeft: "none",
+                        background: "transparent",
+                        borderColor: "#ced4da",
+                      }}
+                    >
+                      {showNewPassword ? <FaEyeSlash /> : <FaEye />}
+                    </Button>
+                  </InputGroup>
                 </Form.Group>
 
                 <Form.Group className="mb-3" controlId="formConfirmPassword">
                   <Form.Label>Confirm Password</Form.Label>
-                  <Form.Control
-                    type="password"
-                    placeholder="Confirm new password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                  />
+                  <InputGroup>
+                    <Form.Control
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Confirm new password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                    />
+                    <Button
+                      variant="outline-secondary"
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      style={{
+                        borderLeft: "none",
+                        background: "transparent",
+                        borderColor: "#ced4da",
+                      }}
+                    >
+                      {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                    </Button>
+                  </InputGroup>
                 </Form.Group>
 
-                <Button variant="success" type="submit" className="w-100">
-                  Reset Password
+                <Button 
+                  variant="success" 
+                  type="submit" 
+                  className="w-100"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Spinner animation="border" size="sm" className="me-2" />
+                      Resetting...
+                    </>
+                  ) : (
+                    "Reset Password"
+                  )}
                 </Button>
               </Form>
             )}
