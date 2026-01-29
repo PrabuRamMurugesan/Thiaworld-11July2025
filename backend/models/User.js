@@ -79,6 +79,15 @@ const UserSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    // login OTP
+    loginOTP: {
+      type: String,
+      default: null,
+    },
+    loginOTPExpires: {
+      type: Date,
+      default: null,
+    },
     status: { type: String, default: "active" },
   },
   { timestamps: true }

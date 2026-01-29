@@ -6,7 +6,7 @@ import logo from "../../public/assets/thiaworld.png";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import { BsArrowUpCircle } from "react-icons/bs";
 const Footer = () => {
   const [email, setEmail] = useState("");
 
@@ -82,23 +82,23 @@ const Footer = () => {
               Get exclusive updates and offers in your inbox.
             </p>
 
-     <div className="subscribe-section">
-  <input
-    type="email"
-    placeholder="Your email"
-    value={email}
-    onChange={(e) => setEmail(e.target.value)}
-    className="border p-2 rounded text-black placeholder-black w-full py-2 mb-3"
-    style={{ backgroundColor: "white" }}
-  />
+            <div className="subscribe-section">
+              <input
+                type="email"
+                placeholder="Your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="border p-2 rounded text-black placeholder-black w-full py-1 mb-3"
+                style={{ backgroundColor: "white" }}
+              />
 
-  <button
-    onClick={handleSubscribe}
-    className="ml-2 bg-yellow-500 px-4 py-2 rounded text-black"
-  >
-    Subscribe
-  </button>
-</div>
+              <button
+                onClick={handleSubscribe}
+                className=" bg-yellow-500 px-4 py-1 rounded text-black"
+              >
+                Subscribe
+              </button>
+            </div>
           </div>
 
           {/* Gold Info */}
@@ -164,22 +164,26 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="text-center">
-          {/* Back to Top */}
-          <div className="mt-10">
-            <button
-              onClick={handleBackToTop}
-              className="text-sm text-yellow-600 hover:underline "
-            >
-              ⬆ Back to Top
-            </button>
-          </div>
+      <div className="flex items-center justify-between mt-10 px-6">
+  
+  {/* Empty space (left) */}
+  <div className="w-10" />
 
-          {/* Copyright */}
-          <div className="text-[10px] sm:text-xs text-gray-500 mt-6">
-            © {new Date().getFullYear()} Thiaworld. All rights reserved.
-          </div>
-        </div>
+  {/* Copyright (CENTER) */}
+  <div className="text-[10px] sm:text-xs text-gray-500 text-center flex-1">
+    © {new Date().getFullYear()} Thiaworld. All rights reserved.
+  </div>
+
+  {/* Back to Top (RIGHT) */}
+  <button
+    onClick={handleBackToTop}
+    className="text-yellow-600 hover:text-yellow-700 transition"
+  >
+    <BsArrowUpCircle size={25} />
+  </button>
+
+</div>
+
       </div>
     </footer>
   );
