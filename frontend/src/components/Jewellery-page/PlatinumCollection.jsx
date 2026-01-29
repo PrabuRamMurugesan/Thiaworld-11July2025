@@ -3,15 +3,18 @@ import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { CartContext } from "../../context/CartContext";
+import { AuthContext } from "../../../context/AuthContext";
 import Header from "../Header";
 import Footer from "../Footer";
 import { IoHeart, IoStar } from "react-icons/io5";
 import { useWishlist } from "../../context/WishlistContext";
+import LoginPopup from "../LoginPopup";
 
 const PlatinumCollection = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
   const { isWished, toggle } = useWishlist();
 
   const [search, setSearch] = useState("");
@@ -20,6 +23,37 @@ const PlatinumCollection = () => {
   const [sortOption, setSortOption] = useState("");
 
   const { addToCart } = useContext(CartContext);
+  const { user } = useContext(AuthContext);
+
+  // Check if user is logged in
+  const isLoggedIn = () => {
+    try {
+      const stored = localStorage.getItem("bbsUser");
+      return stored && JSON.parse(stored)?.token;
+    } catch {
+      return false;
+    }
+  };
+
+  // Handle add to cart with login check
+  const handleAddToCart = (product) => {
+    if (!isLoggedIn()) {
+      setShowLoginPopup(true);
+      return;
+    }
+    addToCart(product);
+  };
+
+  // Handle wishlist toggle with login check
+  const handleWishlistToggle = (productId, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isLoggedIn()) {
+      setShowLoginPopup(true);
+      return;
+    }
+    toggle(productId);
+  };
 
   // ✅ Pagination States - moved to top level
   const [currentPage, setCurrentPage] = useState(1);
@@ -294,7 +328,11 @@ const PlatinumCollection = () => {
                     👁 Try This On
                   </button>
                   <button
-                    onClick={() => addToCart(prod)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleAddToCart(prod);
+                    }}
                     className=" text-xs bg-blue-500 text-white rounded px-2 py-1 hover:bg-blue-600"
                   >
                     🛒 Add to Cart
@@ -357,6 +395,13 @@ const PlatinumCollection = () => {
         </div>
       </div>
       <Footer />
+      <LoginPopup
+        show={showLoginPopup}
+        onClose={() => setShowLoginPopup(false)}
+        onSuccess={() => {
+          setShowLoginPopup(false);
+        }}
+      />
     </>
   );
 };

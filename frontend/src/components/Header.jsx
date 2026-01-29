@@ -26,6 +26,7 @@ import AccountSettingsPage from "../pages/AccountSettingsPage";
 import AccountPage from "./AccountPage";
 import AccountMenu from "./AccountMenu";
 import { PiCoinVertical } from "react-icons/pi";
+
 const options = [
   {
     value: "IN",
@@ -152,10 +153,19 @@ const Header = () => {
     // Close after 500 ms
     timerRef.current = setTimeout(() => setOpen(false), 500);
   };
+  const [animate, setAnimate] = useState(false);
+
+  useEffect(() => {
+    if (cartCount > 0) {
+      setAnimate(true);
+      const timer = setTimeout(() => setAnimate(false), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [cartCount]);
   return (
     <>
-      <header className="bg-black shadow-sm border-b border-gray-200  z-50 ">
-        <div className="max-w-screen-xxl  flex flex-row md:flex-row items-center justify-between gap-2   ">
+      <header className="bg-black shadow-sm border-b border-gray-200  z-50 sticky top-0">
+        <div className="max-w-screen-xxl  flex flex-row md:flex-row items-center justify-between gap-2">
           <h1
             style={{
               fontFamily: "Lucida Handwriting",
@@ -170,48 +180,43 @@ const Header = () => {
             <a href="/">
               <img
                 src={thia}
-                alt="Thiaworld"
+                alt="Thiaworld"      
                 style={{ width: "300px", height: "100px" }}
               />
             </a>
           </h1>
 
           <button
-            className="md:hidden text-amber-300 text-3xl text-bold "
+            className="md:hidden text-amber-300 text-3xl text-bold p-5"
             onClick={() => setMenuOpen(!menuOpen)}
           >
             {menuOpen ? <TbJewishStarFilled /> : <TbJewishStarFilled />}
           </button>
-
-          <div className="hidden md:flex flex-col md:flex-row items-center flex-1 gap-4">
-            {/* 🔥 FIXED SINGLE-LINE DESKTOP MARQUEE */}
-            <div
-              className="relative w-full overflow-hidden bg-white text-black"
-              style={{ height: "32px" }}
-            >
+          <div className="hidden md:flex items-center gap-4 w-full px-4 ">
+            {/* Marquee */}
+            <div className="relative flex-1 overflow-hidden bg-black text-white h-8 rounded-md border border-gray-300">
               <div
-                className="absolute top-0 left-0 animate-marquee-slow flex items-center"
+                className="absolute left-0 top-0 flex items-center animate-marquee-slow"
                 style={{
                   whiteSpace: "nowrap",
                   lineHeight: "32px",
-                  display: "inline-flex",
-                  gap: "50px", // spacing between duplicates
+                  gap: "50px",
                 }}
               >
                 {/* COPY 1 */}
                 <span className="flex items-center gap-2">
-                  <span className="text-yellow-600 flex items-center gap-1">
-                    <PiCoinVertical size={25} className="animate-coin-rotate" />
+                  <span className="text-yellow-300 flex items-center gap-1">
+                    <PiCoinVertical size={22} className="animate-coin-rotate" />
                     Matte Finish Bangles
                   </span>
                   · 22K Necklaces · Antique Temple Jewelry · Lightweight Gold
                   Chains
                 </span>
 
-                {/* COPY 2 (duplicate for smooth infinite scroll) */}
+                {/* COPY 2 */}
                 <span className="flex items-center gap-2">
-                  <span className="text-yellow-600 flex items-center gap-1">
-                    <PiCoinVertical size={25} className="animate-coin-rotate" />
+                  <span className="text-yellow-300 flex items-center gap-1">
+                    <PiCoinVertical size={22} className="animate-coin-rotate" />
                     Matte Finish Bangles
                   </span>
                   · 22K Necklaces · Antique Temple Jewelry · Lightweight Gold
@@ -220,46 +225,55 @@ const Header = () => {
               </div>
             </div>
 
-            {/* Search Input */}
-            <div className="relative w-full max-w-md">
-              <FaSearch className="absolute right-3 top-3 text-gray-400 text-sm" />
+            {/* Search */}
+            <div className="relative w-[320px] h-8">
+              <FaSearch className="absolute right-3 top-2.5 text-gray-400 text-sm" />
               <input
                 type="text"
-                placeholder="Search jewelry, collections, categories..."
+                placeholder="Search jewelry..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && searchTerm.trim() !== "") {
+                  if (e.key === "Enter" && searchTerm.trim()) {
                     navigate(`/all-jewellery?search=${searchTerm.trim()}`);
                     window.location.reload();
                   }
                 }}
-                className="w-full pl-3 pr-8 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
+                className="w-full h-full pl-3 pr-8 rounded-md border border-gray-300
+                 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
               />
             </div>
-          </div>
 
-          <div className="hidden md:flex items-start pb-2 gap-4">
-            <div
-              style={{
-                width: "90px",
-                height: "30px",
-                border: "none",
-                marginRight: "20px",
-              }}
-            >
+            {/* Select */}
+            <div className="w-[90px] h-8">
               <Select
                 value={selectedOption}
                 onChange={setSelectedOption}
                 options={options}
                 isSearchable={false}
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    minHeight: "32px",
+                    height: "32px",
+                  }),
+                  valueContainer: (base) => ({
+                    ...base,
+                    height: "32px",
+                    padding: "0 8px",
+                  }),
+                  indicatorsContainer: (base) => ({
+                    ...base,
+                    height: "32px",
+                  }),
+                }}
               />
             </div>
           </div>
 
           {/* Mobile Menu Overlay */}
           {menuOpen && (
-            <div className="md:hidden bg-white w-75 p-4 space-y-4">
+            <div className="md:hidden bg-white w-75 p-5 space-y-4">
               <div className="text-sm text-black overflow-hidden whitespace-nowrap">
                 <div className="animate-marquee inline-block">
                   Matte Finish Bangles · 22K Necklaces · Antique Temple Jewelry
@@ -298,8 +312,8 @@ const Header = () => {
         {/* NAVBAR WRAPPER */}
         {/* ===== DESKTOP / TABLET NAV ===== */}
         <div
-          className="hidden md:flex items-center justify-between px-6 py-3 
-             bg-[#faca14] text-black text-sm font-bold font-serif"
+          className="hidden md:flex items-center justify-between px-6 py-2 
+             bg-[#faca14] text-black text-sm font-bold font-serif z-50 "
         >
           {/* LEFT: (optional logo) */}
           <div className="w-1/4 flex items-center"></div>
@@ -381,7 +395,7 @@ const Header = () => {
                 onBlur={handleLeave}
               >
                 <button className="flex items-center text-sm">
-                  <FaUserAlt className="mr-2 text-xl text-black" />
+                  <FaUserAlt size={15} className="mr-2 text-xl text-black" />
                   <span className="hidden sm:inline text-black">
                     Hey There!
                   </span>
@@ -402,30 +416,48 @@ const Header = () => {
                 )}
               </div>
             )}
-
+{/* 
             <Link
               to="/cart"
               className="relative flex items-center gap-2 hover:text-yellow-300 text-decoration-none"
             >
-              <FaShoppingCart className="text-lg text-black" />
+              <FaShoppingCart size={15} className="text-lg text-black" />
               <span className="hidden sm:inline text-black">Cart</span>
-              <span className="absolute -top-2 -right-0 bg-red-500 text-white text-xs rounded-full px-1.5">
+              <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full px-1.5">
                 {cartCount}
               </span>
-            </Link>
+            </Link> */}
+
+    <Link
+      to="/cart"
+      className="relative flex items-center gap-2 hover:text-yellow-300 text-decoration-none"
+    >
+      <FaShoppingCart
+        size={15}
+        className={`text-black ${animate ? "animate-cart" : ""}`}
+      />
+
+      <span className="hidden sm:inline text-black">Cart</span>
+
+      {cartCount > 0 && (
+        <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full px-1.5">
+          {cartCount}
+        </span>
+      )}
+    </Link>
             <Link to="/wishlist" className="relative hover:no-underline">
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5 text-decoration-none">
+              <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full px-1.5 text-decoration-none">
                 {wishlistCount}
               </span>
               <span className="text-decoration-none ">
-                <IoIosHeart size={20} className="text-black" />
+                <IoIosHeart size={19} className="text-black" />
               </span>
             </Link>
             <Link
               to="/user-settings"
               className="relative flex items-center gap-2 hover:text-yellow-300"
             >
-              <RiUserSettingsFill className=" text-xl text-black" />
+              <RiUserSettingsFill size={18} className=" text-xl text-black" />
               <span className="hidden sm:inline text-black">User</span>
             </Link>
           </div>

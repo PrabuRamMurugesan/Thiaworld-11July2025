@@ -1,19 +1,57 @@
 import React, { useEffect, useState, useContext } from "react";
 import { IoMdHeart } from "react-icons/io";
+import { PiHeart } from "react-icons/pi";
 import axios from "axios";
+import { useNavigate, Link } from "react-router-dom";
 import { CartContext } from "../context/CartContext"; // ✅ adjust path if needed
 import { useWishlist } from "../context/WishlistContext";
+import { AuthContext } from "../../../context/AuthContext";
 import { FaStar, FaHeart } from "react-icons/fa";
 import {
   pickFirstImageSrc,
   normalizeImages,
   buildImgSrc,
 } from "../utils/imageTools";
+import LoginPopup from "./LoginPopup";
+
 const HomeProductSection = () => {
   const [products, setProducts] = useState([]);
   const [liked, setLiked] = useState({});
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
   const { addToCart } = useContext(CartContext);
   const { isWished, toggle } = useWishlist();
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  // Check if user is logged in
+  const isLoggedIn = () => {
+    try {
+      const stored = localStorage.getItem("bbsUser");
+      return stored && JSON.parse(stored)?.token;
+    } catch {
+      return false;
+    }
+  };
+
+  // Handle add to cart with login check
+  const handleAddToCart = (product) => {
+    if (!isLoggedIn()) {
+      setShowLoginPopup(true);
+      return;
+    }
+    addToCart(product);
+  };
+
+  // Handle wishlist toggle with login check
+  const handleWishlistToggle = (productId, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isLoggedIn()) {
+      setShowLoginPopup(true);
+      return;
+    }
+    toggle(productId);
+  };
 
   useEffect(() => {
     axios
@@ -27,13 +65,13 @@ const HomeProductSection = () => {
   };
 
   return (
-    <section className="py-5 px-4 bg-light">
+    <section className="py-5 px-5 bg-light">
       <h2 className="text-center mb-5 font-serif text-3xl font-bold  ">
         Top Trending Collections
       </h2>
-      <div className="row justify-content-center g-4">
+      <div className="row justify-content-start g-4 mx-5">
         {products.map((product) => {
-const currentPrice = Number(product.price).toFixed(2);
+          const currentPrice = Number(product.price).toFixed(2);
 
           const previousPrice = Math.round(
             currentPrice / (1 - product.discount / 100)
@@ -47,7 +85,10 @@ const currentPrice = Number(product.price).toFixed(2);
               className="col-12 col-sm-6 col-md-4 col-lg-3 "
               key={product._id}
             >
-              <div className="border rounded-xl overflow-hidden p-0.5 bg-gradient-to-br from-[#504e4e] via-[#a5a3a2] to-[#e4b6b6] hover:shadow-gold hover:scale-[1.02] transition-all duration-300">
+              <div
+                className="rounded-xl overflow-hidden p-0.5 
+               hover:shadow-gold hover:scale-[1.02] transition-all duration-300"
+              >
                 <div className="card shadow-sm position-relative ">
                   {/* SALE Tag (Top-Left) */}
                   <span
@@ -61,15 +102,13 @@ const currentPrice = Number(product.price).toFixed(2);
                   {/* Heart Icon (Top-Right) */}
                   <button
                     aria-label="Toggle wishlist"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      toggle(product._id);
-                    }}
+                    onClick={(e) => handleWishlistToggle(product._id, e)}
                     className="position-absolute top-2 end-2 m-2"
                     style={{
                       background: "transparent",
                       border: "none",
                       cursor: "pointer",
+                      zIndex: 10,
                     }}
                     title={
                       isWished(product._id)
@@ -77,42 +116,69 @@ const currentPrice = Number(product.price).toFixed(2);
                         : "Add to wishlist"
                     }
                   >
-                    <IoMdHeart
-                      style={{
-                        fontSize: 25,
-                        color: isWished(product._id) ? "#e03131" : "gray",
-                        transition: "color 120ms ease",
-                      }}
-                    />
+                    {isWished(product._id) ? (
+                      <IoMdHeart
+                        style={{
+                          fontSize: 25,
+                          color: "#e03131",
+                          transition: "color 120ms ease",
+                        }}
+                      />
+                    ) : (
+                      <PiHeart
+                        style={{
+                          fontSize: 25,
+                          color: "gray",
+                          transition: "color 120ms ease",
+                        }}
+                      />
+                    )}
                   </button>
 
-                  <div
-                    className="w-full d-flex align-items-center justify-content-center"
-                    style={{
-                      height: "260px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      overflow: "hidden",
-                      padding: "8px",
-                    }}
+                  <Link
+                    to={`/product/${product._id}`}
+                    style={{ textDecoration: "none", color: "inherit" }}
                   >
-                    <img
-                      src={buildImgSrc(firstImg) || "/default-product.jpg"}
-                      alt={product.name}
+                    <div
+                      className="w-full d-flex align-items-center justify-content-center"
                       style={{
-                        width: "240px",
-                        height: "240px",
-                        objectFit: "contain", // <-- stops stretching and keeps full image visible
-                        display: "block",
+                        height: "260px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        overflow: "hidden",
+                        padding: "8px",
+                        cursor: "pointer",
                       }}
-                      onError={(e) =>
-                        (e.currentTarget.src = "/default-product.jpg")
-                      }
-                    />
-                  </div>
+                    >
+                      <img
+                        src={buildImgSrc(firstImg) || "/default-product.jpg"}
+                        alt={product.name}
+                        style={{
+                          width: "240px",
+                          height: "240px",
+                          objectFit: "contain",
+                          display: "block",
+                          maxWidth: "180px",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                        onError={(e) =>
+                          (e.currentTarget.src = "/default-product.jpg")
+                        }
+                      />
+                    </div>
+                  </Link>
                   <div className="card-body text-center">
-                    <h6 className="card-title mb-2">{product.name}</h6>
+                    <Link
+                      to={`/product/${product._id}`}
+                      style={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      <h6 className="card-title mb-2 text-nowrap" style={{ cursor: "pointer" }}>
+                        {product.name}
+                      </h6>
+                    </Link>
                     <div className="d-flex justify-content-center align-items-center gap-2">
                       <span className="fw-bold text-success">
                         ₹
@@ -133,13 +199,26 @@ const currentPrice = Number(product.price).toFixed(2);
                     <div className=" d-flex justify-center mt-3 align-items-center  gap-1 ">
                       <button
                         className="btn button-90 btn-sm fw-bold px-4"
-                        onClick={() => addToCart(product)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleAddToCart(product);
+                        }}
                       >
                         Add to Cart
                       </button>
                       <button
                         className="btn button-90   btn-sm fw-bold px-3"
-                        onClick={() => addToCart(product)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (isLoggedIn()) {
+                            handleAddToCart(product);
+                            navigate("/checkout");
+                          } else {
+                            setShowLoginPopup(true);
+                          }
+                        }}
                       >
                         Buy Now
                       </button>
@@ -151,6 +230,14 @@ const currentPrice = Number(product.price).toFixed(2);
           );
         })}
       </div>
+      <LoginPopup
+        show={showLoginPopup}
+        onClose={() => setShowLoginPopup(false)}
+        onSuccess={() => {
+          // After successful login, the user can retry the action
+          setShowLoginPopup(false);
+        }}
+      />
     </section>
   );
 };

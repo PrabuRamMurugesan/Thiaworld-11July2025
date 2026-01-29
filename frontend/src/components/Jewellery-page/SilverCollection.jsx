@@ -2,17 +2,20 @@ import React, { useEffect, useMemo, useState, useContext } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { CartContext } from "../../context/CartContext";
+import { AuthContext } from "../../../context/AuthContext";
 import Header from "../Header";
 import Footer from "../Footer";
 import { IoHeart, IoStar } from "react-icons/io5";
 import { useWishlist } from "../../context/WishlistContext";
+import LoginPopup from "../LoginPopup";
 
 const SilverCollection = () => {
   // Raw list from API
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-const { isWished, toggle } = useWishlist();
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const { isWished, toggle } = useWishlist();
 
   // Filters
   const [search, setSearch] = useState("");
@@ -25,6 +28,37 @@ const { isWished, toggle } = useWishlist();
   const itemsPerPage = 8;
 
   const { addToCart } = useContext(CartContext);
+  const { user } = useContext(AuthContext);
+
+  // Check if user is logged in
+  const isLoggedIn = () => {
+    try {
+      const stored = localStorage.getItem("bbsUser");
+      return stored && JSON.parse(stored)?.token;
+    } catch {
+      return false;
+    }
+  };
+
+  // Handle add to cart with login check
+  const handleAddToCart = (product) => {
+    if (!isLoggedIn()) {
+      setShowLoginPopup(true);
+      return;
+    }
+    addToCart(product);
+  };
+
+  // Handle wishlist toggle with login check
+  const handleWishlistToggle = (productId, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isLoggedIn()) {
+      setShowLoginPopup(true);
+      return;
+    }
+    toggle(productId);
+  };
 
   // Fetch once (no query params; we filter/sort locally)
   useEffect(() => {
@@ -257,10 +291,7 @@ const { isWished, toggle } = useWishlist();
 
                   <button
                     aria-label="Toggle wishlist"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      toggle(prod._id);
-                    }}
+                    onClick={(e) => handleWishlistToggle(prod._id, e)}
                     style={{
                       background: "transparent",
                       border: "none",
@@ -346,7 +377,11 @@ const { isWished, toggle } = useWishlist();
                     👁 Try This On
                   </button>
                   <button
-                    onClick={() => addToCart(prod)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleAddToCart(prod);
+                    }}
                     className="text-xs bg-yellow-500 text-white rounded px-2 py-1 hover:bg-yellow-600"
                   >
                     🛒 Add to Cart
@@ -411,6 +446,13 @@ const { isWished, toggle } = useWishlist();
       </div>
 
       <Footer />
+      <LoginPopup
+        show={showLoginPopup}
+        onClose={() => setShowLoginPopup(false)}
+        onSuccess={() => {
+          setShowLoginPopup(false);
+        }}
+      />
     </>
   );
 };

@@ -6,6 +6,9 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import axios from "axios";
 import { HelmetProvider } from "react-helmet-async";
+import { IoIosShareAlt } from "react-icons/io";
+import { AiOutlineHeart } from "react-icons/ai";
+import { AiFillHeart } from "react-icons/ai";
 import {
   FaWhatsapp,
   FaFacebookF,
@@ -16,7 +19,10 @@ import {
 } from "react-icons/fa";
 import { CartContext } from "../context/CartContext";
 import { normalizeImages } from "../utils/imageTools";
-
+import ProductBottom from "./ProductBottom";
+import { FiStar } from "react-icons/fi";
+import { GoStarFill } from "react-icons/go";
+import { TbTruckDelivery } from "react-icons/tb";
 function apiOrigin() {
   const base =
     import.meta.env.VITE_API_URI || import.meta.env.VITE_API_URL || "";
@@ -43,10 +49,11 @@ const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useContext(CartContext);
-
+  const [active, setActive] = useState(false);
   const [product, setProduct] = useState(null);
   const [galleryList, setGalleryList] = useState([]);
   const [selectedImage, setSelectedImage] = useState("/default-product.jpg");
+  const [liked, setLiked] = useState(false);
 
   const [usePartial, setUsePartial] = useState(false);
   const [advancePct, setAdvancePct] = useState(40);
@@ -259,6 +266,53 @@ const ProductDetailPage = () => {
 
           {/* Info */}
           <div>
+            <div className="d-flex align-center justify-between my-3 action-bar">
+              {/* Bestseller */}
+              <span
+                onClick={() => setActive(!active)}
+                title="BestSeller"
+                className="action-item"
+              >
+                {active ? <GoStarFill color="red" /> : <FiStar />}
+              </span>
+
+              <span className="divider" />
+
+              {/* Delivery */}
+              <span title="Fast Delivery" className="action-item">
+                <TbTruckDelivery />
+              </span>
+
+              <span className="divider" />
+
+              {/* Share */}
+              <span title="Share" className="action-item text">
+                <IoIosShareAlt size={20} />
+                <span>Share</span>
+              </span>
+
+              <span className="divider" />
+
+              {/* Wishlist */}
+              <span
+                title="Wishlist"
+                onClick={() => setLiked(!liked)}
+                className="action-item text"
+              >
+                {liked ? (
+                  <AiFillHeart color="red" size={20} />
+                ) : (
+                  <AiOutlineHeart size={20} />
+                )}
+                <span>Wishlist</span>
+              </span>
+
+              <span className="divider" />
+
+              {/* View Similar */}
+              <span className="view-similar">View Similar</span>
+            </div>
+
             <h1 className="text-2xl font-bold mb-2">{product.name}</h1>
             <p className="text-sm text-gray-500 mb-2">{product.description}</p>
 
@@ -325,6 +379,20 @@ const ProductDetailPage = () => {
               Metal: {product.metalType} | Purity: {product.purity}
             </p>
 
+            {/* 22K Gold Rate Display */}
+            {product.metalType?.toLowerCase() === "gold" && 
+             product.purity?.includes("22") && 
+             product.priceSource?.ratePerGram && (
+              <p className="text-sm text-gray-600 mb-1">
+                <strong>22K Gold Rate:</strong> ₹{formatINR(product.priceSource.ratePerGram)}/gram
+                {product.priceSource.effectiveDate && (
+                  <span className="text-xs text-gray-500 ml-2">
+                    (Effective: {new Date(product.priceSource.effectiveDate).toLocaleDateString('en-IN')})
+                  </span>
+                )}
+              </p>
+            )}
+
             <p className="text-sm text-gray-600 mb-1">
               Net Weight: {product.netWeight}g | Gross: {product.grossWeight}g
             </p>
@@ -332,6 +400,64 @@ const ProductDetailPage = () => {
             <p className="text-sm text-gray-600 mb-1">
               Making: ₹{formatINR(product.makingCharges)} | GST: {product.gst}%
             </p>
+
+            {/* Price Breakup */}
+            {product.metalType?.toLowerCase() === "gold" && product.breakdown && (() => {
+              const basePrice = product.breakdown.salesPrice || product.breakdown.actualPrice;
+              const gstPercent = Number(product.gst || 0);
+              const gstAmount = gstPercent > 0 ? (basePrice * gstPercent) / 100 : 0;
+              const totalWithGST = basePrice + gstAmount;
+              
+              return (
+                <div className="mt-4 mb-4 bg-gray-50 border border-gray-200 rounded p-3">
+                  <h4 className="text-sm font-semibold mb-2 text-gray-800">Price Breakup:</h4>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Gold Value ({product.priceSource?.carat || product.purity}):</span>
+                      <span className="font-medium">₹{formatINR(product.breakdown.goldValue)}</span>
+                    </div>
+                    {product.breakdown.makingValue > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Making Charges:</span>
+                        <span className="font-medium">₹{formatINR(product.breakdown.makingValue)}</span>
+                      </div>
+                    )}
+                    {product.breakdown.wastageValue > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Wastage:</span>
+                        <span className="font-medium">₹{formatINR(product.breakdown.wastageValue)}</span>
+                      </div>
+                    )}
+                    {product.breakdown.stoneValue > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Stone Value:</span>
+                        <span className="font-medium">₹{formatINR(product.breakdown.stoneValue)}</span>
+                      </div>
+                    )}
+                    {product.breakdown.discount > 0 && (
+                      <div className="flex justify-between text-green-600">
+                        <span>Discount ({product.discount || 0}%):</span>
+                        <span className="font-medium">-₹{formatINR(product.breakdown.discount)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between pt-1 border-t border-gray-200 mt-1">
+                      <span className="text-gray-600">Subtotal:</span>
+                      <span className="font-medium">₹{formatINR(basePrice)}</span>
+                    </div>
+                    {gstAmount > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">GST ({gstPercent}%):</span>
+                        <span className="font-medium">₹{formatINR(gstAmount)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between pt-2 border-t border-gray-300 mt-2">
+                      <span className="font-semibold text-gray-800">Total Price:</span>
+                      <span className="font-bold text-lg text-yellow-700">₹{formatINR(totalWithGST)}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
 
             <p className="text-sm text-gray-600 mb-1">
               Category: {product.category}
@@ -406,8 +532,57 @@ const ProductDetailPage = () => {
           </div>
         </div>
       </div>
-
+      <ProductBottom />
       <Footer />
+      <style>
+        {`
+        .action-bar {
+  gap: 12px;
+}
+
+.action-item {
+  cursor: pointer;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.action-item.text {
+  font-size: 14px;
+}
+
+.divider {
+  width: 1px;
+  height: 22px;
+  background-color: #e0e0e0;
+}
+
+.view-similar {
+  cursor: pointer;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 18px;
+
+  /* Normal (light yellow) */
+  border: 1px solid #facc15;       /* yellow-400 */
+  color: #a16207;                  /* dark text for contrast */
+  background-color: #fef9c3;       /* light yellow */
+
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+
+.view-similar:hover {
+  /* Hover (dark yellow) */
+  background-color: #facc15;       /* yellow-400 */
+  border-color: #eab308;           /* yellow-500 */
+  color: #78350f;                  /* darker text */
+}
+
+
+        `}
+      </style>
     </>
   );
 };
