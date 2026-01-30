@@ -6,14 +6,15 @@ function chooseWeight(product) {
 }
 
 /**
- * Enhanced 7-step pricing formula with stone value logic
- * 1. goldValue     = rate × weight
- * 2. makingValue   = goldValue × (makingPercent / 100)
- * 3. wastageValue  = goldValue × (wastagePercent / 100)
- * 4. stoneValue    = flat or % of goldValue
- * 5. actualPrice   = goldValue + makingValue + wastageValue + stoneValue
- * 6. discount      = (makingValue + stoneValue) × (discountPercent / 100)
- * 7. salePrice     = goldValue + (makingValue + stoneValue - discount) + wastageValue
+ * Pricing formula following the correct method:
+ * 1. goldValue          = rate × weight
+ * 2. makingValue        = goldValue × (makingPercent / 100) [or flat if > 100]
+ * 3. wastageValue       = goldValue × (wastagePercent / 100) [or flat if > 100]
+ * 4. stoneValue         = flat or % of goldValue
+ * 5. actualPrice        = goldValue + makingValue + wastageValue + stoneValue
+ * 6. discount           = makingValue × (discountPercent / 100) [ONLY on Making Charges]
+ * 7. discountedMaking   = makingValue - discount
+ * 8. salePrice          = goldValue + discountedMaking + wastageValue + stoneValue
  */
 function computePriceBreakdown({ ratePerGram, product }) {
   const weight = chooseWeight(product);
@@ -44,12 +45,14 @@ function computePriceBreakdown({ ratePerGram, product }) {
   // Actual price before discount
   const actualPrice = goldValue + makingValue + wastageValue + stoneValue;
 
-  // Discount applied on (making + stone)
-  const discount = (makingValue + stoneValue) * (discountPercent / 100);
+  // Discount applied ONLY on Making Charges (not on stone value)
+  const discount = makingValue * (discountPercent / 100);
 
-  // Final sale price
-  const salePrice =
-    goldValue + (makingValue + stoneValue - discount) + wastageValue;
+  // Discounted Making Charges
+  const discountedMaking = makingValue - discount;
+
+  // Final sale price = Gold Value + Discounted Making Charges + Wastage + Stone
+  const salePrice = goldValue + discountedMaking + wastageValue + stoneValue;
 
   return {
     goldValue,
@@ -88,9 +91,15 @@ function computePriceExplain({ ratePerGram, product }) {
     Number(stoneRaw) <= 1 ? goldValue * Number(stoneRaw) : Number(stoneRaw);
 
   const actualPrice = goldValue + makingValue + wastageValue + stoneValue;
-  const discount = (makingValue + stoneValue) * (discountPercent / 100);
-  const salePrice =
-    goldValue + (makingValue + stoneValue - discount) + wastageValue;
+  
+  // Discount applied ONLY on Making Charges (not on stone value)
+  const discount = makingValue * (discountPercent / 100);
+  
+  // Discounted Making Charges
+  const discountedMaking = makingValue - discount;
+  
+  // Final sale price = Gold Value + Discounted Making Charges + Wastage + Stone
+  const salePrice = goldValue + discountedMaking + wastageValue + stoneValue;
 
   return {
     purity: product?.purity,

@@ -280,12 +280,30 @@ useEffect(() => {
           {paginatedProducts.map((prod) => {
             const firstImg = pickFirstImageSrc(prod.images);
 
-            const payableBase = Number(prod.finalPrice || prod.price || 0);
-
-            // auto strike price: 20% higher than sale price
+            // Calculate price same way as ProductDetail page
+            let payableBase = 0;
             let strike = null;
-            if (payableBase && payableBase > 0) {
-              strike = Math.round(payableBase * 1.2);
+
+            if (prod.breakdown) {
+              // Use breakdown to calculate prices (same as ProductDetail)
+              const breakdown = prod.breakdown;
+              const actualPrice = breakdown.actualPrice || 
+                (breakdown.goldValue || 0) + 
+                (breakdown.makingValue || 0) + 
+                (breakdown.wastageValue || 0) + 
+                (breakdown.stoneValue || 0);
+              
+              const discountAmount = breakdown.discount || 0;
+              const priceAfterDiscount = actualPrice - discountAmount;
+              const gstPercent = Number(prod.gst || 0);
+              const gstOnAfterDiscount = Math.round((priceAfterDiscount * gstPercent) / 100);
+              payableBase = priceAfterDiscount + gstOnAfterDiscount;
+              
+              // Strike price = actualPrice (price before discount)
+              strike = actualPrice;
+            } else {
+              // Fallback to product price fields if no breakdown
+              payableBase = Number(prod.finalPrice || prod.totalPayable || prod.price || 0);
             }
             return (
               <motion.div
@@ -421,9 +439,6 @@ useEffect(() => {
         <LoginPopup
           show={showLoginPopup}
           onClose={() => setShowLoginPopup(false)}
-          onSuccess={() => {
-            setShowLoginPopup(false);
-          }}
         />
 
         {/* Pagination */}

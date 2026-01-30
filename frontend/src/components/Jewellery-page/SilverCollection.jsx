@@ -449,9 +449,6 @@ const SilverCollection = () => {
       <LoginPopup
         show={showLoginPopup}
         onClose={() => setShowLoginPopup(false)}
-        onSuccess={() => {
-          setShowLoginPopup(false);
-        }}
       />
     </>
   );

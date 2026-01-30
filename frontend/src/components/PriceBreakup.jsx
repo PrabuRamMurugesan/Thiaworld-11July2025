@@ -1,10 +1,108 @@
-import React ,{useState}from 'react'
-
+import React, { useState, useMemo } from 'react'
 import { TbArrowBadgeDown, TbArrowBadgeUp } from "react-icons/tb";
 
-function PriceBreakup() {
+// Format INR currency
+function formatINR(n) {
+  return Number(n || 0).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+function PriceBreakup({ product }) {
+  const [viewMore, setViewMore] = useState(false);
+
+  // Calculate price breakdown values from product data
+  const priceData = useMemo(() => {
+    if (!product || !product.breakdown) {
+      // Default values if no product data
+      return {
+        total: { view: 6120, discount: 48960, finalValue: 61200, change24H: 80 },
+        shipping: { view: 0, discount: 0, finalValue: 0, change24H: 0 },
+        gst: { view: 5610, discount: 44880, finalValue: 56100, change24H: 70 },
+        grandTotal: { view: 4590, discount: null, finalValue: 45900, change24H: -40 },
+        gstPercent: 3
+      };
+    }
+
+    const breakdown = product.breakdown;
     
-      const [viewMore, setViewMore] = useState(false);
+    // actualPrice = price BEFORE discount (Gold Value + Making + Wastage + Stone)
+    const actualPrice = breakdown.actualPrice || 
+      (breakdown.goldValue || 0) + 
+      (breakdown.makingValue || 0) + 
+      (breakdown.wastageValue || 0) + 
+      (breakdown.stoneValue || 0);
+    
+    // salesPrice = price AFTER discount (before GST)
+    const salesPrice = breakdown.salesPrice || actualPrice;
+    
+    // Discount amount
+    const discountAmount = breakdown.discount || 0;
+    
+    // GST percentage
+    const gstPercent = Number(product.gst || 3);
+    
+    // Price after discount (before GST)
+    const priceAfterDiscount = actualPrice - discountAmount;
+    
+    // GST calculations
+    // GST on price BEFORE discount
+    const gstOnBeforeDiscount = Math.round((actualPrice * gstPercent) / 100);
+    // GST on price AFTER discount
+    const gstOnAfterDiscount = Math.round((priceAfterDiscount * gstPercent) / 100);
+    // GST discount (difference)
+    const gstDiscount = gstOnBeforeDiscount - gstOnAfterDiscount;
+    
+    // Final price = price after discount + GST after discount
+    const finalPrice = priceAfterDiscount + gstOnAfterDiscount;
+    
+    // Calculate values for table
+    const totalView = actualPrice; // Price BEFORE discount
+    const totalDiscount = discountAmount;
+    const totalFinalValue = priceAfterDiscount; // Price AFTER discount (before GST)
+    
+    const shippingView = 0;
+    const shippingDiscount = 0;
+    const shippingFinalValue = 0;
+    
+    const gstView = gstOnBeforeDiscount; // GST on price before discount
+    const gstFinalValue = gstOnAfterDiscount; // GST on price after discount
+    
+    const grandTotalView = priceAfterDiscount; // Subtotal after discount
+    const grandTotalFinalValue = finalPrice; // Final price with GST
+    
+    // Mock 24H change values (you can replace with actual data if available)
+    const change24H = Math.round(actualPrice * 0.01); // 1% change
+    
+    return {
+      total: {
+        view: totalView,
+        discount: totalDiscount,
+        finalValue: totalFinalValue,
+        change24H: change24H
+      },
+      shipping: {
+        view: shippingView,
+        discount: shippingDiscount,
+        finalValue: shippingFinalValue,
+        change24H: 0
+      },
+      gst: {
+        view: gstView,
+        discount: gstDiscount,
+        finalValue: gstFinalValue,
+        change24H: Math.round(gstView * 0.01)
+      },
+      grandTotal: {
+        view: grandTotalView,
+        discount: null,
+        finalValue: grandTotalFinalValue,
+        change24H: -Math.round(grandTotalView * 0.01)
+      },
+      gstPercent: gstPercent
+    };
+  }, [product]);
   return (
      <div
             style={{
@@ -103,7 +201,7 @@ function PriceBreakup() {
                           textAlign: "center",
                         }}
                       >
-                        View
+                        Value
                       </th>
                       <th
                         style={{
@@ -147,22 +245,22 @@ function PriceBreakup() {
                         Total
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹6,120
+                        ₹{formatINR(priceData.total.view)}
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹48,960
+                        ₹{formatINR(priceData.total.discount)}
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹61,200
+                        ₹{formatINR(priceData.total.finalValue)}
                       </td>
                       <td
                         style={{
                           textAlign: "center",
-                          color: "green",
+                          color: priceData.total.change24H >= 0 ? "green" : "red",
                           fontWeight: "600",
                         }}
                       >
-                        +₹80
+                        {priceData.total.change24H >= 0 ? "+" : ""}₹{formatINR(Math.abs(priceData.total.change24H))}
                       </td>
                     </tr>
     
@@ -170,42 +268,48 @@ function PriceBreakup() {
                       <td style={{ padding: "12px 16px", color: "#5c4b00" }}>
                         Shipping
                       </td>
-                      <td style={{ textAlign: "center", color: "#5c4b00" }}>₹0</td>
-                      <td style={{ textAlign: "center", color: "#5c4b00" }}>₹0</td>
-                      <td style={{ textAlign: "center", color: "#5c4b00" }}>₹0</td>
+                      <td style={{ textAlign: "center", color: "#5c4b00" }}>
+                        ₹{formatINR(priceData.shipping.view)}
+                      </td>
+                      <td style={{ textAlign: "center", color: "#5c4b00" }}>
+                        ₹{formatINR(priceData.shipping.discount)}
+                      </td>
+                      <td style={{ textAlign: "center", color: "#5c4b00" }}>
+                        ₹{formatINR(priceData.shipping.finalValue)}
+                      </td>
                       <td
                         style={{
                           textAlign: "center",
-                          color: "green",
+                          color: priceData.shipping.change24H >= 0 ? "green" : "red",
                           fontWeight: "600",
                         }}
                       >
-                        +₹0
+                        {priceData.shipping.change24H >= 0 ? "+" : ""}₹{formatINR(Math.abs(priceData.shipping.change24H))}
                       </td>
                     </tr>
                     <tr></tr>
     
                     <tr style={{ backgroundColor: "#fff9e5" }}>
                       <td style={{ padding: "12px 16px", color: "#5c4b00" }}>
-                        GST(3%)
+                        GST({priceData.gstPercent}%)
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹5,610
+                        ₹{formatINR(priceData.gst.view)}
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹44,880
+                        ₹{formatINR(priceData.gst.discount)}
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹56,100
+                        ₹{formatINR(priceData.gst.finalValue)}
                       </td>
                       <td
                         style={{
                           textAlign: "center",
-                          color: "green",
+                          color: priceData.gst.change24H >= 0 ? "green" : "red",
                           fontWeight: "600",
                         }}
                       >
-                        +₹70
+                        {priceData.gst.change24H >= 0 ? "+" : ""}₹{formatINR(Math.abs(priceData.gst.change24H))}
                       </td>
                     </tr>
     
@@ -214,20 +318,20 @@ function PriceBreakup() {
                         Grand Total
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹4,590
+                        ₹{formatINR(priceData.grandTotal.view)}
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}></td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹45,900
+                        ₹{formatINR(priceData.grandTotal.finalValue)}
                       </td>
                       <td
                         style={{
                           textAlign: "center",
-                          color: "red",
+                          color: priceData.grandTotal.change24H >= 0 ? "green" : "red",
                           fontWeight: "600",
                         }}
                       >
-                        –₹40
+                        {priceData.grandTotal.change24H >= 0 ? "+" : "–"}₹{formatINR(Math.abs(priceData.grandTotal.change24H))}
                       </td>
                     </tr>
                   </tbody>
@@ -344,29 +448,31 @@ function PriceBreakup() {
     
                     <tr>
                       <td style={{ padding: "12px 16px", color: "#5c4b00" }}>
-                        91.6 Gold
+                        {product?.purity || "91.6"} Gold
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹6,120
+                        {product?.priceSource?.ratePerGram ? `₹${formatINR(product.priceSource.ratePerGram)}` : "₹6,120"}
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹48,960
+                        {product?.netWeight ? `${product.netWeight}g` : "₹48,960"}
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹61,200
+                        {product?.breakdown?.goldValue ? `₹${formatINR(product.breakdown.goldValue)}` : "₹61,200"}
                       </td>
-                      <td style={{ textAlign: "center", color: "#5c4b00" }}>₹0</td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹61,200
+                        {product?.breakdown?.discount ? `₹${formatINR(product.breakdown.discount)}` : "₹0"}
+                      </td>
+                      <td style={{ textAlign: "center", color: "#5c4b00" }}>
+                        ₹{formatINR(priceData.total.finalValue)}
                       </td>
                       <td
                         style={{
                           textAlign: "center",
-                          color: "green",
+                          color: priceData.total.change24H >= 0 ? "green" : "red",
                           fontWeight: "600",
                         }}
                       >
-                        +₹80
+                        {priceData.total.change24H >= 0 ? "+" : ""}₹{formatINR(Math.abs(priceData.total.change24H))}
                       </td>
                     </tr>
                     <tr>
@@ -376,22 +482,22 @@ function PriceBreakup() {
                       <td style={{ textAlign: "center", color: "#5c4b00" }}></td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}></td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹6,120
+                        ₹{formatINR(priceData.total.view)}
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹48,960
+                        ₹{formatINR(priceData.total.discount)}
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹61,200
+                        ₹{formatINR(priceData.total.finalValue)}
                       </td>
                       <td
                         style={{
                           textAlign: "center",
-                          color: "green",
+                          color: priceData.total.change24H >= 0 ? "green" : "red",
                           fontWeight: "600",
                         }}
                       >
-                        +₹80
+                        {priceData.total.change24H >= 0 ? "+" : ""}₹{formatINR(Math.abs(priceData.total.change24H))}
                       </td>
                     </tr>
     
@@ -399,46 +505,52 @@ function PriceBreakup() {
                       <td style={{ padding: "12px 16px", color: "#5c4b00" }}>
                         Shipping
                       </td>
-                      <td style={{ textAlign: "center", color: "#5c4b00" }}></td>{" "}
                       <td style={{ textAlign: "center", color: "#5c4b00" }}></td>
-                      <td style={{ textAlign: "center", color: "#5c4b00" }}>₹0</td>
-                      <td style={{ textAlign: "center", color: "#5c4b00" }}>₹0</td>
-                      <td style={{ textAlign: "center", color: "#5c4b00" }}>₹0</td>
+                      <td style={{ textAlign: "center", color: "#5c4b00" }}></td>
+                      <td style={{ textAlign: "center", color: "#5c4b00" }}>
+                        ₹{formatINR(priceData.shipping.view)}
+                      </td>
+                      <td style={{ textAlign: "center", color: "#5c4b00" }}>
+                        ₹{formatINR(priceData.shipping.discount)}
+                      </td>
+                      <td style={{ textAlign: "center", color: "#5c4b00" }}>
+                        ₹{formatINR(priceData.shipping.finalValue)}
+                      </td>
                       <td
                         style={{
                           textAlign: "center",
-                          color: "green",
+                          color: priceData.shipping.change24H >= 0 ? "green" : "red",
                           fontWeight: "600",
                         }}
                       >
-                        +₹0
+                        {priceData.shipping.change24H >= 0 ? "+" : ""}₹{formatINR(Math.abs(priceData.shipping.change24H))}
                       </td>
                     </tr>
                     <tr></tr>
     
                     <tr style={{ backgroundColor: "#fff9e5" }}>
                       <td style={{ padding: "12px 16px", color: "#5c4b00" }}>
-                        GST(3%)
+                        GST({priceData.gstPercent}%)
                       </td>
-                      <td style={{ textAlign: "center", color: "#5c4b00" }}></td>{" "}
+                      <td style={{ textAlign: "center", color: "#5c4b00" }}></td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}></td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹5,610
+                        ₹{formatINR(priceData.gst.view)}
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹44,880
+                        ₹{formatINR(priceData.gst.discount)}
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹56,100
+                        ₹{formatINR(priceData.gst.finalValue)}
                       </td>
                       <td
                         style={{
                           textAlign: "center",
-                          color: "green",
+                          color: priceData.gst.change24H >= 0 ? "green" : "red",
                           fontWeight: "600",
                         }}
                       >
-                        +₹70
+                        {priceData.gst.change24H >= 0 ? "+" : ""}₹{formatINR(Math.abs(priceData.gst.change24H))}
                       </td>
                     </tr>
     
@@ -446,23 +558,23 @@ function PriceBreakup() {
                       <td style={{ padding: "12px 16px", color: "#5c4b00" }}>
                         Grand Total
                       </td>
-                      <td style={{ textAlign: "center", color: "#5c4b00" }}></td>{" "}
+                      <td style={{ textAlign: "center", color: "#5c4b00" }}></td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}></td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹4,590
+                        ₹{formatINR(priceData.grandTotal.view)}
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}></td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        ₹45,900
+                        ₹{formatINR(priceData.grandTotal.finalValue)}
                       </td>
                       <td
                         style={{
                           textAlign: "center",
-                          color: "red",
+                          color: priceData.grandTotal.change24H >= 0 ? "green" : "red",
                           fontWeight: "600",
                         }}
                       >
-                        –₹40
+                        {priceData.grandTotal.change24H >= 0 ? "+" : "–"}₹{formatINR(Math.abs(priceData.grandTotal.change24H))}
                       </td>
                     </tr>
                   </tbody>

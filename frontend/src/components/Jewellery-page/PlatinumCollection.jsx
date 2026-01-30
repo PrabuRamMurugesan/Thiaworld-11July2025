@@ -398,9 +398,6 @@ const PlatinumCollection = () => {
       <LoginPopup
         show={showLoginPopup}
         onClose={() => setShowLoginPopup(false)}
-        onSuccess={() => {
-          setShowLoginPopup(false);
-        }}
       />
     </>
   );
