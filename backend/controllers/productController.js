@@ -470,10 +470,50 @@ const uploadProductImages = async (req, res) => {
 
 const getNewArrivals = async (req, res) => {
   try {
+    // 1) Fetch new arrival products
     const products = await Product.find({
       isNewArrival: true,
       isPublished: true,
-    });
+    }).lean();
+
+    // 2) Get latest gold rate block (cached) for gold products
+    const latest = await getLatestBlockCached();
+
+    if (latest) {
+      for (const p of products) {
+        // Apply pricing breakdown only for gold products
+        if (String(p.metalType || "").toLowerCase() === "gold") {
+          const carat = purityToCarat(p.purity);
+          const rate = latest[carat]?.ratePerGram;
+          if (!rate) continue;
+
+          // ✅ Compute using breakdown helper
+          const b = computePriceBreakdown({ ratePerGram: rate, product: p });
+
+          // ✅ Compute explanation (for debug and traceability)
+          const explain = computePriceExplain({ ratePerGram: rate, product: p });
+
+          // ✅ Assign computed display fields
+          p.displayActual = explain.actualPrice;
+          p.displaySale = explain.salesPrice;
+          p.displayPrice = explain.salesPrice; // used by UI
+          p.breakdown = b;
+
+          // ✅ Rate source info
+          p.priceSource = {
+            carat,
+            ratePerGram: rate,
+            effectiveDate: latest[carat].effectiveDate,
+            source: latest[carat].source,
+          };
+
+          // ✅ Optional debug info (only if ?debug=1)
+          if (String(req.query.debug) === "1") {
+            p.debugPricing = explain;
+          }
+        }
+      }
+    }
 
     res.status(200).json(products);
   } catch (error) {

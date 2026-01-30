@@ -100,27 +100,52 @@ const ProductDetailPage = () => {
   };
 
   // ================================
-  // SALE PRICE
+  // SALE PRICE (Final Price AFTER discount + GST)
+  // This should match the Grand Total Final Value from Price Breakup
   // ================================
   const payableBase = useMemo(() => {
     if (!product) return 0;
+    
+    // If breakdown exists, calculate final price from breakdown
+    if (product.breakdown) {
+      const breakdown = product.breakdown;
+      const actualPrice = breakdown.actualPrice || 
+        (breakdown.goldValue || 0) + 
+        (breakdown.makingValue || 0) + 
+        (breakdown.wastageValue || 0) + 
+        (breakdown.stoneValue || 0);
+      
+      const discountAmount = breakdown.discount || 0;
+      const priceAfterDiscount = actualPrice - discountAmount;
+      const gstPercent = Number(product.gst || 0);
+      // Match PriceBreakup calculation exactly (with rounding)
+      const gstOnAfterDiscount = Math.round((priceAfterDiscount * gstPercent) / 100);
+      const finalPrice = priceAfterDiscount + gstOnAfterDiscount;
+      
+      return finalPrice;
+    }
+    
+    // Fallback to product price fields if no breakdown
     return Number(
       product.finalPrice || product.totalPayable || product.price || 0
     );
   }, [product]);
 
   // ================================
-  // AUTO STRIKE PRICE
-  // Always greater than sale price
+  // STRIKE PRICE (Price BEFORE discount)
+  // This should be the actualPrice from breakdown (price without discount)
   // ================================
   const strike = useMemo(() => {
-    if (!payableBase) return null;
+    if (!product || !product.breakdown) return null;
 
-    // 20% higher than sale price
-    const s = payableBase * 1.2;
-
-    return Math.round(s);
-  }, [payableBase]);
+    // Use actualPrice (price before discount) as strike-through price
+    const actualPrice = product.breakdown.actualPrice || product.breakdown.goldValue + 
+      (product.breakdown.makingValue || 0) + 
+      (product.breakdown.wastageValue || 0) + 
+      (product.breakdown.stoneValue || 0);
+    
+    return actualPrice;
+  }, [product]);
 
   // ================================
   // PARTIAL PAYMENT
@@ -401,64 +426,6 @@ const ProductDetailPage = () => {
               Making: ₹{formatINR(product.makingCharges)} | GST: {product.gst}%
             </p>
 
-            {/* Price Breakup */}
-            {product.metalType?.toLowerCase() === "gold" && product.breakdown && (() => {
-              const basePrice = product.breakdown.salesPrice || product.breakdown.actualPrice;
-              const gstPercent = Number(product.gst || 0);
-              const gstAmount = gstPercent > 0 ? (basePrice * gstPercent) / 100 : 0;
-              const totalWithGST = basePrice + gstAmount;
-              
-              return (
-                <div className="mt-4 mb-4 bg-gray-50 border border-gray-200 rounded p-3">
-                  <h4 className="text-sm font-semibold mb-2 text-gray-800">Price Breakup:</h4>
-                  <div className="space-y-1 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Gold Value ({product.priceSource?.carat || product.purity}):</span>
-                      <span className="font-medium">₹{formatINR(product.breakdown.goldValue)}</span>
-                    </div>
-                    {product.breakdown.makingValue > 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Making Charges:</span>
-                        <span className="font-medium">₹{formatINR(product.breakdown.makingValue)}</span>
-                      </div>
-                    )}
-                    {product.breakdown.wastageValue > 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Wastage:</span>
-                        <span className="font-medium">₹{formatINR(product.breakdown.wastageValue)}</span>
-                      </div>
-                    )}
-                    {product.breakdown.stoneValue > 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Stone Value:</span>
-                        <span className="font-medium">₹{formatINR(product.breakdown.stoneValue)}</span>
-                      </div>
-                    )}
-                    {product.breakdown.discount > 0 && (
-                      <div className="flex justify-between text-green-600">
-                        <span>Discount ({product.discount || 0}%):</span>
-                        <span className="font-medium">-₹{formatINR(product.breakdown.discount)}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between pt-1 border-t border-gray-200 mt-1">
-                      <span className="text-gray-600">Subtotal:</span>
-                      <span className="font-medium">₹{formatINR(basePrice)}</span>
-                    </div>
-                    {gstAmount > 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">GST ({gstPercent}%):</span>
-                        <span className="font-medium">₹{formatINR(gstAmount)}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between pt-2 border-t border-gray-300 mt-2">
-                      <span className="font-semibold text-gray-800">Total Price:</span>
-                      <span className="font-bold text-lg text-yellow-700">₹{formatINR(totalWithGST)}</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
-
             <p className="text-sm text-gray-600 mb-1">
               Category: {product.category}
             </p>
@@ -532,7 +499,7 @@ const ProductDetailPage = () => {
           </div>
         </div>
       </div>
-      <ProductBottom />
+      <ProductBottom product={product} />
       <Footer />
       <style>
         {`

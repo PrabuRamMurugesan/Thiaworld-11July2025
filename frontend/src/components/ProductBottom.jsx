@@ -8,6 +8,10 @@ import Popular from "./PopularSearch";
 import JewelleryMaintenance from "./JewelleryMaintenance";
 import PriceBreakup from "./PriceBreakup";
 
+const ProductBottom = ({ product }) => {
+  return <Product product={product} />;
+};
+
 const products = [
   {
     id: 1,
@@ -55,7 +59,7 @@ const products = [
     off: "12%",
   },
 ];
-function Product() {
+function Product({ product }) {
  
 
   const [start, setStart] = useState(0);
@@ -194,7 +198,7 @@ function Product() {
         </div>
       </div>
 
-     <PriceBreakup />
+     <PriceBreakup product={product} />
 
       {/* More from this collection section */}
       <div style={{ position: "relative", padding: "20px" }}>
@@ -356,4 +360,4 @@ function Product() {
   );
 }
 
-export default Product;
+export default ProductBottom;

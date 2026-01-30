@@ -5,7 +5,7 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { CartContext } from "../context/CartContext"; // ✅ adjust path if needed
 import { useWishlist } from "../context/WishlistContext";
-import { AuthContext } from "../../../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 import { FaStar, FaHeart } from "react-icons/fa";
 import {
   pickFirstImageSrc,
@@ -54,10 +54,33 @@ const HomeProductSection = () => {
   };
 
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_API_URI}/products/new-arrivals`) // 🔁 Replace with your backend URL if different
-      .then((res) => setProducts(res.data))
-      .catch((err) => console.log(err));
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_API_URI}/products/new-arrivals`);
+        const productsData = res.data;
+        
+        // Debug: Check if breakdown is present
+        if (productsData.length > 0) {
+          const firstProduct = productsData[0];
+          console.log('Sample product from API:', {
+            id: firstProduct._id,
+            name: firstProduct.name,
+            hasBreakdown: !!firstProduct.breakdown,
+            breakdown: firstProduct.breakdown,
+            displaySale: firstProduct.displaySale,
+            displayActual: firstProduct.displayActual,
+            price: firstProduct.price,
+            finalPrice: firstProduct.finalPrice
+          });
+        }
+        
+        setProducts(productsData);
+      } catch (err) {
+        console.error('Error fetching products:', err);
+      }
+    };
+    
+    fetchProducts();
   }, []);
 
   const handleHeartClick = (id) => {
@@ -71,14 +94,57 @@ const HomeProductSection = () => {
       </h2>
       <div className="row justify-content-start g-4 mx-5">
         {products.map((product) => {
-          const currentPrice = Number(product.price).toFixed(2);
+          // Calculate price same way as ProductDetail page
+          let currentPrice = 0;
+          let previousPrice = null;
 
-          const previousPrice = Math.round(
-            currentPrice / (1 - product.discount / 100)
-          );
-          const saveRate = Math.round(
-            ((previousPrice - currentPrice) / previousPrice) * 100
-          );
+          // Always prefer breakdown if available (same as ProductDetail)
+          if (product.breakdown) {
+            // Use breakdown to calculate prices (same as ProductDetail)
+            const breakdown = product.breakdown;
+            const actualPrice = breakdown.actualPrice || 
+              (breakdown.goldValue || 0) + 
+              (breakdown.makingValue || 0) + 
+              (breakdown.wastageValue || 0) + 
+              (breakdown.stoneValue || 0);
+            
+            const discountAmount = breakdown.discount || 0;
+            const priceAfterDiscount = actualPrice - discountAmount;
+            // Match ProductDetail: use product.gst, default to 0
+            const gstPercent = Number(product.gst || 0);
+            // Match ProductDetail calculation exactly (with rounding)
+            const gstOnAfterDiscount = Math.round((priceAfterDiscount * gstPercent) / 100);
+            currentPrice = priceAfterDiscount + gstOnAfterDiscount;
+            
+            // Previous price = actualPrice (price before discount)
+            previousPrice = actualPrice;
+          } else if (product.displaySale !== undefined && product.displayActual !== undefined) {
+            // If breakdown not available but backend computed displaySale/displayActual
+            // displaySale is price AFTER discount but BEFORE GST
+            // So we need to add GST to match ProductDetail calculation
+            const priceAfterDiscount = Number(product.displaySale || product.displayPrice || 0);
+            const gstPercent = Number(product.gst || 0);
+            const gstOnAfterDiscount = Math.round((priceAfterDiscount * gstPercent) / 100);
+            currentPrice = priceAfterDiscount + gstOnAfterDiscount;
+            
+            // Previous price = displayActual (price before discount)
+            previousPrice = Number(product.displayActual || 0);
+          } else {
+            // Last fallback: use product price fields (but warn in console)
+            console.warn(`Product ${product._id} (${product.name}) missing breakdown and displaySale. Using fallback price.`, {
+              hasBreakdown: !!product.breakdown,
+              displaySale: product.displaySale,
+              displayActual: product.displayActual,
+              finalPrice: product.finalPrice,
+              price: product.price
+            });
+            currentPrice = Number(product.finalPrice || product.totalPayable || product.price || 0);
+            // Calculate previous price from discount if available
+            if (product.discount && currentPrice > 0) {
+              previousPrice = Math.round(currentPrice / (1 - product.discount / 100));
+            }
+          }
+
           const firstImg = pickFirstImageSrc(normalizeImages(product.images));
           return (
             <div
@@ -184,16 +250,19 @@ const HomeProductSection = () => {
                         ₹
                         {Number(currentPrice).toLocaleString("en-IN", {
                           minimumFractionDigits: 2,
-                        })}
-                      </span>
-
-                      <span className="text-muted text-decoration-line-through">
-                        ₹
-                        {Number(previousPrice).toLocaleString("en-IN", {
-                          minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}
                       </span>
+
+                      {previousPrice && previousPrice > currentPrice && (
+                        <span className="text-muted text-decoration-line-through">
+                          ₹
+                          {Number(previousPrice).toLocaleString("en-IN", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
+                      )}
                     </div>
 
                     <div className=" d-flex justify-center mt-3 align-items-center  gap-1 ">
@@ -233,10 +302,6 @@ const HomeProductSection = () => {
       <LoginPopup
         show={showLoginPopup}
         onClose={() => setShowLoginPopup(false)}
-        onSuccess={() => {
-          // After successful login, the user can retry the action
-          setShowLoginPopup(false);
-        }}
       />
     </section>
   );
