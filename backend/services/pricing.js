@@ -6,26 +6,35 @@ function chooseWeight(product) {
 }
 
 /**
- * Enhanced 7-step pricing formula with stone value logic
- * 1. goldValue     = rate × weight
- * 2. makingValue   = goldValue × (makingPercent / 100)
- * 3. wastageValue  = goldValue × (wastagePercent / 100)
- * 4. stoneValue    = flat or % of goldValue
- * 5. actualPrice   = goldValue + makingValue + wastageValue + stoneValue
- * 6. discount      = (makingValue + stoneValue) × (discountPercent / 100)
- * 7. salePrice     = goldValue + (makingValue + stoneValue - discount) + wastageValue
+ * Pricing formula following the correct method:
+ * 1. goldValue          = rate × weight
+ * 2. makingValue        = goldValue × (makingPercent / 100) [or flat if > 100]
+ * 3. wastageValue       = goldValue × (wastagePercent / 100) [or flat if > 100]
+ * 4. stoneValue         = flat or % of goldValue
+ * 5. actualPrice        = goldValue + makingValue + wastageValue + stoneValue
+ * 6. discount           = makingValue × (discountPercent / 100) [ONLY on Making Charges]
+ * 7. discountedMaking   = makingValue - discount
+ * 8. salePrice          = goldValue + discountedMaking + wastageValue + stoneValue
  */
 function computePriceBreakdown({ ratePerGram, product }) {
   const weight = chooseWeight(product);
   const rate = Number(ratePerGram || 0);
   const goldValue = rate * weight;
 
-  const makingPercent = Number(
-    product?.makingCharge || product?.makingCharges || 0
-  );
-  const wastagePercent = Number(
-    product?.wastageCharge || product?.wastageCharges || 0
-  );
+  // Support both flat and percentage for making charges
+  // If makingCharges > 100, treat as flat amount; otherwise as percentage
+  const makingRaw = Number(product?.makingCharge || product?.makingCharges || 0);
+  const makingValue = makingRaw > 100 
+    ? makingRaw  // Flat amount
+    : goldValue * (makingRaw / 100);  // Percentage
+
+  // Support both flat and percentage for wastage charges
+  // If wastageCharge > 100, treat as flat amount; otherwise as percentage
+  const wastageRaw = Number(product?.wastageCharge || product?.wastageCharges || 0);
+  const wastageValue = wastageRaw > 100
+    ? wastageRaw  // Flat amount
+    : goldValue * (wastageRaw / 100);  // Percentage
+
   const stoneRaw = product?.stoneValue || 0;
   const discountPercent = Number(product?.discount || 0);
 
@@ -33,18 +42,17 @@ function computePriceBreakdown({ ratePerGram, product }) {
   const stoneValue =
     Number(stoneRaw) <= 1 ? goldValue * Number(stoneRaw) : Number(stoneRaw);
 
-  const makingValue = goldValue * (makingPercent / 100);
-  const wastageValue = goldValue * (wastagePercent / 100);
-
   // Actual price before discount
   const actualPrice = goldValue + makingValue + wastageValue + stoneValue;
 
-  // Discount applied on (making + stone)
-  const discount = (makingValue + stoneValue) * (discountPercent / 100);
+  // Discount applied ONLY on Making Charges (not on stone value)
+  const discount = makingValue * (discountPercent / 100);
 
-  // Final sale price
-  const salePrice =
-    goldValue + (makingValue + stoneValue - discount) + wastageValue;
+  // Discounted Making Charges
+  const discountedMaking = makingValue - discount;
+
+  // Final sale price = Gold Value + Discounted Making Charges + Wastage + Stone
+  const salePrice = goldValue + discountedMaking + wastageValue + stoneValue;
 
   return {
     goldValue,
@@ -62,32 +70,43 @@ function computePriceExplain({ ratePerGram, product }) {
   const rate = Number(ratePerGram || 0);
   const goldValue = rate * weight;
 
-  const makingPercent = Number(
-    product?.makingCharge || product?.makingCharges || 0
-  );
-  const wastagePercent = Number(
-    product?.wastageCharge || product?.wastageCharges || 0
-  );
+  // Support both flat and percentage for making charges
+  // If makingCharges > 100, treat as flat amount; otherwise as percentage
+  const makingRaw = Number(product?.makingCharge || product?.makingCharges || 0);
+  const makingValue = makingRaw > 100 
+    ? makingRaw  // Flat amount
+    : goldValue * (makingRaw / 100);  // Percentage
+
+  // Support both flat and percentage for wastage charges
+  // If wastageCharge > 100, treat as flat amount; otherwise as percentage
+  const wastageRaw = Number(product?.wastageCharge || product?.wastageCharges || 0);
+  const wastageValue = wastageRaw > 100
+    ? wastageRaw  // Flat amount
+    : goldValue * (wastageRaw / 100);  // Percentage
+
   const stoneRaw = product?.stoneValue || 0;
   const discountPercent = Number(product?.discount || 0);
 
   const stoneValue =
     Number(stoneRaw) <= 1 ? goldValue * Number(stoneRaw) : Number(stoneRaw);
 
-  const makingValue = goldValue * (makingPercent / 100);
-  const wastageValue = goldValue * (wastagePercent / 100);
-
   const actualPrice = goldValue + makingValue + wastageValue + stoneValue;
-  const discount = (makingValue + stoneValue) * (discountPercent / 100);
-  const salePrice =
-    goldValue + (makingValue + stoneValue - discount) + wastageValue;
+  
+  // Discount applied ONLY on Making Charges (not on stone value)
+  const discount = makingValue * (discountPercent / 100);
+  
+  // Discounted Making Charges
+  const discountedMaking = makingValue - discount;
+  
+  // Final sale price = Gold Value + Discounted Making Charges + Wastage + Stone
+  const salePrice = goldValue + discountedMaking + wastageValue + stoneValue;
 
   return {
     purity: product?.purity,
     ratePerGram: rate,
     weight,
-    makingPercent,
-    wastagePercent,
+    makingRaw: makingRaw,
+    wastageRaw: wastageRaw,
     discountPercent,
     goldValue,
     makingValue,

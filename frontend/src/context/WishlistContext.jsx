@@ -53,7 +53,23 @@ export const WishlistProvider = ({ children }) => {
 
   const isWished = (pid) => ids.has(String(pid));
 
+  // Check if user is logged in
+  const isLoggedIn = () => {
+    try {
+      const stored = localStorage.getItem("bbsUser");
+      return stored && JSON.parse(stored)?.token;
+    } catch {
+      return false;
+    }
+  };
+
   const toggle = async (pid) => {
+    // Check if user is logged in
+    if (!isLoggedIn()) {
+      console.warn("User must be logged in to add items to wishlist");
+      return false; // Return false to indicate failure
+    }
+
     const id = String(pid);
     try {
       const res = await toggleWishlist(id); // logged-in path
@@ -61,14 +77,11 @@ export const WishlistProvider = ({ children }) => {
       if (res?.wished) next.add(id);
       else next.delete(id);
       setIds(next);
-      
+      return true; // Return true to indicate success
     } catch {
-      // guest path -> localStorage
-      const next = new Set(ids);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      setIds(next);
-      localStorage.setItem("guest_wishlist", JSON.stringify(Array.from(next)));
+      // If API call fails, don't update wishlist
+      console.warn("Failed to toggle wishlist");
+      return false;
     }
   };
 const refresh = async () => {

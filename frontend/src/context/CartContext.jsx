@@ -50,9 +50,27 @@ useEffect(() => {
 
 
   // ------------------------------
+  // CHECK IF USER IS LOGGED IN
+  // ------------------------------
+  const isLoggedIn = () => {
+    try {
+      const stored = localStorage.getItem("bbsUser");
+      return stored && JSON.parse(stored)?.token;
+    } catch {
+      return false;
+    }
+  };
+
+  // ------------------------------
   // ADD TO CART
   // ------------------------------
   const addToCart = (product) => {
+    // Check if user is logged in
+    if (!isLoggedIn()) {
+      console.warn("User must be logged in to add items to cart");
+      return false; // Return false to indicate failure
+    }
+
     const raw = product.category || product.metalType || "";
     const cat = raw.toLowerCase();
 
@@ -75,6 +93,7 @@ useEffect(() => {
     } else {
       console.warn("Unknown category", raw, product);
     }
+    return true; // Return true to indicate success
   };
 
   // ------------------------------

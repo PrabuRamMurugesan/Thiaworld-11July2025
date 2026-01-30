@@ -6,6 +6,9 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import axios from "axios";
 import { HelmetProvider } from "react-helmet-async";
+import { IoIosShareAlt } from "react-icons/io";
+import { AiOutlineHeart } from "react-icons/ai";
+import { AiFillHeart } from "react-icons/ai";
 import {
   FaWhatsapp,
   FaFacebookF,
@@ -16,7 +19,10 @@ import {
 } from "react-icons/fa";
 import { CartContext } from "../context/CartContext";
 import { normalizeImages } from "../utils/imageTools";
-
+import ProductBottom from "./ProductBottom";
+import { FiStar } from "react-icons/fi";
+import { GoStarFill } from "react-icons/go";
+import { TbTruckDelivery } from "react-icons/tb";
 function apiOrigin() {
   const base =
     import.meta.env.VITE_API_URI || import.meta.env.VITE_API_URL || "";
@@ -43,10 +49,11 @@ const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useContext(CartContext);
-
+  const [active, setActive] = useState(false);
   const [product, setProduct] = useState(null);
   const [galleryList, setGalleryList] = useState([]);
   const [selectedImage, setSelectedImage] = useState("/default-product.jpg");
+  const [liked, setLiked] = useState(false);
 
   const [usePartial, setUsePartial] = useState(false);
   const [advancePct, setAdvancePct] = useState(40);
@@ -93,27 +100,52 @@ const ProductDetailPage = () => {
   };
 
   // ================================
-  // SALE PRICE
+  // SALE PRICE (Final Price AFTER discount + GST)
+  // This should match the Grand Total Final Value from Price Breakup
   // ================================
   const payableBase = useMemo(() => {
     if (!product) return 0;
+    
+    // If breakdown exists, calculate final price from breakdown
+    if (product.breakdown) {
+      const breakdown = product.breakdown;
+      const actualPrice = breakdown.actualPrice || 
+        (breakdown.goldValue || 0) + 
+        (breakdown.makingValue || 0) + 
+        (breakdown.wastageValue || 0) + 
+        (breakdown.stoneValue || 0);
+      
+      const discountAmount = breakdown.discount || 0;
+      const priceAfterDiscount = actualPrice - discountAmount;
+      const gstPercent = Number(product.gst || 0);
+      // Match PriceBreakup calculation exactly (with rounding)
+      const gstOnAfterDiscount = Math.round((priceAfterDiscount * gstPercent) / 100);
+      const finalPrice = priceAfterDiscount + gstOnAfterDiscount;
+      
+      return finalPrice;
+    }
+    
+    // Fallback to product price fields if no breakdown
     return Number(
       product.finalPrice || product.totalPayable || product.price || 0
     );
   }, [product]);
 
   // ================================
-  // AUTO STRIKE PRICE
-  // Always greater than sale price
+  // STRIKE PRICE (Price BEFORE discount)
+  // This should be the actualPrice from breakdown (price without discount)
   // ================================
   const strike = useMemo(() => {
-    if (!payableBase) return null;
+    if (!product || !product.breakdown) return null;
 
-    // 20% higher than sale price
-    const s = payableBase * 1.2;
-
-    return Math.round(s);
-  }, [payableBase]);
+    // Use actualPrice (price before discount) as strike-through price
+    const actualPrice = product.breakdown.actualPrice || product.breakdown.goldValue + 
+      (product.breakdown.makingValue || 0) + 
+      (product.breakdown.wastageValue || 0) + 
+      (product.breakdown.stoneValue || 0);
+    
+    return actualPrice;
+  }, [product]);
 
   // ================================
   // PARTIAL PAYMENT
@@ -259,6 +291,53 @@ const ProductDetailPage = () => {
 
           {/* Info */}
           <div>
+            <div className="d-flex align-center justify-between my-3 action-bar">
+              {/* Bestseller */}
+              <span
+                onClick={() => setActive(!active)}
+                title="BestSeller"
+                className="action-item"
+              >
+                {active ? <GoStarFill color="red" /> : <FiStar />}
+              </span>
+
+              <span className="divider" />
+
+              {/* Delivery */}
+              <span title="Fast Delivery" className="action-item">
+                <TbTruckDelivery />
+              </span>
+
+              <span className="divider" />
+
+              {/* Share */}
+              <span title="Share" className="action-item text">
+                <IoIosShareAlt size={20} />
+                <span>Share</span>
+              </span>
+
+              <span className="divider" />
+
+              {/* Wishlist */}
+              <span
+                title="Wishlist"
+                onClick={() => setLiked(!liked)}
+                className="action-item text"
+              >
+                {liked ? (
+                  <AiFillHeart color="red" size={20} />
+                ) : (
+                  <AiOutlineHeart size={20} />
+                )}
+                <span>Wishlist</span>
+              </span>
+
+              <span className="divider" />
+
+              {/* View Similar */}
+              <span className="view-similar">View Similar</span>
+            </div>
+
             <h1 className="text-2xl font-bold mb-2">{product.name}</h1>
             <p className="text-sm text-gray-500 mb-2">{product.description}</p>
 
@@ -324,6 +403,20 @@ const ProductDetailPage = () => {
             <p className="text-sm text-gray-600 mb-1">
               Metal: {product.metalType} | Purity: {product.purity}
             </p>
+
+            {/* 22K Gold Rate Display */}
+            {product.metalType?.toLowerCase() === "gold" && 
+             product.purity?.includes("22") && 
+             product.priceSource?.ratePerGram && (
+              <p className="text-sm text-gray-600 mb-1">
+                <strong>22K Gold Rate:</strong> ₹{formatINR(product.priceSource.ratePerGram)}/gram
+                {product.priceSource.effectiveDate && (
+                  <span className="text-xs text-gray-500 ml-2">
+                    (Effective: {new Date(product.priceSource.effectiveDate).toLocaleDateString('en-IN')})
+                  </span>
+                )}
+              </p>
+            )}
 
             <p className="text-sm text-gray-600 mb-1">
               Net Weight: {product.netWeight}g | Gross: {product.grossWeight}g
@@ -406,8 +499,57 @@ const ProductDetailPage = () => {
           </div>
         </div>
       </div>
-
+      <ProductBottom product={product} />
       <Footer />
+      <style>
+        {`
+        .action-bar {
+  gap: 12px;
+}
+
+.action-item {
+  cursor: pointer;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.action-item.text {
+  font-size: 14px;
+}
+
+.divider {
+  width: 1px;
+  height: 22px;
+  background-color: #e0e0e0;
+}
+
+.view-similar {
+  cursor: pointer;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 18px;
+
+  /* Normal (light yellow) */
+  border: 1px solid #facc15;       /* yellow-400 */
+  color: #a16207;                  /* dark text for contrast */
+  background-color: #fef9c3;       /* light yellow */
+
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+
+.view-similar:hover {
+  /* Hover (dark yellow) */
+  background-color: #facc15;       /* yellow-400 */
+  border-color: #eab308;           /* yellow-500 */
+  color: #78350f;                  /* darker text */
+}
+
+
+        `}
+      </style>
     </>
   );
 };

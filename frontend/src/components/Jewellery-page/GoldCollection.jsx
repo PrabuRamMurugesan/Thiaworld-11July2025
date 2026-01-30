@@ -2,10 +2,13 @@ import React, { useEffect, useMemo, useState, useContext } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { CartContext } from "../../context/CartContext";
+import { AuthContext } from "../../../context/AuthContext";
 import Header from "../Header";
 import Footer from "../Footer";
 import { IoHeart, IoStar } from "react-icons/io5";
 import { useWishlist } from "../../context/WishlistContext";
+import { IoMdHeart } from "react-icons/io";
+import { PiHeart } from "react-icons/pi";
 import {
   pickFirstImageSrc,
   normalizeImages,
@@ -14,6 +17,7 @@ import {
 import { IoEyeSharp } from "react-icons/io5";
 import Navbar from "../Navbar";
 import { motion } from "framer-motion";
+import LoginPopup from "../LoginPopup";
 // Same INR formatter style as ProductDetail page
 function formatINR(n) {
   return Number(n || 0).toLocaleString("en-IN", {
@@ -27,6 +31,7 @@ const GoldCollection = () => {
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
   const { isWished, toggle } = useWishlist();
 
   // filters
@@ -36,11 +41,47 @@ const GoldCollection = () => {
   const [sortOption, setSortOption] = useState(""); // "", "newest", "priceAsc", "priceDesc"
 
   const { addToCart } = useContext(CartContext);
+  const { user } = useContext(AuthContext);
+
+  // Check if user is logged in
+  const isLoggedIn = () => {
+    try {
+      const stored = localStorage.getItem("bbsUser");
+      return stored && JSON.parse(stored)?.token;
+    } catch {
+      return false;
+    }
+  };
+
+  // Handle add to cart with login check
+  const handleAddToCart = (product) => {
+    if (!isLoggedIn()) {
+      setShowLoginPopup(true);
+      return;
+    }
+    addToCart(product);
+  };
+
+  // Handle wishlist toggle with login check
+  const handleWishlistToggle = (productId, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isLoggedIn()) {
+      setShowLoginPopup(true);
+      return;
+    }
+    toggle(productId);
+  };
 
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 100;
-
+useEffect(() => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+}, [currentPage]);
   // fetch once
   useEffect(() => {
     (async () => {
@@ -238,11 +279,31 @@ const GoldCollection = () => {
         <section className="d-flex flex-row flex-wrap justify-start gap-4">
           {paginatedProducts.map((prod) => {
             const firstImg = pickFirstImageSrc(prod.images);
-            const payableBase = Number(prod.finalPrice || prod.price || 0);
-            // auto strike price: 20% higher than sale price
+            // Calculate price same way as ProductDetail page
+            let payableBase = 0;
+
             let strike = null;
-            if (payableBase && payableBase > 0) {
-              strike = Math.round(payableBase * 1.2);
+
+            if (prod.breakdown) {
+              // Use breakdown to calculate prices (same as ProductDetail)
+              const breakdown = prod.breakdown;
+              const actualPrice = breakdown.actualPrice || 
+                (breakdown.goldValue || 0) + 
+                (breakdown.makingValue || 0) + 
+                (breakdown.wastageValue || 0) + 
+                (breakdown.stoneValue || 0);
+              
+              const discountAmount = breakdown.discount || 0;
+              const priceAfterDiscount = actualPrice - discountAmount;
+              const gstPercent = Number(prod.gst || 0);
+              const gstOnAfterDiscount = Math.round((priceAfterDiscount * gstPercent) / 100);
+              payableBase = priceAfterDiscount + gstOnAfterDiscount;
+              
+              // Strike price = actualPrice (price before discount)
+              strike = actualPrice;
+            } else {
+              // Fallback to product price fields if no breakdown
+              payableBase = Number(prod.finalPrice || prod.totalPayable || prod.price || 0);
             }
             return (
               <motion.div
@@ -271,10 +332,7 @@ const GoldCollection = () => {
                     <IoStar style={{ color: "white", fontSize: 20 }} />
                     <button
                       aria-label="Toggle wishlist"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        toggle(prod._id);
-                      }}
+                      onClick={(e) => handleWishlistToggle(prod._id, e)}
                       style={{
                         background: "transparent",
                         border: "none",
@@ -287,13 +345,23 @@ const GoldCollection = () => {
                           : "Add to wishlist"
                       }
                     >
-                      <IoHeart
-                        style={{
-                          fontSize: 20,
-                          color: isWished(prod._id) ? "#e03131" : "white",
-                          transition: "color 120ms ease",
-                        }}
-                      />
+                {isWished(prod._id) ? (
+                  <IoMdHeart
+                    style={{
+                      fontSize: 25,
+                      color: "#e03131",
+                      transition: "color 120ms ease",
+                    }}
+                  />
+                ) : (
+                  <PiHeart
+                    style={{
+                      fontSize: 25,
+                      color: "gray",
+                      transition: "color 120ms ease",
+                    }}
+                  />
+                )}
                     </button>
                   </div>
 
@@ -301,31 +369,37 @@ const GoldCollection = () => {
                     <img
                       src={buildImgSrc(firstImg)}
                       alt={prod.name}
-                      style={{ width: 250, height: 250, objectFit: "cover" }}
+                      style={{ width: 250, height: 250, objectFit: "cover",
+                          maxWidth: "180px",
+                         whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                       }}
                     />
                   </Link>
-
-                  <div className="mt-2">
-                    <div className="flex gap-2 justify-between items-center">
-                      <div>
-                        <h3 className="text-gray-800 mt-2">{prod.name}</h3>
-                        <p className="text-xs text-gray-500 my-2">
-                          Net: {prod.netWeight}g | Gross: {prod.grossWeight}g
-                        </p>
-                      </div>
-
-                      <div>
+              <div className="d-flex justify-content-end align-items-center">
                         {" "}
                         <button
                           onClick={() =>
                             (window.location.href = "/virtual-jewelry-on")
                           }
-                          className="text-xs text-nowrap  flex flex-row gap-2 items-center  py-1 px-2 rounded"
+                          className="text-xs text-nowrap  flex flex-row gap-2 items-center py-1 px-2 rounded bg-yellow-100 hover:bg-yellow-200 transition"
                         >
                           <IoEyeSharp size={15} color="brown" /> Try This On
                         </button>
                       </div>
+                  <div className="mt-2">
+                    <div className="flex gap-2 justify-between items-center">
+                      <div>
+                        <h3 className="text-gray-800 mt-2 text-nowrap">{prod.name}</h3>
+                        <p className="text-xs text-gray-500 my-2">
+                          Net: {prod.netWeight}g | Gross: {prod.grossWeight}g
+                        </p>
+                      </div>
+
+             
                     </div>
+               
                     <div className="mt-1 text-yellow-700 fw-bold ">
                       ₹{formatINR(payableBase)}
                       {strike && (
@@ -347,7 +421,11 @@ const GoldCollection = () => {
                       View
                     </Link>
                     <button
-                      onClick={() => addToCart(prod)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleAddToCart(prod);
+                      }}
                       className="btn button-90 btn-sm fw-bold px-4 text-xs text-nowrap"
                     >
                       Add to Cart
@@ -358,6 +436,10 @@ const GoldCollection = () => {
             );
           })}
         </section>
+        <LoginPopup
+          show={showLoginPopup}
+          onClose={() => setShowLoginPopup(false)}
+        />
 
         {/* Pagination */}
         <div className="d-flex justify-content-center align-items-center my-4">
@@ -381,25 +463,29 @@ const GoldCollection = () => {
           <span className="mx-2 fw-bold">
             {currentPage} / {totalPages}
           </span>
+<button
+  onClick={() => {
+    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth", // smooth scroll
+    });
+  }}
+  disabled={currentPage === totalPages}
+  className="filter-btn"
+  style={{
+    background: currentPage === totalPages ? "#ddd" : "#ffb703",
+    color: "#333",
+    fontWeight: "bold",
+    padding: "10px 20px",
+    borderRadius: 30,
+    marginLeft: 10,
+    cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+  }}
+>
+  Next
+</button>
 
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-            }
-            disabled={currentPage === totalPages}
-            className="filter-btn"
-            style={{
-              background: currentPage === totalPages ? "#ddd" : "#ffb703",
-              color: "#333",
-              fontWeight: "bold",
-              padding: "10px 20px",
-              borderRadius: 30,
-              marginLeft: 10,
-              cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-            }}
-          >
-            Next
-          </button>
         </div>
       </div>
 
