@@ -378,7 +378,7 @@ exports.sendLoginOTP = async (req, res) => {
 
     // Send OTP via BSNL SMS
     try {
-      const smsResult = await sendOTPSMS(cleanPhone, otp, "login");
+      const smsResult = await sendOTPSMS(cleanPhone, otp);
       
       console.log(`📱 SMS Result:`, JSON.stringify(smsResult, null, 2));
       
