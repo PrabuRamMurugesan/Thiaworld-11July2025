@@ -13,13 +13,22 @@ const submitInterest = async (req, res) => {
       downPayment,
       tenureMonths,
       interestRate,
+      monthlyInstallment,
     } = req.body;
 
-    let monthlyInstallment = null;
+    // Validate required fields
+    if (!name || !mobile) {
+      return res.status(400).json({ error: "Name and mobile are required" });
+    }
+
+    let monthlyInstallment_val = null;
     let totalPayable = null;
     let totalInterest = null;
 
-    if (
+    // If EMI values provided, use them; otherwise calculate
+    if (monthlyInstallment) {
+      monthlyInstallment_val = monthlyInstallment;
+    } else if (
       totalPrice !== undefined && downPayment !== undefined && tenureMonths !== undefined && interestRate !== undefined &&
       totalPrice !== "" && downPayment !== "" && tenureMonths !== "" && interestRate !== ""
     ) {
@@ -28,32 +37,35 @@ const submitInterest = async (req, res) => {
       const N = Number(tenureMonths);
 
       const emi = (P * R * Math.pow(1 + R, N)) / (Math.pow(1 + R, N) - 1);
-      monthlyInstallment = emi.toFixed(2);
+      monthlyInstallment_val = emi.toFixed(2);
       totalPayable = (emi * N).toFixed(2);
       totalInterest = (emi * N - P).toFixed(2);
     }
 
     const newEntry = new SecurePlanInterest({
-      name,
-      mobile,
-      email,
-      preferredPlan,
-      message,
-      totalPrice,
-      downPayment,
-      tenureMonths,
-      interestRate,
-      monthlyInstallment,
-      totalPayable,
-      totalInterest,
+      name: name.trim(),
+      mobile: mobile.trim(),
+      email: email ? email.trim() : "",
+      preferredPlan: preferredPlan || "",
+      message: message || "",
+      totalPrice: totalPrice ? Number(totalPrice) : null,
+      downPayment: downPayment ? Number(downPayment) : null,
+      tenureMonths: tenureMonths ? Number(tenureMonths) : null,
+      interestRate: interestRate ? Number(interestRate) : null,
+      monthlyInstallment: monthlyInstallment_val ? Number(monthlyInstallment_val) : null,
+      totalPayable: totalPayable ? Number(totalPayable) : null,
+      totalInterest: totalInterest ? Number(totalInterest) : null,
     });
 
+    console.log("[SecurePlan] Saving entry:", newEntry);
     await newEntry.save();
-    res.status(201).json({ message: "Interest submitted successfully!" });
+    console.log("[SecurePlan] Entry saved successfully with ID:", newEntry._id);
+    
+    res.status(201).json({ message: "Interest submitted successfully!", id: newEntry._id });
 
   } catch (err) {
-    console.error("Error submitting interest:", err);
-    res.status(500).json({ error: "Server Error. Please try again later." });
+    console.error("[SecurePlan] Error submitting interest:", err);
+    res.status(500).json({ error: err.message || "Server Error. Please try again later." });
   }
 };
 

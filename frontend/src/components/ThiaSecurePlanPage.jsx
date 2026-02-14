@@ -36,7 +36,7 @@ const ThiaSecurePlanPage = () => {
         monthlyInstallment: monthlyEMI,
       });
 
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         alert("✅ Your interest has been recorded successfully.");
         setFormData({
           name: "",
@@ -52,12 +52,11 @@ const ThiaSecurePlanPage = () => {
         setMonthlyEMI(null);
         setTotalPayable(null);
         setTotalInterest(null);
-      } else {
-        alert("❌ Something went wrong: " + response.data.error);
       }
     } catch (err) {
       console.error("Submission Error:", err);
-      alert("❌ Server error. Please try again later.");
+      const errorMsg = err.response?.data?.error || err.message || "Server error";
+      alert("❌ Something went wrong: " + errorMsg);
     }
   };
 

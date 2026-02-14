@@ -6,6 +6,8 @@ import { TiFilter } from "react-icons/ti";
 import { CartContext } from "../../context/CartContext";
 import { IoHeart, IoStar } from "react-icons/io5";
 import { Link, useLocation } from "react-router-dom";
+import { useWishlist } from "../../context/WishlistContext";
+import { normalizeImages, buildImgSrc } from "../../utils/imageTools";
 
 const AllJewellery = () => {
   const [products, setProducts] = useState([]);
@@ -21,9 +23,7 @@ const AllJewellery = () => {
   const [sortOption, setSortOption] = useState("");
   const [loading, setLoading] = useState(true);
   const { addToCart } = useContext(CartContext);
-  const [liked, setLiked] = useState(false);
-
-  const toggleLike = () => setLiked(!liked);
+  const { isWished, toggle } = useWishlist();
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
@@ -126,15 +126,9 @@ const AllJewellery = () => {
   // ========= IMAGE RESOLVER ==========
   const resolveImage = (prod) => {
     try {
-      if (!prod.images || !prod.images.length) return "/default-product.jpg";
-
-      const raw = prod.images[0]; // string with pipes
-      if (typeof raw !== "string") return "/default-product.jpg";
-
-      const parts = raw.split("|");
-      if (!parts.length) return "/default-product.jpg";
-
-      return `${import.meta.env.VITE_API_URI}/uploads/${parts[0]}`;
+      const arr = normalizeImages(prod.images || []);
+      if (arr.length === 0) return "/default-product.jpg";
+      return buildImgSrc(arr[0]) || "/default-product.jpg";
     } catch (e) {
       return "/default-product.jpg";
     }
@@ -158,6 +152,14 @@ const AllJewellery = () => {
       >
         <h1>
           All Jewellery
+          {occasionFilter.length > 0 && (
+            <span className="ml-2 text-lg text-gray-700">
+              - {occasionFilter.join(", ")} jewellery
+            </span>
+          )}
+          {search && !occasionFilter.length && (
+            <span className="ml-2 text-lg text-gray-700">- "{search}"</span>
+          )}
           <span style={{ color: "black", fontSize: "18px", padding: "0 20px" }}>
             ({products.length} results)
           </span>
@@ -241,17 +243,22 @@ const AllJewellery = () => {
             const img = resolveImage(prod);
 
             return (
-              <div key={prod._id} className="necklace-products-box">
+              <Link
+                to={`/product/${prod._id}`}
+                key={prod._id}
+                className="necklace-products-box"
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
                 <div className="d-flex justify-content-between position-absolute top-0 start-0 end-0 px-4 mt-4">
                   <IoStar
                     className="sicon"
-                    style={{ color: liked ? "#ffb703" : "gray" }}
+                    style={{ color: "#ffb703" }}
                   />
 
                   <IoHeart
-                    onClick={toggleLike}
+                    onClick={(e) => { e.preventDefault(); toggle(prod._id); }}
                     className="sicon"
-                    style={{ color: liked ? "#ffb703" : "gray" }}
+                    style={{ color: isWished(prod._id) ? "#e03131" : "gray", cursor: "pointer" }}
                   />
                 </div>
 
@@ -271,7 +278,7 @@ const AllJewellery = () => {
                 <p>₹ {Number(prod.price).toLocaleString("en-IN")}</p>
 
                 <button
-                  onClick={() => addToCart?.(prod)}
+                  onClick={(e) => { e.preventDefault(); addToCart?.(prod); }}
                   style={{
                     marginTop: "10px",
                     padding: "5px 15px",
@@ -283,7 +290,7 @@ const AllJewellery = () => {
                 >
                   🛒 Add to Cart
                 </button>
-              </div>
+              </Link>
             );
           })
      
