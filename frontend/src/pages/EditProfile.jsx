@@ -7,10 +7,15 @@ const EditProfile = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // image upload states
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+
   const [form, setForm] = useState({
     name: "",
     email: "",
     phone: "",
+    profileImage: "", // url stored in database
   });
 
   useEffect(() => {
@@ -34,7 +39,9 @@ const EditProfile = () => {
           name: data.name || "",
           email: data.email || "",
           phone: data.phone || "",
+          profileImage: data.profileImage || "",
         });
+        setPreviewUrl(data.profileImage || "");
 
         stored.user = data;
         localStorage.setItem("bbsUser", JSON.stringify(stored));
@@ -49,6 +56,16 @@ const EditProfile = () => {
     fetchProfile();
   }, [navigate]);
 
+  // clean up object URL when component unloads or file changes
+  useEffect(() => {
+    return () => {
+      if (previewUrl && previewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+
   const handleSave = async () => {
     setSaving(true);
 
@@ -59,9 +76,33 @@ const EditProfile = () => {
         return;
       }
 
+      let profileUrl = form.profileImage;
+
+      // if user selected a new file, upload it first
+      if (selectedFile) {
+        const fd = new FormData();
+        fd.append("files", selectedFile);
+
+        const uploadRes = await axios.post(
+          `${import.meta.env.VITE_API_URI}/media/upload`,
+          fd,
+          {
+            headers: {
+              Authorization: `Bearer ${stored.token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        // response structure: { ok: true, items: [{ url: ... }, ...] }
+        if (uploadRes.data && uploadRes.data.items && uploadRes.data.items[0]) {
+          profileUrl = uploadRes.data.items[0].url;
+        }
+      }
+
       const res = await axios.put(
         `${import.meta.env.VITE_API_URI}/auth/me`,
-        form,
+        { ...form, profileImage: profileUrl },
         {
           headers: {
             Authorization: `Bearer ${stored.token}`,
@@ -97,6 +138,32 @@ const EditProfile = () => {
       <h2 className="text-2xl font-semibold mb-5">Edit Profile</h2>
 
       <div className="bg-white p-5 rounded shadow space-y-4">
+        {/* profile image preview / upload */}
+        <div className="flex items-center space-x-4">
+          {previewUrl ? (
+            <img
+              src={previewUrl}
+              alt="avatar preview"
+              className="w-20 h-20 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold">
+              {form.name.charAt(0) || "U"}
+            </div>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files && e.target.files[0];
+              if (file) {
+                setSelectedFile(file);
+                setPreviewUrl(URL.createObjectURL(file));
+              }
+            }}
+          />
+        </div>
+
         <input
           type="text"
           className="w-full p-3 border rounded"
@@ -130,7 +197,7 @@ const EditProfile = () => {
         </button>
 
         <button
-          onClick={() => navigate("/user-setting")}
+          onClick={() => navigate("/user-settings")}
           className="w-full py-3 bg-gray-300 text-black rounded mt-2"
         >
           Cancel

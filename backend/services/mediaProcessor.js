@@ -14,8 +14,18 @@ const QUALITY = parseInt(process.env.IMAGE_QUALITY || "82", 10); // WebP quality
 const WEBM_VP9_CRF = parseInt(process.env.WEBM_VP9_CRF || "32", 10);
 
 function ensureDirSync(dir) {
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  try {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+      console.log("📁 Directory created:", dir);
+    }
+  } catch (err) {
+    console.error("❌ Failed creating directory:", dir);
+    console.error(err);
+    throw err;
+  }
 }
+
 
 function publicUrl(base, rel) {
   return `${base}/uploads/${rel.replace(/\\/g, "/")}`;

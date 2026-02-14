@@ -41,32 +41,32 @@ const options = [
       </div>
     ),
   },
-  {
-    value: "UAE",
-    label: (
-      <div className="flex items-center gap-2">
-        <img
-          src="https://flagcdn.com/w40/ae.png"
-          alt="UAE"
-          style={{ width: "24px", height: "24px", borderRadius: "50%" }}
-        />
-        <span>UAE</span>
-      </div>
-    ),
-  },
-  {
-    value: "US",
-    label: (
-      <div className="flex items-center gap-2">
-        <img
-          src="https://flagcdn.com/w40/us.png"
-          alt="US"
-          style={{ width: "24px", height: "24px", borderRadius: "50%" }}
-        />
-        <span>USA</span>
-      </div>
-    ),
-  },
+  // {
+  //   value: "UAE",
+  //   label: (
+  //     <div className="flex items-center gap-2">
+  //       <img
+  //         src="https://flagcdn.com/w40/ae.png"
+  //         alt="UAE"
+  //         style={{ width: "24px", height: "24px", borderRadius: "50%" }}
+  //       />
+  //       <span>UAE</span>
+  //     </div>
+  //   ),
+  // },
+  // {
+  //   value: "US",
+  //   label: (
+  //     <div className="flex items-center gap-2">
+  //       <img
+  //         src="https://flagcdn.com/w40/us.png"
+  //         alt="US"
+  //         style={{ width: "24px", height: "24px", borderRadius: "50%" }}
+  //       />
+  //       <span>USA</span>
+  //     </div>
+  //   ),
+  // },
 ];
 
 const Header = () => {
@@ -148,6 +148,12 @@ const Header = () => {
     clearTimeout(timerRef.current);
     setOpen(true);
   };
+const handleSearch = () => {
+  if (!searchTerm.trim()) return;
+
+  navigate(`/all-jewellery?search=${searchTerm.trim()}`);
+  window.location.reload();
+};
 
   const handleLeave = () => {
     // Close after 500 ms
@@ -227,7 +233,10 @@ const Header = () => {
 
             {/* Search */}
             <div className="relative w-[320px] h-8">
-              <FaSearch className="absolute right-3 top-2.5 text-gray-400 text-sm" />
+<FaSearch
+  onClick={handleSearch}
+  className="absolute right-3 top-2.5 text-gray-400 text-sm cursor-pointer"
+/>
               <input
                 type="text"
                 placeholder="Search jewelry..."
@@ -371,6 +380,14 @@ const Header = () => {
                 onMouseEnter={() => setOpen(true)}
                 onMouseLeave={() => setOpen(false)}
               >
+                {/* optional avatar */}
+                {user.profileImage ? (
+                  <img
+                    src={user.profileImage}
+                    alt="avatar"
+                    className="w-8 h-8 rounded-full object-cover mr-2"
+                  />
+                ) : null}
                 {/* Welcome Text */}
                 <div className="flex flex-col  items-start justify-start whitespace-nowrap text-decoration-none cursor-pointer">
                   <span className="hidden sm:inline text-black">Welcome</span>
@@ -453,13 +470,13 @@ const Header = () => {
                 <IoIosHeart size={19} className="text-black" />
               </span>
             </Link>
-            <Link
+            {/* <Link
               to="/user-settings"
               className="relative flex items-center gap-2 hover:text-yellow-300"
             >
               <RiUserSettingsFill size={18} className=" text-xl text-black" />
               <span className="hidden sm:inline text-black">User</span>
-            </Link>
+            </Link> */}
           </div>
         </div>
 

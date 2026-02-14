@@ -16,6 +16,17 @@ const {
 const UPLOAD_ROOT =
   process.env.UPLOAD_ROOT || path.join(__dirname, "..", "uploads");
 
+// make sure root directory exists at startup (helps when process.cwd() is weird)
+(function ensureRoot() {
+  try {
+    if (!fs.existsSync(UPLOAD_ROOT)) {
+      fs.mkdirSync(UPLOAD_ROOT, { recursive: true });
+    }
+  } catch (e) {
+    console.warn("⚠️ could not create upload root:", UPLOAD_ROOT, e.message);
+  }
+})();
+
 // Single source of truth for public URLs (prod overrides in .env)
 const BASE_ASSETS_URL =
   process.env.BASE_ASSETS_URL ||
@@ -30,8 +41,8 @@ const BASE_ASSETS_URL_FALLBACK =
   process.env.VITE_API_URI ||
   "http://localhost:5001";
 
-const UPLOAD_ROOT_FALLBACK =
-  process.env.UPLOAD_ROOT || path.join(process.cwd(), "uploads");
+// fallback not really needed but keep for older loops
+const UPLOAD_ROOT_FALLBACK = UPLOAD_ROOT;
 
 /* ==========================================
    HELPERS (kept + added flattening utilities)
@@ -57,7 +68,9 @@ function todayRelFolderOriginal() {
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const relFolder = todayRelFolderOriginal();
-    const absFolder = path.join(UPLOAD_ROOT_FALLBACK, relFolder);
+    // always put new uploads under the canonical UPLOAD_ROOT (not cwd-based fallback)
+    const absFolder = path.join(UPLOAD_ROOT, relFolder);
+    // console.log("[media] creating upload folder", absFolder);
     ensureDirSync(absFolder);
     cb(null, absFolder);
   },
@@ -249,7 +262,7 @@ exports.uploadMedia = (req, res) => {
 
       for (const f of req.files || []) {
         const relFolder = path.relative(
-          UPLOAD_ROOT_FALLBACK,
+          UPLOAD_ROOT,
           path.dirname(f.path)
         );
         const baseNameNoExt = path.parse(f.filename).name;
@@ -260,7 +273,7 @@ exports.uploadMedia = (req, res) => {
           const originalExt = path.extname(f.originalname);
           const safeName = originalName.replace(/\s+/g, "_"); // replace spaces
           const destPath = path.join(
-            UPLOAD_ROOT_FALLBACK,
+            UPLOAD_ROOT,
             safeName + originalExt
           );
 
@@ -284,8 +297,8 @@ exports.uploadMedia = (req, res) => {
             srcAbsPath: f.path,
             relFolder,
             baseNameNoExt,
-            uploadsRootAbs: UPLOAD_ROOT_FALLBACK,
-            baseUrl: BASE_ASSETS_URL_FALLBACK,
+            uploadsRootAbs: UPLOAD_ROOT,
+            baseUrl: BASE_ASSETS_URL,
           });
         } else {
           const moved = moveToRootIfNeeded(path.resolve(f.path));
@@ -356,7 +369,7 @@ exports.replaceMedia = async (req, res) => {
       if (!doc) return res.status(404).json({ ok: false, error: "Not found" });
 
       const relFolder = path.relative(
-        UPLOAD_ROOT_FALLBACK,
+        UPLOAD_ROOT,
         path.dirname(req.file.path)
       );
       const baseNameNoExt = path.parse(req.file.filename).name;
@@ -367,16 +380,16 @@ exports.replaceMedia = async (req, res) => {
           srcAbsPath: req.file.path,
           relFolder,
           baseNameNoExt,
-          uploadsRootAbs: UPLOAD_ROOT_FALLBACK,
-          baseUrl: BASE_ASSETS_URL_FALLBACK,
+          uploadsRootAbs: UPLOAD_ROOT,
+          baseUrl: BASE_ASSETS_URL,
         });
       } else if (isVideo(req.file.mimetype)) {
         processed = await processVideo({
           srcAbsPath: req.file.path,
           relFolder,
           baseNameNoExt,
-          uploadsRootAbs: UPLOAD_ROOT_FALLBACK,
-          baseUrl: BASE_ASSETS_URL_FALLBACK,
+          uploadsRootAbs: UPLOAD_ROOT,
+          baseUrl: BASE_ASSETS_URL,
         });
       } else {
         const moved = moveToRootIfNeeded(path.resolve(req.file.path));

@@ -13,6 +13,7 @@ const UserSetting = () => {
     tier: "",
     addresses: [],
     paymentMethods: [],
+    profileImage: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -35,6 +36,7 @@ const UserSetting = () => {
         tier: parsed?.user?.tier || "Gold Tier",
         addresses: parsed?.user?.addresses || [],
         paymentMethods: parsed?.user?.paymentMethods || [],
+        profileImage: parsed?.user?.profileImage || "",
       });
 
       setLoading(false);
@@ -59,9 +61,11 @@ const UserSetting = () => {
           name: data.name,
           email: data.email,
           phone: data.phone,
-          tier: data.tier || "Gold Tier",
+            tier: data.tier || "Gold Tier",
           addresses: data.addresses || user.addresses,
           paymentMethods: data.paymentMethods || user.paymentMethods,
+          profileImage: data.profileImage || user.profileImage,
+          profileImage: data.profileImage || user.profileImage,
         };
 
         setUser(updatedUser);
@@ -123,9 +127,17 @@ const handleDeleteAccount = async () => {
       <div className="w-full min-h-screen bg-[#f6f6f6]">
         {/* PROFILE HEADER */}
         <div className="w-full  p-2 flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-[#f4c542] flex items-center justify-center text-gray-500 font-bold">
-            {user.name.charAt(0)}
-          </div>
+          {user.profileImage ? (
+            <img
+              src={user.profileImage}
+              alt="avatar"
+              className="w-16 h-16 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-[#f4c542] flex items-center justify-center text-gray-500 font-bold">
+              {user.name.charAt(0)}
+            </div>
+          )}
 
           <div>
             <h2 className="text-xl font-semibold">{user.name}</h2>
@@ -143,7 +155,7 @@ const handleDeleteAccount = async () => {
         <div className="p-5 space-y-5">
           {/* QUICK CARDS */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div
+            {/* <div
               className="bg-white p-4 rounded shadow text-center cursor-pointer"
               onClick={() => navigate("/orders")}
             >
@@ -155,9 +167,9 @@ const handleDeleteAccount = async () => {
               onClick={() => navigate("/wishlist")}
             >
               Wishlist
-            </div>
+            </div> */}
 
-            <div
+            {/* <div
               className="bg-white p-4 rounded shadow text-center cursor-pointer"
               onClick={() => navigate("/rewards")}
             >
@@ -169,7 +181,7 @@ const handleDeleteAccount = async () => {
               onClick={() => navigate("/subscriptions")}
             >
               Subscriptions
-            </div>
+            </div> */}
           </div>
 
           {/* ACCOUNT */}
@@ -285,16 +297,16 @@ const handleDeleteAccount = async () => {
             <h3 className="text-lg font-semibold">Support</h3>
 
             <div className="mt-3 space-y-2">
-              <button className="block text-blue-600">Help & FAQ</button>
+              {/* <button className="block text-blue-600">Help & FAQ</button> */}
               <button
                 className="block text-blue-600"
                 onClick={() => navigate("/contact-page")}
               >
                 Contact Support
               </button>
-              <button className="block text-blue-600">
+              {/* <button className="block text-blue-600">
                 Feedback / Rate App
-              </button>
+              </button> */}
             </div>
           </div>
 

@@ -4,8 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 // ✅ Public Site Imports
 import ThiaHomePage from "./pages/ThiaHomePage";
 import VirtualJewelryOn from "./components/VirtualJewelryOn";
-import ProductCard from "./components/ProductCard";
-import { sampleProducts } from "./data/products";
+import ProductCard from "./components/ProductCard"; // sample card component
 import BookAnAppointment from "./components/BookAnAppointment";
 import CheckoutPage from "./components/CheckoutPage";
 import ContactPage from "./components/ContactPage";
@@ -103,16 +102,6 @@ export default function App() {
       <Route path="/virtual-jewelry-on" element={<VirtualJewelryOn />} />
       <Route path="/user-settings" element={<UserSettings />} />
       <Route path="/edit-profile" element={<EditProfile />} />
-      <Route
-        path="/product-card"
-        element={
-          <ProductCard
-            product={sampleProducts[0]}
-            isWishlisted={false}
-            toggleWishlist={() => {}}
-          />
-        }
-      />
       <Route
         path="/thia-world-exclusive-storefront"
         element={<THIAWorldExclusiveStorefrontPage />}
@@ -223,3 +212,5 @@ export default function App() {
     </Routes>
   );
 }
+
+
