@@ -88,6 +88,10 @@ const UserSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    profileImage: {
+      type: String,
+      default: null, // store a URL to the uploaded avatar
+    },
     status: { type: String, default: "active" },
   },
   { timestamps: true }

@@ -61,6 +61,11 @@ useEffect(() => {
     }
   };
 
+  // Generate unique ID for each cart item
+  const generateCartItemId = () => {
+    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  };
+
   // ------------------------------
   // ADD TO CART
   // ------------------------------
@@ -74,20 +79,26 @@ useEffect(() => {
     const raw = product.category || product.metalType || "";
     const cat = raw.toLowerCase();
 
+    // Add unique cartItemId to each product
+    const itemWithId = {
+      ...product,
+      cartItemId: generateCartItemId()
+    };
+
     if (cat === "gold") {
-      const updated = [...goldCart, product];
+      const updated = [...goldCart, itemWithId];
       setGoldCart(updated);
       localStorage.setItem("goldCart", JSON.stringify(updated));
     } else if (cat === "silver") {
-      const updated = [...silverCart, product];
+      const updated = [...silverCart, itemWithId];
       setSilverCart(updated);
       localStorage.setItem("silverCart", JSON.stringify(updated));
     } else if (cat === "diamond") {
-      const updated = [...diamondCart, product];
+      const updated = [...diamondCart, itemWithId];
       setDiamondCart(updated);
       localStorage.setItem("diamondCart", JSON.stringify(updated));
     } else if (cat === "platinum") {
-      const updated = [...platinumCart, product];
+      const updated = [...platinumCart, itemWithId];
       setPlatinumCart(updated);
       localStorage.setItem("platinumCart", JSON.stringify(updated));
     } else {
@@ -97,25 +108,25 @@ useEffect(() => {
   };
 
   // ------------------------------
-  // REMOVE ITEM
+  // REMOVE ITEM (by unique cartItemId, not product _id)
   // ------------------------------
-  const removeFromCart = (id, category) => {
+  const removeFromCart = (cartItemId, category) => {
     const cat = category.toLowerCase();
 
     if (cat === "gold") {
-      const updated = goldCart.filter((i) => i._id !== id);
+      const updated = goldCart.filter((i) => i.cartItemId !== cartItemId);
       setGoldCart(updated);
       localStorage.setItem("goldCart", JSON.stringify(updated));
     } else if (cat === "silver") {
-      const updated = silverCart.filter((i) => i._id !== id);
+      const updated = silverCart.filter((i) => i.cartItemId !== cartItemId);
       setSilverCart(updated);
       localStorage.setItem("silverCart", JSON.stringify(updated));
     } else if (cat === "diamond") {
-      const updated = diamondCart.filter((i) => i._id !== id);
+      const updated = diamondCart.filter((i) => i.cartItemId !== cartItemId);
       setDiamondCart(updated);
       localStorage.setItem("diamondCart", JSON.stringify(updated));
     } else if (cat === "platinum") {
-      const updated = platinumCart.filter((i) => i._id !== id);
+      const updated = platinumCart.filter((i) => i.cartItemId !== cartItemId);
       setPlatinumCart(updated);
       localStorage.setItem("platinumCart", JSON.stringify(updated));
     }

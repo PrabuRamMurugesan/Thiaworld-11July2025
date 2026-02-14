@@ -98,7 +98,7 @@ const LoginForm = () => {
         // Show OTP in a user-friendly way in console
         console.log(`\n${"=".repeat(60)}`);
         console.log(`⚠️ SMS FAILED - OTP FOR TESTING:`);
-        console.log(`   Phone: ${phone}`);
+        console.log(`   Phone: ${form.phone}`);
         console.log(`   OTP: ${err.response.data.debugOTP}`);
         console.log(`   You can use this OTP to test login manually`);
         console.log(`${"=".repeat(60)}\n`);

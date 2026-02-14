@@ -41,10 +41,12 @@ exports.register = async (req, res) => {
       message: "User created",
       token,
       user: {
+        _id: newUser._id,
         name: newUser.name,
         email: newUser.email,
         roleTags: newUser.roleTags,
         createdFrom: newUser.createdFrom,
+        profileImage: newUser.profileImage || null,
       },
     });
   } catch (err) {
@@ -90,6 +92,7 @@ exports.login = async (req, res) => {
         email: user.email,
         roleTags: user.roleTags,
         createdFrom: user.createdFrom,
+        profileImage: user.profileImage || null,
       },
     });
   } catch (err) {
@@ -112,11 +115,18 @@ exports.getMyProfile = async (req, res) => {
 };
 exports.updateMyProfile = async (req, res) => {
   try {
-    const { name, email, phone } = req.body;
+    const { name, email, phone, profileImage } = req.body;
+
+    // build the update object only with fields that were provided
+    const updateObj = {};
+    if (name !== undefined) updateObj.name = name;
+    if (email !== undefined) updateObj.email = email;
+    if (phone !== undefined) updateObj.phone = phone;
+    if (profileImage !== undefined) updateObj.profileImage = profileImage;
 
     const updated = await User.findByIdAndUpdate(
       req.user.userId,
-      { name, email, phone },
+      updateObj,
       { new: true }
     ).select("-password");
 

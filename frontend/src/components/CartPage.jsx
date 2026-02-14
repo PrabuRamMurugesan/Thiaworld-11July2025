@@ -59,7 +59,7 @@ const CartPage = () => {
 
     return (
       <div
-        key={item._id}
+        key={item.cartItemId || item._id}
         className="bg-white rounded-lg shadow-md p-4 mb-4 hover:shadow-lg transition-shadow duration-200"
       >
         <div className="flex flex-col sm:flex-row gap-4">
@@ -104,7 +104,7 @@ const CartPage = () => {
                 </p>
               </div>
               <button
-                onClick={() => removeFromCart(item._id, category)}
+                onClick={() => removeFromCart(item.cartItemId || item._id, category)}
                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
               >
                 Remove

@@ -159,7 +159,7 @@ const Footer = () => {
 
             <p className="text-sm mt-2">📧 support@thiaworld.com</p>
             <p className="text-sm">
-              📍 Floor 1, 5, 2nd Cross, Bharathy Street, Puducherry – 605005
+              📍No.7, II Floor, Bharathy Street, Ist Cross, Anna Nagar Extension, Puducherry – 605005.
             </p>
           </div>
         </div>

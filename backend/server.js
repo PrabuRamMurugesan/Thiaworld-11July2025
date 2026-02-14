@@ -26,6 +26,7 @@ const goldrateRoutes = require("./routes/goldrate");
 const adminAuthRoutes = require("./routes/adminAuthRoutes");
 const aiRoutes = require("./routes/aiRoutes.js");
 const leadRoutes = require("./routes/leadRoutes.js");
+const securePlanRoutes = require("./routes/securePlanRoutes");
 
 
 
@@ -42,15 +43,18 @@ app.use(express.urlencoded({ extended: true }));
 // ---- CORS (single block, credentials enabled) ----
 const allowedOrigins = [
   process.env.CLIENT_URL_DEV || "http://localhost:5173",
+  process.env.CLIENT_URL || process.env.CLIENT_URL_PROD,
   "https://thiaworld.bbscart.com",
   "https://bbscart.com",
   "https://www.bbscart.com",
-];
+].filter(Boolean);
 
 app.use(
   cors({
     origin(origin, cb) {
-      if (!origin) return cb(null, true); // tools/curl with no Origin
+      if (!origin) return cb(null, true); // tools/curl or same-origin requests with no Origin
+      // Allow all origins in non-production to ease local development
+      if (process.env.NODE_ENV !== "production") return cb(null, true);
       if (allowedOrigins.includes(origin)) return cb(null, true);
       return cb(new Error("Not allowed by CORS"));
     },
@@ -96,6 +100,10 @@ app.use("/api/goldrate", goldrateRoutes);
 app.use("/api/admin", adminAuthRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/leads", leadRoutes);
+app.use("/api/secureplan", securePlanRoutes);
+
+// maintenance guide API (cards shown on product page and standalone guide)
+app.use("/api/maintenance", require("./routes/maintenanceRoutes"));
 
 app.get("/api/health", (_req, res) => res.status(200).send("OK"));
 

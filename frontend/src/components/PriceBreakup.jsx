@@ -451,13 +451,24 @@ function PriceBreakup({ product }) {
                         {product?.purity || "91.6"} Gold
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        {product?.priceSource?.ratePerGram ? `₹${formatINR(product.priceSource.ratePerGram)}` : "₹6,120"}
+                        {(() => {
+                          // choose rate from priceSource or compute from breakdown if available
+                          const rateFromSource = product?.priceSource?.ratePerGram;
+                          if (rateFromSource) return `₹${formatINR(rateFromSource)}`;
+                          const goldVal = product?.breakdown?.goldValue;
+                          const weight = product?.netWeight;
+                          if (goldVal && weight) {
+                            const computed = goldVal / weight;
+                            return `₹${formatINR(computed)}`;
+                          }
+                          return "—";
+                        })()}
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        {product?.netWeight ? `${product.netWeight}g` : "₹48,960"}
+                        {product?.netWeight ? `${product.netWeight}g` : "-"}
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
-                        {product?.breakdown?.goldValue ? `₹${formatINR(product.breakdown.goldValue)}` : "₹61,200"}
+                        {product?.breakdown?.goldValue ? `₹${formatINR(product.breakdown.goldValue)}` : "-"}
                       </td>
                       <td style={{ textAlign: "center", color: "#5c4b00" }}>
                         {product?.breakdown?.discount ? `₹${formatINR(product.breakdown.discount)}` : "₹0"}

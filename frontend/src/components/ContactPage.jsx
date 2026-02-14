@@ -193,7 +193,7 @@ const ContactPage = () => {
               </a>
             </div>
 
-            <div className="mt-6 space-y-2">
+            {/* <div className="mt-6 space-y-2">
               <a href="/faqs" className="text-yellow-600 underline text-sm">
                 Go to FAQs
               </a>
@@ -203,7 +203,7 @@ const ContactPage = () => {
               >
                 Book an Appointment
               </a>
-            </div>
+            </div> */}
 
             <div className="mt-6 text-xs text-gray-500 space-y-2">
               <div className="flex items-center gap-2">

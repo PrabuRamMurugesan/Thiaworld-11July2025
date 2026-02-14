@@ -18,6 +18,7 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 import { CartContext } from "../context/CartContext";
+import { useWishlist } from "../context/WishlistContext";
 import { normalizeImages } from "../utils/imageTools";
 import ProductBottom from "./ProductBottom";
 import { FiStar } from "react-icons/fi";
@@ -49,11 +50,13 @@ const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useContext(CartContext);
+  const { isWished, toggle: toggleWishlist } = useWishlist();
   const [active, setActive] = useState(false);
   const [product, setProduct] = useState(null);
   const [galleryList, setGalleryList] = useState([]);
   const [selectedImage, setSelectedImage] = useState("/default-product.jpg");
-  const [liked, setLiked] = useState(false);
+  const [showDeliveryInfo, setShowDeliveryInfo] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
 
   const [usePartial, setUsePartial] = useState(false);
   const [advancePct, setAdvancePct] = useState(40);
@@ -160,6 +163,28 @@ const ProductDetailPage = () => {
     () => (usePartial ? Math.max(0, payableBase - advanceAmount) : payableBase),
     [usePartial, payableBase, advanceAmount]
   );
+
+  // Share Handler
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/product/${id}`;
+    const shareText = `Check out this beautiful jewellery: ${product?.name}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: product?.name,
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (err) {
+        console.log("Share cancelled");
+      }
+    } else {
+      navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    }
+  };
 
   // Cart
   const handleAddToCart = (directBuy = false) => {
@@ -291,45 +316,66 @@ const ProductDetailPage = () => {
 
           {/* Info */}
           <div>
-            <div className="d-flex align-center justify-between my-3 action-bar">
+            <div
+              className="my-3"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                flexWrap: "wrap",
+                width: "100%",
+              }}
+            >
               {/* Bestseller */}
               <span
                 onClick={() => setActive(!active)}
-                title="BestSeller"
+                title={active ? "Remove from Favorites" : "Add to Favorites"}
                 className="action-item"
+                style={{ cursor: "pointer" }}
               >
-                {active ? <GoStarFill color="red" /> : <FiStar />}
+                {active ? <GoStarFill color="#ffb703" size={24} /> : <FiStar size={24} />}
               </span>
 
               <span className="divider" />
 
               {/* Delivery */}
-              <span title="Fast Delivery" className="action-item">
-                <TbTruckDelivery />
+              <span
+                title="Fast Delivery"
+                className="action-item"
+                onClick={() => setShowDeliveryInfo(!showDeliveryInfo)}
+                style={{ cursor: "pointer" }}
+              >
+                <TbTruckDelivery size={24} />
               </span>
 
               <span className="divider" />
 
               {/* Share */}
-              <span title="Share" className="action-item text">
+              <span
+                title="Share this product"
+                className="action-item text"
+                onClick={handleShare}
+                style={{ cursor: "pointer" }}
+              >
                 <IoIosShareAlt size={20} />
-                <span>Share</span>
+                <span>{shareCopied ? "Copied!" : "Share"}</span>
               </span>
 
               <span className="divider" />
 
               {/* Wishlist */}
               <span
-                title="Wishlist"
-                onClick={() => setLiked(!liked)}
+                title={isWished(id) ? "Remove from Wishlist" : "Add to Wishlist"}
+                onClick={() => toggleWishlist(id)}
                 className="action-item text"
+                style={{ cursor: "pointer" }}
               >
-                {liked ? (
-                  <AiFillHeart color="red" size={20} />
+                {isWished(id) ? (
+                  <AiFillHeart color="#e03131" size={20} />
                 ) : (
                   <AiOutlineHeart size={20} />
                 )}
-                <span>Wishlist</span>
+                <span>{isWished(id) ? "Wishlisted" : "Wishlist"}</span>
               </span>
 
               <span className="divider" />
@@ -337,6 +383,26 @@ const ProductDetailPage = () => {
               {/* View Similar */}
               <span className="view-similar">View Similar</span>
             </div>
+            
+            {/* Delivery Info Popup */}
+            {showDeliveryInfo && (
+              <div
+                style={{
+                  marginTop: "12px",
+                  padding: "12px 16px",
+                  backgroundColor: "#f0f9ff",
+                  border: "1px solid #0ea5e9",
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                  color: "#0369a1",
+                }}
+              >
+                <strong>🚚 Fast & Secure Delivery</strong>
+                <p style={{ marginTop: "8px", marginBottom: "0" }}>
+                  FREE insured shipping to your doorstep. Track your order in real-time. Typically arrives in 2-3 business days.
+                </p>
+              </div>
+            )}
 
             <h1 className="text-2xl font-bold mb-2">{product.name}</h1>
             <p className="text-sm text-gray-500 mb-2">{product.description}</p>
@@ -405,12 +471,23 @@ const ProductDetailPage = () => {
             </p>
 
             {/* 22K Gold Rate Display */}
-            {product.metalType?.toLowerCase() === "gold" && 
-             product.purity?.includes("22") && 
-             product.priceSource?.ratePerGram && (
+            {product.metalType?.toLowerCase() === "gold" &&
+             product.purity?.includes("22") &&
+             (product.priceSource?.ratePerGram || (product.breakdown?.goldValue && product.netWeight)) && (
               <p className="text-sm text-gray-600 mb-1">
-                <strong>22K Gold Rate:</strong> ₹{formatINR(product.priceSource.ratePerGram)}/gram
-                {product.priceSource.effectiveDate && (
+                <strong>22K Gold Rate:</strong>{' '}
+                {product.priceSource?.ratePerGram
+                  ? `₹${formatINR(product.priceSource.ratePerGram)}/gram`
+                  : (() => {
+                      const goldVal = product.breakdown.goldValue;
+                      const wt = product.netWeight;
+                      if (goldVal && wt) {
+                        const computed = goldVal / wt;
+                        return `₹${formatINR(computed)}/gram (derived)`;
+                      }
+                      return '—';
+                    })()}
+                {product.priceSource?.effectiveDate && (
                   <span className="text-xs text-gray-500 ml-2">
                     (Effective: {new Date(product.priceSource.effectiveDate).toLocaleDateString('en-IN')})
                   </span>
@@ -483,17 +560,25 @@ const ProductDetailPage = () => {
               <div className="bg-yellow-50 border border-yellow-300 p-4 rounded">
                 <h4 className="font-semibold mb-2">📹 Video Call Us</h4>
                 <p className="text-sm mb-2">Speak with our expert jeweller.</p>
-                <button className="bg-yellow-600 text-white px-4 py-2 rounded">
+                <a
+                  href="tel:+919600729596"
+                  className="bg-yellow-600 text-white px-4 py-2 rounded inline-block"
+                >
                   Video call
-                </button>
+                </a>
               </div>
 
               <div className="bg-green-50 border border-green-300 p-4 rounded">
                 <h4 className="font-semibold mb-2">💬 Whatsapp</h4>
                 <p className="text-sm mb-2">Chat with support anytime.</p>
-                <button className="bg-green-600 text-white px-4 py-2 rounded">
+                <a
+                  href="https://wa.me/919999999999"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-green-600 text-white px-4 py-2 rounded inline-block"
+                >
                   Chat with Us
-                </button>
+                </a>
               </div>
             </div>
           </div>
@@ -504,19 +589,41 @@ const ProductDetailPage = () => {
       <style>
         {`
         .action-bar {
-  gap: 12px;
-}
+          display: flex;
+          gap: 12px;
+          align-items: center;
+          flex-wrap: wrap;
+          width: 100%;
+        }
 
 .action-item {
   cursor: pointer;
   font-size: 22px;
-  display: flex;
+  display: flex !important;
   align-items: center;
   gap: 4px;
+  color: #333;
+  transition: color 0.2s ease;
+}
+
+.action-item:hover {
+  color: #ffb703;
+}
+
+.action-item svg {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
 }
 
 .action-item.text {
   font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.action-item.text:hover {
+  background-color: #f5f5f5;
 }
 
 .divider {
@@ -538,6 +645,7 @@ const ProductDetailPage = () => {
 
   font-weight: 500;
   transition: all 0.25s ease;
+  white-space: nowrap;
 }
 
 .view-similar:hover {
