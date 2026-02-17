@@ -14,6 +14,12 @@ import {
 import LoginPopup from "./LoginPopup";
 
 const HomeProductSection = () => {
+    const [imgErrors, setImgErrors] = useState({});
+  
+    const handleImageError = (id) => {
+      setImgErrors((prev) => ({ ...prev, [id]: true }));
+    }; 
+  
   const [products, setProducts] = useState([]);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
 
@@ -201,11 +207,25 @@ const HomeProductSection = () => {
                       className="d-flex align-items-center justify-content-center"
                       style={{ height: "260px" }}
                     >
-                      <img
-                        src={buildImgSrc(firstImg) || "/default-product.jpg"}
-                        alt={product.name}
-                        style={{ width: "180px", height: "180px", objectFit: "contain" }}
-                      />
+                      {!imgErrors[product._id] ? (
+                        <img
+                          src={buildImgSrc(firstImg) || "/default-product.jpg"}
+                          alt={product.name}
+                          style={{ width: "180px", height: "180px", objectFit: "contain" }}
+                          onError={() => handleImageError(product._id)}
+                        />
+                      ) : (
+                        <div
+                          className="d-flex align-items-center justify-content-center bg-gray-100 rounded-lg"
+                          style={{ width: "280px", height: "280px" }}
+                        >
+                          <img
+                            src="https://image.pngaaa.com/13/1887013-middle.png"
+                            alt="Product placeholder"
+                            style={{  opacity: 0.4, objectFit: "contain" }}
+                          />
+                        </div>
+                      )}
                     </div>
                   </Link>
 
