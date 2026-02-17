@@ -39,7 +39,12 @@ const CartPage = () => {
     removeFromCart,
     clearCart,
   } = useContext(CartContext);
-  const [selectedImage, setSelectedImage] = useState(""); 
+  const [selectedImage, setSelectedImage] = useState("");
+  const [imgErrors, setImgErrors] = useState({});
+
+  const handleImageError = (id) => {
+    setImgErrors((prev) => ({ ...prev, [id]: true }));
+  }; 
 
   const goldTotal = goldCart.reduce((sum, item) => sum + Number(item.price || item.finalPrice || 0), 0);
   const silverTotal = silverCart.reduce((sum, item) => sum + Number(item.price || item.finalPrice || 0), 0);
@@ -66,14 +71,22 @@ const CartPage = () => {
           {/* Product Image */}
           <div className="flex-shrink-0">
             <Link to={`/product/${item._id}`}>
-              <img
-                src={productImage}
-                alt={item.name || "Product"}
-                className="w-32 h-32 sm:w-40 sm:h-40 object-cover rounded-lg border-2 border-gray-200 hover:border-yellow-500 transition-colors"
-                onError={(e) => {
-                  e.currentTarget.src = "/default-product.jpg";
-                }}
-              />
+              {!imgErrors[item._id] ? (
+                <img
+                  src={productImage}
+                  alt={item.name || "Product"}
+                  className="w-32 h-32 sm:w-40 sm:h-40 object-cover rounded-lg border-2 border-gray-200 hover:border-yellow-500 transition-colors"
+                  onError={() => handleImageError(item._id)}
+                />
+              ) : (
+                <div className="flex items-center justify-center w-32 h-32 sm:w-40 sm:h-40 bg-gray-100 rounded-lg">
+                  <img
+                    src="https://image.pngaaa.com/13/1887013-middle.png"
+                    alt="Product placeholder"
+                    className="w-42 h-42 object-contain opacity-40"
+                  />
+                </div>
+              )}
             </Link>
           </div>
 
