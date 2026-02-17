@@ -25,6 +25,12 @@ function apiOrigin() {
 }
 
 const WishlistPage = () => {
+
+    const [imgErrors, setImgErrors] = useState({});
+  
+    const handleImageError = (id) => {
+      setImgErrors((prev) => ({ ...prev, [id]: true }));
+    };
   const [items, setItems] = useState([]);
   const [err, setErr] = useState("");
   const [showLoginPopup, setShowLoginPopup] = useState(false);
@@ -175,14 +181,22 @@ const WishlistPage = () => {
                     {/* Product Image */}
                     <Link to={`/product/${product._id}`}>
                       <div className="relative w-full h-64 bg-gray-100 overflow-hidden">
-                        <img
-                          src={productImage}
-                          alt={product.name || "Product"}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                          onError={(e) => {
-                            e.currentTarget.src = "/default-product.jpg";
-                          }}
-                        />
+                        {!imgErrors[it._id] ? (
+                          <img
+                            src={productImage}
+                            alt={product.name || "Product"}
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                            onError={() => handleImageError(it._id)}
+                          />
+                        ) : (
+                          <div className="h-64 w-full flex items-center justify-center bg-gray-100">
+                            <img
+                              src="https://image.pngaaa.com/13/1887013-middle.png"
+                              alt="Product placeholder"
+                              className="w-42 h-62 object-contain opacity-40"
+                            />
+                          </div>
+                        )}
                       </div>
                     </Link>
 
