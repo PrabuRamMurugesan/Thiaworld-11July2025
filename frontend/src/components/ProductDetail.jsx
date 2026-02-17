@@ -64,6 +64,19 @@ const ProductDetailPage = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
 
+  // track images that failed to load by product id
+  const [imgErrors, setImgErrors] = useState({});
+
+  const handleImageError = (id, e) => {
+    // hide the broken image element if provided
+    try {
+      if (e && e.target) e.target.style.display = "none";
+    } catch (err) {
+      // ignore
+    }
+    setImgErrors((prev) => ({ ...prev, [id]: true }));
+  };
+
   // Zoom
   const imgRef = useRef(null);
   const [lensPos, setLensPos] = useState({ x: 10, y: 0 });
@@ -266,13 +279,23 @@ const ProductDetailPage = () => {
               onMouseEnter={() => setShowLens(true)}
               onMouseLeave={() => setShowLens(false)}
             >
-              <img
-                ref={imgRef}
-                src={selectedImage}
-                alt={altText}
-                className="w-full h-full object-cover rounded shadow"
-              />
-
+              {!imgErrors[product._id] ? (
+                <img
+                  ref={imgRef}
+                  src={selectedImage}
+                  alt={altText}
+                  className="w-full h-full object-cover rounded shadow"
+                  onError={(e) => handleImageError(product._id, e)}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                  <img
+                    src="https://image.pngaaa.com/13/1887013-middle.png"
+                    alt="Product placeholder"
+                    className="w-full h-full object-contain opacity-40"
+                  />
+                </div>
+              )}
               {showLens && (
                 <div
                   style={{
@@ -298,18 +321,50 @@ const ProductDetailPage = () => {
 
             <div className="flex gap-2 mt-4 flex-wrap justify-center">
               {galleryList.map((img) => (
-                <img
-                  key={img}
-                  src={buildImgSrc(img)}
-                  alt=""
-                  onClick={() => setSelectedImage(buildImgSrc(img))}
-                  style={{
-                    width: 70,
-                    height: 70,
-                    objectFit: "cover",
-                    cursor: "pointer",
-                  }}
-                />
+                <div key={img}>
+                  {!imgErrors[img] ? (
+                    <img
+                      src={buildImgSrc(img)}
+                      alt=""
+                      onClick={() => setSelectedImage(buildImgSrc(img))}
+                      onError={() => handleImageError(img)}
+                      style={{
+                        width: 70,
+                        height: 70,
+                        objectFit: "cover",
+                        cursor: "pointer",
+                        border: "2px solid #e0e0e0",
+                        borderRadius: "4px",
+                      }}
+                    />
+                  ) : (
+                    <div
+                      onClick={() => setSelectedImage(buildImgSrc(img))}
+                      style={{
+                        width: 70,
+                        height: 70,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "#f0f0f0",
+                        border: "2px solid #e0e0e0",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <img
+                        src="https://image.pngaaa.com/13/1887013-middle.png"
+                        alt="No image"
+                        style={{
+                          width: 70,
+                          height: 70,
+                          objectFit: "contain",
+                          opacity: 0.4,
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </div>
