@@ -1,9 +1,15 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { buildImgSrc, normalizeImages } from "../utils/imageTools";
 
 const MoreFromCollection = ({ items = [] }) => {
+  // track images that failed to load by item id
+  const [imgErrors, setImgErrors] = useState({});
+
+  const handleImageError = (id) => {
+    setImgErrors((prev) => ({ ...prev, [id]: true }));
+  };
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-10">
       <h3 className="text-xl font-semibold mb-4">🌀 More from this Collection</h3>
@@ -22,7 +28,22 @@ const MoreFromCollection = ({ items = [] }) => {
                 className="min-w-[200px] bg-white shadow-md rounded-md overflow-hidden border hover:shadow-lg transition"
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
-                <img src={src} alt={item.name} className="h-48 w-full object-cover" />
+                {!imgErrors[item._id] ? (
+                  <img
+                    src={src}
+                    alt={item.name}
+                    className="h-48 w-full object-cover"
+                    onError={() => handleImageError(item._id)}
+                  />
+                ) : (
+                  <div className="h-48 w-full flex items-center justify-center bg-gray-100">
+                    <img
+                      src="https://image.pngaaa.com/13/1887013-middle.png"
+                      alt="Product placeholder"
+                      className="w-32 h-32 object-contain opacity-40"
+                    />
+                  </div>
+                )}
                 <div className="p-3">
                   <h4 className="text-sm font-bold text-gray-700">{item.name}</h4>
                   <p className="text-xs text-gray-500">{item.category}</p>
@@ -31,6 +52,7 @@ const MoreFromCollection = ({ items = [] }) => {
                   </p>
                 </div>
               </Link>
+       
             );
           })}
         </div>

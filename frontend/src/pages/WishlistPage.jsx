@@ -25,6 +25,12 @@ function apiOrigin() {
 }
 
 const WishlistPage = () => {
+
+    const [imgErrors, setImgErrors] = useState({});
+  
+    const handleImageError = (id) => {
+      setImgErrors((prev) => ({ ...prev, [id]: true }));
+    };
   const [items, setItems] = useState([]);
   const [err, setErr] = useState("");
   const [showLoginPopup, setShowLoginPopup] = useState(false);
@@ -170,25 +176,34 @@ const WishlistPage = () => {
                 return (
                   <div
                     key={it._id}
-                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 border border-gray-200"
+                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 border border-gray-200 "
                   >
                     {/* Product Image */}
                     <Link to={`/product/${product._id}`}>
                       <div className="relative w-full h-64 bg-gray-100 overflow-hidden">
-                        <img
-                          src={productImage}
-                          alt={product.name || "Product"}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                          onError={(e) => {
-                            e.currentTarget.src = "/default-product.jpg";
-                          }}
-                        />
+                        {!imgErrors[it._id] ? (
+                          <img
+                            src={productImage}
+                            alt={product.name || "Product"}
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                            onError={() => handleImageError(it._id)}
+                          />
+                        ) : (
+                          <div className="h-64 w-full flex items-center justify-center bg-gray-100">
+                            <img
+                              src="https://image.pngaaa.com/13/1887013-middle.png"
+                              alt="Product placeholder"
+                              className="w-42 h-62 object-contain opacity-40"
+                            />
+                          </div>
+                        )}
                       </div>
                     </Link>
 
                     {/* Product Details */}
                     <div className="p-4">
-                      <Link to={`/product/${product._id}`}>
+                      <div className="h-24 mb-2">
+                        <Link to={`/product/${product._id}`}>
                         <h4 className="text-lg font-semibold text-gray-800 hover:text-yellow-600 transition-colors mb-2 line-clamp-2">
                           {product.name || "Product Name"}
                         </h4>
@@ -205,14 +220,16 @@ const WishlistPage = () => {
                         </p>
                       )}
 
-                      <div className="mb-4">
-                        <p className="text-xl font-bold text-yellow-700">
-                          ₹{formatINR(productPrice)}
-                        </p>
+                      
                       </div>
 
                       {/* Action Buttons */}
                       <div className="flex flex-col gap-2">
+                                <div className="mb-2">
+                        <p className="text-xl font-bold text-yellow-700">
+                          ₹{formatINR(productPrice)}
+                        </p>
+                      </div>
                         <Link
                           to={`/product/${product._id}`}
                           className="w-full text-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-medium text-sm"
@@ -235,6 +252,8 @@ const WishlistPage = () => {
                           </button>
                         </div>
                       </div>
+
+                      
                     </div>
                   </div>
                 );
@@ -247,7 +266,7 @@ const WishlistPage = () => {
                 to="/"
                 className="inline-block px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
               >
-                Continue Shopping
+                Continue Shopping 
               </Link>
             </div>
           </>
