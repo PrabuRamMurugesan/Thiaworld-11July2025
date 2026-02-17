@@ -34,6 +34,19 @@ const GoldCollection = () => {
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const { isWished, toggle } = useWishlist();
 
+  // track images that failed to load by product id
+  const [imgErrors, setImgErrors] = useState({});
+
+  const handleImageError = (id, e) => {
+    // hide the broken image element if provided
+    try {
+      if (e && e.target) e.target.style.display = "none";
+    } catch (err) {
+      // ignore
+    }
+    setImgErrors((prev) => ({ ...prev, [id]: true }));
+  };
+
   // filters
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState([]); // ["Bangles","Chains","Rings"]
@@ -75,19 +88,19 @@ const GoldCollection = () => {
 
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 100;
-useEffect(() => {
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth",
-  });
-}, [currentPage]);
+  const itemsPerPage = 20;
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, [currentPage]);
   // fetch once
   useEffect(() => {
     (async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_API_URI}/products/gold`
+          `${import.meta.env.VITE_API_URI}/products/gold`,
         );
         const data = Array.isArray(res.data) ? res.data : res.data.items || [];
         setAllProducts(data || []);
@@ -118,13 +131,13 @@ useEffect(() => {
       list = list.filter((p) =>
         String(p.name || "")
           .toLowerCase()
-          .includes(q)
+          .includes(q),
       );
 
     if (categoryFilter.length) {
       const cats = new Set(categoryFilter.map((c) => c.toLowerCase()));
       list = list.filter((p) =>
-        cats.has(String(p.category || "").toLowerCase())
+        cats.has(String(p.category || "").toLowerCase()),
       );
     }
 
@@ -135,27 +148,27 @@ useEffect(() => {
 
     if (sortOption === "newest") {
       list.sort(
-        (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+        (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0),
       );
     } else if (sortOption === "priceAsc") {
       list.sort(
         (a, b) =>
           Number(
-            a.displaySale || a.displayPrice || a.displayActual || a.price || 0
+            a.displaySale || a.displayPrice || a.displayActual || a.price || 0,
           ) -
           Number(
-            b.displaySale || b.displayPrice || b.displayActual || b.price || 0
-          )
+            b.displaySale || b.displayPrice || b.displayActual || b.price || 0,
+          ),
       );
     } else if (sortOption === "priceDesc") {
       list.sort(
         (a, b) =>
           Number(
-            b.displaySale || b.displayPrice || b.displayActual || b.price || 0
+            b.displaySale || b.displayPrice || b.displayActual || b.price || 0,
           ) -
           Number(
-            a.displaySale || a.displayPrice || a.displayActual || a.price || 0
-          )
+            a.displaySale || a.displayPrice || a.displayActual || a.price || 0,
+          ),
       );
     }
 
@@ -164,29 +177,56 @@ useEffect(() => {
 
   useEffect(
     () => setCurrentPage(1),
-    [search, categoryFilter, purityFilter, sortOption]
+    [search, categoryFilter, purityFilter, sortOption],
   );
 
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredSorted.length / itemsPerPage)
+    Math.ceil(filteredSorted.length / itemsPerPage),
   );
   const paginatedProducts = filteredSorted.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   const toggleCategory = (cat) => {
     setCategoryFilter((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat],
     );
   };
 
   const togglePurity = (p) => {
     setPurityFilter((prev) =>
-      prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]
+      prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p],
     );
   };
+
+  // numbered pagination helpers
+  const maxVisiblePages = 5;
+  const visiblePages = useMemo(() => {
+    const pages = [];
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+      return pages;
+    }
+
+    let start = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let end = start + maxVisiblePages - 1;
+    if (end > totalPages) {
+      end = totalPages;
+      start = totalPages - maxVisiblePages + 1;
+    }
+    for (let i = start; i <= end; i++) pages.push(i);
+    return pages;
+  }, [totalPages, currentPage]);
+
+  const handlePageClick = (p) => {
+    setCurrentPage(p);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handlePrev = () => setCurrentPage((prev) => Math.max(1, prev - 1));
+  const handleNext = () => setCurrentPage((prev) => Math.min(totalPages, prev + 1));
 
   if (loading) return <p className="text-center my-8">Loading...</p>;
   if (error) return <p className="text-center text-danger my-8">{error}</p>;
@@ -287,23 +327,28 @@ useEffect(() => {
             if (prod.breakdown) {
               // Use breakdown to calculate prices (same as ProductDetail)
               const breakdown = prod.breakdown;
-              const actualPrice = breakdown.actualPrice || 
-                (breakdown.goldValue || 0) + 
-                (breakdown.makingValue || 0) + 
-                (breakdown.wastageValue || 0) + 
-                (breakdown.stoneValue || 0);
-              
+              const actualPrice =
+                breakdown.actualPrice ||
+                (breakdown.goldValue || 0) +
+                  (breakdown.makingValue || 0) +
+                  (breakdown.wastageValue || 0) +
+                  (breakdown.stoneValue || 0);
+
               const discountAmount = breakdown.discount || 0;
               const priceAfterDiscount = actualPrice - discountAmount;
               const gstPercent = Number(prod.gst || 0);
-              const gstOnAfterDiscount = Math.round((priceAfterDiscount * gstPercent) / 100);
+              const gstOnAfterDiscount = Math.round(
+                (priceAfterDiscount * gstPercent) / 100,
+              );
               payableBase = priceAfterDiscount + gstOnAfterDiscount;
-              
+
               // Strike price = actualPrice (price before discount)
               strike = actualPrice;
             } else {
               // Fallback to product price fields if no breakdown
-              payableBase = Number(prod.finalPrice || prod.totalPayable || prod.price || 0);
+              payableBase = Number(
+                prod.finalPrice || prod.totalPayable || prod.price || 0,
+              );
             }
             return (
               <motion.div
@@ -345,61 +390,74 @@ useEffect(() => {
                           : "Add to wishlist"
                       }
                     >
-                {isWished(prod._id) ? (
-                  <IoMdHeart
-                    style={{
-                      fontSize: 25,
-                      color: "#e03131",
-                      transition: "color 120ms ease",
-                    }}
-                  />
-                ) : (
-                  <PiHeart
-                    style={{
-                      fontSize: 25,
-                      color: "gray",
-                      transition: "color 120ms ease",
-                    }}
-                  />
-                )}
+                      {isWished(prod._id) ? (
+                        <IoMdHeart
+                          style={{
+                            fontSize: 25,
+                            color: "#e03131",
+                            transition: "color 120ms ease",
+                          }}
+                        />
+                      ) : (
+                        <PiHeart
+                          style={{
+                            fontSize: 25,
+                            color: "gray",
+                            transition: "color 120ms ease",
+                          }}
+                        />
+                      )}
                     </button>
                   </div>
 
                   <Link to={`/product/${prod._id}`}>
-                    <img
-                      src={buildImgSrc(firstImg)}
-                      alt={prod.name}
-                      style={{ width: 250, height: 250, objectFit: "cover",
-                          maxWidth: "180px",
-                         whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                       }}
-                    />
-                  </Link>
-              <div className="d-flex justify-content-end align-items-center">
-                        {" "}
-                        <button
-                          onClick={() =>
-                            (window.location.href = "/virtual-jewelry-on")
-                          }
-                          className="text-xs text-nowrap  flex flex-row gap-2 items-center py-1 px-2 rounded bg-yellow-100 hover:bg-yellow-200 transition"
-                        >
-                          <IoEyeSharp size={15} color="brown" /> Try This On
-                        </button>
+                    {!imgErrors[prod._id] ? (
+                      <img
+                      
+                        src={buildImgSrc(firstImg)}
+                        alt={prod.name}
+                        style={{
+                          width: "100%",
+                          height: 300,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                        onError={(e) => handleImageError(prod._id, e)}
+                      />
+                    ) : (
+                      <div className="w-full h-[300px] flex items-center justify-center bg-gray-100">
+                        <img
+                          src="https://image.pngaaa.com/13/1887013-middle.png"
+                          alt="Product placeholder"
+                          className="w-24 h-24 object-contain opacity-40"
+                        />
                       </div>
+                    )}
+                  </Link>
+                  <div className="d-flex justify-content-end align-items-center">
+                    {" "}
+                    <button
+                      onClick={() =>
+                        (window.location.href = "/virtual-jewelry-on")
+                      }
+                      className="text-xs text-nowrap  flex flex-row gap-2 items-center py-1 px-2 rounded bg-yellow-100 hover:bg-yellow-200 transition"
+                    >
+                      <IoEyeSharp size={15} color="brown" /> Try This On
+                    </button>
+                  </div>
                   <div className="mt-2">
                     <div className="flex gap-2 justify-between items-center">
                       <div>
-                        <h3 className="text-gray-800 mt-2 text-nowrap">{prod.name}</h3>
+                        <h3 className="text-gray-800 mt-2 text-nowrap">
+                          {prod.name}
+                        </h3>
                         <p className="text-xs text-gray-500 my-2">
                           Net: {prod.netWeight}g | Gross: {prod.grossWeight}g
                         </p>
                       </div>
-
-             
                     </div>
-               
+
                     <div className="mt-1 text-yellow-700 fw-bold ">
                       ₹{formatINR(payableBase)}
                       {strike && (
@@ -441,52 +499,62 @@ useEffect(() => {
           onClose={() => setShowLoginPopup(false)}
         />
 
-        {/* Pagination */}
-        <div className="d-flex justify-content-center align-items-center my-4">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-            disabled={currentPage === 1}
-            className="filter-btn"
-            style={{
-              background: currentPage === 1 ? "#ddd" : "#ffb703",
-              color: "#333",
-              fontWeight: "bold",
-              padding: "10px 20px",
-              borderRadius: 30,
-              marginRight: 10,
-              cursor: currentPage === 1 ? "not-allowed" : "pointer",
-            }}
-          >
-            Prev
-          </button>
+        {/* Pagination: numbered controls with ellipses */}
+        {totalPages > 1 && (
+          <div className="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap">
+            <button
+              className="btn btn-outline-secondary btn-sm"
+              onClick={handlePrev}
+              disabled={currentPage === 1}
+            >
+              Prev
+            </button>
 
-          <span className="mx-2 fw-bold">
-            {currentPage} / {totalPages}
-          </span>
-<button
-  onClick={() => {
-    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth", // smooth scroll
-    });
-  }}
-  disabled={currentPage === totalPages}
-  className="filter-btn"
-  style={{
-    background: currentPage === totalPages ? "#ddd" : "#ffb703",
-    color: "#333",
-    fontWeight: "bold",
-    padding: "10px 20px",
-    borderRadius: 30,
-    marginLeft: 10,
-    cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-  }}
->
-  Next
-</button>
+            {visiblePages[0] > 1 && (
+              <>
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={() => handlePageClick(1)}
+                >
+                  1
+                </button>
+                {visiblePages[0] > 2 && <span>...</span>}
+              </>
+            )}
 
-        </div>
+            {visiblePages.map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageClick(page)}
+                className={`btn btn-sm ${
+                  currentPage === page ? "btn-dark" : "btn-outline-secondary"
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+
+            {visiblePages[visiblePages.length - 1] < totalPages && (
+              <>
+                <span>...</span>
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={() => handlePageClick(totalPages)}
+                >
+                  {totalPages}
+                </button>
+              </>
+            )}
+
+            <button
+              className="btn btn-outline-secondary btn-sm"
+              onClick={handleNext}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
 
       <Footer />
