@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useMemo } from "react";
 import Header from "../Header";
 import axios from "axios";
 import { IoMdArrowDropright } from "react-icons/io";
@@ -25,8 +25,20 @@ const AllJewellery = () => {
   const { addToCart } = useContext(CartContext);
   const { isWished, toggle } = useWishlist();
 
+  // track images that failed to load by product id
+  const [imgErrors, setImgErrors] = useState({});
+
+  const handleImageError = (id) => {
+    setImgErrors((prev) => ({ ...prev, [id]: true }));
+  };
+
+  // clear image error flags when product list changes
+  useEffect(() => {
+    setImgErrors({});
+  }, [products]);
+
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 20;
   const totalPages = Math.ceil(products.length / itemsPerPage);
   const location = useLocation();
 
@@ -122,6 +134,33 @@ const AllJewellery = () => {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  // numbered pagination helpers (show a sliding window with ellipses)
+  const maxVisiblePages = 5;
+  const visiblePages = useMemo(() => {
+    const pages = [];
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+      return pages;
+    }
+
+    let start = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let end = start + maxVisiblePages - 1;
+    if (end > totalPages) {
+      end = totalPages;
+      start = totalPages - maxVisiblePages + 1;
+    }
+    for (let i = start; i <= end; i++) pages.push(i);
+    return pages;
+  }, [totalPages, currentPage]);
+
+  const handlePageClick = (p) => {
+    setCurrentPage(p);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handlePrev = () => setCurrentPage((prev) => Math.max(1, prev - 1));
+  const handleNext = () => setCurrentPage((prev) => Math.min(totalPages, prev + 1));
 
   // ========= IMAGE RESOLVER ==========
   const resolveImage = (prod) => {
@@ -262,16 +301,29 @@ const AllJewellery = () => {
                   />
                 </div>
 
+
+         {!imgErrors[prod._id] ? (
                 <img
+                  className="w-full h-[300px] object-cover"
                   src={img}
                   style={{
-                    width: "250px",
-                    height: "250px",
-                    objectFit: "contain",
+                    objectFit: "cover",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
                   }}
                   alt={prod.name}
-                  // onError={(e) => (e.target.src = "/default-product.jpg")}
+                  onError={() => handleImageError(prod._id)}
                 />
+                   ) : (
+                      <div className="flex items-center justify-center bg-gray-100">
+                        <img
+                          src="https://image.pngaaa.com/13/1887013-middle.png"
+                          alt="Product placeholder"
+                          className="w-24 h-24 object-contain opacity-40"
+                        />
+                      </div>
+                    )}
 
                 <h1>{prod.name}</h1>
 
@@ -298,56 +350,61 @@ const AllJewellery = () => {
         )}
       </div>
       {/* Pagination Controls */}
-      <div className="d-flex justify-content-center my-4 gap-2 align-items-center">
-        <button
-          onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-          disabled={currentPage === 1}
-          className="filter-btn"
-          style={{
-            background: currentPage === 1 ? "#ddd" : "#ffe08a",
-            color: "#333",
-            padding: "10px 20px",
-            borderRadius: "30px",
-            fontWeight: "bold",
-            marginRight: "10px",
-            cursor: currentPage === 1 ? "not-allowed" : "pointer",
-          }}
-        >
-          Previous
-        </button>
-
-        {[...Array(totalPages)].map((_, index) => (
+      {totalPages > 1 && (
+        <div className="d-flex justify-content-center align-items-center gap-2 m-4 flex-wrap">
           <button
-            key={index}
-            onClick={() => handlePageChange(index + 1)}
-            className={`filter-btn ${
-              currentPage === index + 1 ? "active" : ""
-            }`}
-            style={{ width: "45px", height: "45px", fontWeight: "bold" }}
+            className="btn btn-outline-secondary btn-sm"
+            onClick={handlePrev}
+            disabled={currentPage === 1}
           >
-            {index + 1}
+            Prev
           </button>
-        ))}
 
-        <button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-          }
-          disabled={currentPage === totalPages}
-          className="filter-btn"
-          style={{
-            background: currentPage === totalPages ? "#ddd" : "#ffb703",
-            color: "#333",
-            fontWeight: "bold",
-            padding: "10px 20px",
-            borderRadius: "30px",
-            marginLeft: "10px",
-            cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-          }}
-        >
-          Next
-        </button>
-      </div>
+          {visiblePages[0] > 1 && (
+            <>
+              <button
+                className="btn btn-outline-secondary btn-sm"
+                onClick={() => handlePageClick(1)}
+              >
+                1
+              </button>
+              {visiblePages[0] > 2 && <span>...</span>}
+            </>
+          )}
+
+          {visiblePages.map((page) => (
+            <button
+              key={page}
+              onClick={() => handlePageClick(page)}
+              className={`btn btn-sm ${
+                currentPage === page ? "btn-dark" : "btn-outline-secondary"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+
+          {visiblePages[visiblePages.length - 1] < totalPages && (
+            <>
+              <span>...</span>
+              <button
+                className="btn btn-outline-secondary btn-sm"
+                onClick={() => handlePageClick(totalPages)}
+              >
+                {totalPages}
+              </button>
+            </>
+          )}
+
+          <button
+            className="btn btn-outline-secondary btn-sm"
+            onClick={handleNext}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </div>
+      )}
 
       <style>
         {`
@@ -376,11 +433,13 @@ const AllJewellery = () => {
             flex-wrap: wrap;
           }
           .necklace-product-boxs {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            padding: 24px 8%;
+            max-width: 1400px;
+            margin: 0 auto;
+            box-sizing: border-box;
           }
           .filter-btn {
             padding: 8px 16px;
@@ -395,32 +454,44 @@ const AllJewellery = () => {
             border-color: orange;
           }
           .necklace-products-box {
-            width: 350px;
-            height: 500px;
-            border: 1px solid gray;
-            border-radius: 15px;
-            background-color: #f9f9f9;
-            box-shadow: rgba(0, 0, 1, 0.2) 0px 3px 8px;
+            width: 100%;
+            min-height: 420px;
+            border: 1px solid #e6e6e6;
+            border-radius: 12px;
+            background-color: #fff;
+            box-shadow: 0 6px 18px rgba(15, 15, 15, 0.06);
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 30px;
+            justify-content: flex-start;
+            padding: 16px;
             position: relative;
+            box-sizing: border-box;
+            transition: transform 160ms ease, box-shadow 160ms ease;
+          }
+          .necklace-products-box:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 30px rgba(15, 15, 15, 0.12);
           }
           .necklace-products-box img {
-            width: 250px;
-            height: 250px;
-            object-fit: contain;
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #f6f6f6;
           }
           .necklace-products-box h1 {
-            font-size: 18px;
-            margin: 10px 0;
+            font-size: 16px;
+            margin: 12px 0 6px;
             text-align: center;
+            line-height: 1.2;
+            min-height: 44px;
           }
           .necklace-products-box p {
-            font-size: 18px;
-            color: #000;
+            font-size: 16px;
+            color: #111;
+            margin: 4px 0;
+            font-weight: 600;
           }
           .sicon {
             font-size: 25px;
