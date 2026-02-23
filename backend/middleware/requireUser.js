@@ -27,7 +27,7 @@ module.exports = async function requireUser(req, res, next) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // Support both shapes: {_id: ...} or {id: ...}
-    const userId = decoded._id || decoded.id;
+const userId = decoded.userId || decoded._id || decoded.id;
     if (!userId) {
       return res.status(401).json({ message: "Login required" });
     }
