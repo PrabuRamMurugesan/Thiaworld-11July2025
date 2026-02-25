@@ -428,5 +428,4 @@ const GoldCollection = () => {
     </>
   );
 };
-
 export default GoldCollection;
