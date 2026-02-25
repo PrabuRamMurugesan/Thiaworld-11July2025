@@ -1,125 +1,115 @@
-import React, { useEffect, useState, useContext, useMemo } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import Header from "../Header";
 import axios from "axios";
 import { IoMdArrowDropright } from "react-icons/io";
-import { TiFilter } from "react-icons/ti";
 import { CartContext } from "../../context/CartContext";
 import { IoHeart, IoStar } from "react-icons/io5";
 import { Link, useLocation } from "react-router-dom";
 import { useWishlist } from "../../context/WishlistContext";
 import { normalizeImages, buildImgSrc } from "../../utils/imageTools";
 
+
 const AllJewellery = () => {
+  
   const [products, setProducts] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(25);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState([]);
   const [purityFilter, setPurityFilter] = useState([]);
   const [metalFilter, setMetalFilter] = useState([]);
-  const [genderFilter, setGenderFilter] = useState([]);
-  const [occasionFilter, setOccasionFilter] = useState([]);
   const [tagsFilter, setTagsFilter] = useState([]);
-  const [ready, setReady] = useState(false);
-
-  const [sortOption, setSortOption] = useState("");
   const [loading, setLoading] = useState(true);
+
+  const loaderRef = useRef(null);
+  const location = useLocation();
+
   const { addToCart } = useContext(CartContext);
   const { isWished, toggle } = useWishlist();
 
-  // track images that failed to load by product id
   const [imgErrors, setImgErrors] = useState({});
 
   const handleImageError = (id) => {
     setImgErrors((prev) => ({ ...prev, [id]: true }));
   };
 
-  // clear image error flags when product list changes
+  /* ================= FETCH PRODUCTS ================= */
   useEffect(() => {
-    setImgErrors({});
-  }, [products]);
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
-  const totalPages = Math.ceil(products.length / itemsPerPage);
-  const location = useLocation();
-
-  // ======= READ URL SEARCH PARAMS =======
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const keyword = params.get("search");
-    if (keyword) setSearch(keyword);
-
-    const tag = params.get("tags");
-    const gender = params.get("gender");
-    const occasion = params.get("occasion");
-
-    if (tag) setTagsFilter([tag]);
-    if (gender) setGenderFilter([gender]);
-    if (occasion) setOccasionFilter([occasion]);
-
-    setReady(true);
-  }, [location.search]);
-
-  // ======= FETCH PRODUCTS WHEN FILTERS CHANGE =======
-  useEffect(() => {
-    if (!ready) return;
     fetchAllJewellery();
-  }, [
-    ready,
-    search,
-    categoryFilter,
-    purityFilter,
-    metalFilter,
-    sortOption,
-    tagsFilter,
-    genderFilter,
-    occasionFilter,
-  ]);
+  }, [search, categoryFilter, purityFilter, metalFilter, tagsFilter]);
 
   const fetchAllJewellery = async () => {
     try {
+      setLoading(true);
+      setVisibleCount(20);
+
       let query = [];
 
       if (categoryFilter.length)
         query.push(`category=${categoryFilter.join(",")}`);
-      if (purityFilter.length) query.push(`purity=${purityFilter.join(",")}`);
-      if (metalFilter.length) query.push(`metalType=${metalFilter.join(",")}`);
-      if (tagsFilter.length) query.push(`tags=${tagsFilter.join(",")}`);
-      if (genderFilter.length) query.push(`gender=${genderFilter.join(",")}`);
-      if (occasionFilter.length)
-        query.push(`occasion=${occasionFilter.join(",")}`);
-
+      if (purityFilter.length)
+        query.push(`purity=${purityFilter.join(",")}`);
+      if (metalFilter.length)
+        query.push(`metalType=${metalFilter.join(",")}`);
+      if (tagsFilter.length)
+        query.push(`tags=${tagsFilter.join(",")}`);
       if (search) query.push(`search=${search}`);
-
-      if (sortOption) {
-        if (sortOption === "Price: Low to High")
-          query.push("sort=priceLowToHigh");
-        if (sortOption === "Price: High to Low")
-          query.push("sort=priceHighToLow");
-      }
 
       const res = await axios.get(
         `${import.meta.env.VITE_API_URI}/products/all?${query.join("&")}`
       );
 
       setProducts(res.data);
-      setLoading(false);
     } catch (err) {
       console.error("❌ Error fetching products:", err);
+    } finally {
       setLoading(false);
     }
   };
 
+  /* ================= INFINITE SCROLL ================= */
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+
+        if (first.isIntersecting && visibleCount < products.length) {
+          setVisibleCount((prev) => prev + 20);
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: "150px",
+      }
+    );
+
+    const loader = loaderRef.current;
+    if (loader) observer.observe(loader);
+
+    return () => {
+      if (loader) observer.unobserve(loader);
+    };
+  }, [visibleCount, products.length]);
+
+  const visibleProducts = products.slice(0, visibleCount);
+
+  const resolveImage = (prod) => {
+    try {
+      const arr = normalizeImages(prod.images || []);
+      if (arr.length === 0) return "/default-product.jpg";
+      return buildImgSrc(arr[0]) || "/default-product.jpg";
+    } catch {
+      return "/default-product.jpg";
+    }
+  };
+
   const toggleFilter = (type, value) => {
-    const filterMap = {
-      category: [categoryFilter, setCategoryFilter],
+    const map = {
+      tags: [tagsFilter, setTagsFilter],
       purity: [purityFilter, setPurityFilter],
       metalType: [metalFilter, setMetalFilter],
-      tags: [tagsFilter, setTagsFilter],
-      gender: [genderFilter, setGenderFilter],
-      occasion: [occasionFilter, setOccasionFilter],
     };
 
-    const [filter, setFilter] = filterMap[type];
+    const [filter, setFilter] = map[type];
 
     setFilter(
       filter.includes(value)
@@ -128,377 +118,518 @@ const AllJewellery = () => {
     );
   };
 
-  const handlePageChange = (page) => setCurrentPage(page);
-
-  const paginatedProducts = products.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  // numbered pagination helpers (show a sliding window with ellipses)
-  const maxVisiblePages = 5;
-  const visiblePages = useMemo(() => {
-    const pages = [];
-    if (totalPages <= maxVisiblePages) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-      return pages;
-    }
-
-    let start = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let end = start + maxVisiblePages - 1;
-    if (end > totalPages) {
-      end = totalPages;
-      start = totalPages - maxVisiblePages + 1;
-    }
-    for (let i = start; i <= end; i++) pages.push(i);
-    return pages;
-  }, [totalPages, currentPage]);
-
-  const handlePageClick = (p) => {
-    setCurrentPage(p);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handlePrev = () => setCurrentPage((prev) => Math.max(1, prev - 1));
-  const handleNext = () => setCurrentPage((prev) => Math.min(totalPages, prev + 1));
-
-  // ========= IMAGE RESOLVER ==========
-  const resolveImage = (prod) => {
-    try {
-      const arr = normalizeImages(prod.images || []);
-      if (arr.length === 0) return "/default-product.jpg";
-      return buildImgSrc(arr[0]) || "/default-product.jpg";
-    } catch (e) {
-      return "/default-product.jpg";
-    }
-  };
-
   return (
     <>
       <Header />
+
+      {/* ===== Breadcrumb ===== */}
       <div className="necklace-location">
-        <span className="d-flex align-items-center" style={{ color: "black" }}>
-          <Link to="/" className="text-black-600 hover:underline">
-            Home
-          </Link>
-          <IoMdArrowDropright /> All Jewellery
-        </span>
+        <Link to="/">Home</Link>
+        <IoMdArrowDropright /> All Jewellery
       </div>
 
-      <div
-        className="necklace-product-page d-flex justify-between align-items-center"
-        style={{ padding: "0 0px 0 8%" }}
-      >
+      {/* ===== Title + Count ===== */}
+      <div className="page-header">
         <h1>
           All Jewellery
-          {occasionFilter.length > 0 && (
-            <span className="ml-2 text-lg text-gray-700">
-              - {occasionFilter.join(", ")} jewellery
-            </span>
-          )}
-          {search && !occasionFilter.length && (
-            <span className="ml-2 text-lg text-gray-700">- "{search}"</span>
-          )}
-          <span style={{ color: "black", fontSize: "18px", padding: "0 20px" }}>
-            ({products.length} results)
+          <span className="result-count">
+            ({visibleProducts.length} of {products.length})
           </span>
         </h1>
 
-        <div className="necklace-product-filter">
-          <input
-            type="text"
-            placeholder="Search jewellery..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{
-              padding: "10px",
-              borderRadius: "10px",
-              border: "1px solid gray",
-              width: "200px",
-              height: "45px",
-            }}
-          />
-          <select
-            value={sortOption}
-            onChange={(e) => setSortOption(e.target.value)}
-            style={{
-              padding: "10px",
-              borderRadius: "10px",
-              border: "1px solid gray",
-              height: "45px",
-              width: "200px",
-            }}
-          >
-            <option value="">Sort by</option>
-            <option value="New Arrivals">New Arrivals</option>
-            <option value="Price: Low to High">Price: Low to High</option>
-            <option value="Price: High to Low">Price: High to Low</option>
-          </select>
-        </div>
+        <input
+          type="text"
+          placeholder="Search jewellery..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
 
-      <div className="d-flex justify-center my-6 flex-wrap">
+      {/* ===== Filters ===== */}
+      <div className="filter-row">
         {["Rings", "Chains", "Necklace", "Earrings"].map((cat) => (
           <button
             key={cat}
             onClick={() => toggleFilter("tags", cat)}
-            className={`filter-btn ${tagsFilter.includes(cat) ? "active" : ""}`}
+            className={`filter-btn ${
+              tagsFilter.includes(cat) ? "active" : ""
+            }`}
           >
             {cat}
           </button>
         ))}
-
-        {["18K", "22K", "24K", "SI", "VVS", "95"].map((pur) => (
-          <button
-            key={pur}
-            onClick={() => toggleFilter("purity", pur)}
-            className={`filter-btn ${
-              purityFilter.includes(pur) ? "active" : ""
-            }`}
-          >
-            {pur}
-          </button>
-        ))}
-        {["Gold", "Silver", "Diamond", "Platinum"].map((metal) => (
-          <button
-            key={metal}
-            onClick={() => toggleFilter("metalType", metal)}
-            className={`filter-btn ${
-              metalFilter.includes(metal) ? "active" : ""
-            }`}
-          >
-            {metal}
-          </button>
-        ))}
       </div>
 
-      <div className="necklace-product-boxs">
+      {/* ===== Products Grid ===== */}
+      <div className="product-grid">
         {loading ? (
-          <p>Loading...</p>
-        ) : paginatedProducts.length === 0 ? (
+          <div className="network-loader">
+            <div className="spinner-border text-dark" />
+          </div>
+        ) : visibleProducts.length === 0 ? (
           <p>No products found.</p>
         ) : (
-           paginatedProducts.map((prod) => {
+          visibleProducts.map((prod) => {
             const img = resolveImage(prod);
 
             return (
               <Link
                 to={`/product/${prod._id}`}
                 key={prod._id}
-                className="necklace-products-box"
-                style={{ textDecoration: 'none', color: 'inherit' }}
+                className="product-card"
               >
-                <div className="d-flex justify-content-between position-absolute top-0 start-0 end-0 px-4 mt-4">
-                  <IoStar
-                    className="sicon"
-                    style={{ color: "#ffb703" }}
-                  />
+<div className="product-card border p-3">
+  <div className="card-icons">
+    <IoHeart
+      className="heart-icon"
+      onClick={(e) => {
+        e.preventDefault();
+        toggle(prod._id);
+      }}
+    />
+  </div>
 
-                  <IoHeart
-                    onClick={(e) => { e.preventDefault(); toggle(prod._id); }}
-                    className="sicon"
-                    style={{ color: isWished(prod._id) ? "#e03131" : "gray", cursor: "pointer" }}
-                  />
-                </div>
+  {!imgErrors[prod._id] ? (
+    <img
+      className="product-img"
+      src={img}
+      alt={prod.name}
+      onError={() => handleImageError(prod._id)}
+    />
+  ) : (
+    <div className="fallback">
+      <img
+        src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-icon-for-unavailable-image-and-photo-camera-in-flat-vector-illustration-vector-png-image_40968558.jpg"
+        alt="placeholder"
+        style={{width:'100px',height:'100px'}}
+      />
+    </div>
+  )}
+</div>
 
-
-         {!imgErrors[prod._id] ? (
-                <img
-                  className="w-full h-[300px] object-cover"
-                  src={img}
-                  style={{
-                    objectFit: "cover",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                  alt={prod.name}
-                  onError={() => handleImageError(prod._id)}
-                />
-                   ) : (
-                      <div className="flex items-center justify-center bg-gray-100">
-                        <img
-                          src="https://image.pngaaa.com/13/1887013-middle.png"
-                          alt="Product placeholder"
-                          className="w-24 h-24 object-contain opacity-40"
-                        />
-                      </div>
-                    )}
-
-                <h1>{prod.name}</h1>
-
+               <h3 className="whitespace-nowrap">{prod.name}</h3>
                 <p>₹ {Number(prod.price).toLocaleString("en-IN")}</p>
 
                 <button
-                  onClick={(e) => { e.preventDefault(); addToCart?.(prod); }}
-                  style={{
-                    marginTop: "10px",
-                    padding: "5px 15px",
-                    borderRadius: "10px",
-                    backgroundColor: "#ffb703",
-                    border: "none",
-                    cursor: "pointer",
+                  onClick={(e) => {
+                    e.preventDefault();
+                    addToCart(prod);
                   }}
                 >
-                  🛒 Add to Cart
+                  Add to Cart
                 </button>
               </Link>
             );
           })
-     
-
         )}
       </div>
-      {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div className="d-flex justify-content-center align-items-center gap-2 m-4 flex-wrap">
-          <button
-            className="btn btn-outline-secondary btn-sm"
-            onClick={handlePrev}
-            disabled={currentPage === 1}
-          >
-            Prev
-          </button>
 
-          {visiblePages[0] > 1 && (
-            <>
-              <button
-                className="btn btn-outline-secondary btn-sm"
-                onClick={() => handlePageClick(1)}
-              >
-                1
-              </button>
-              {visiblePages[0] > 2 && <span>...</span>}
-            </>
-          )}
-
-          {visiblePages.map((page) => (
-            <button
-              key={page}
-              onClick={() => handlePageClick(page)}
-              className={`btn btn-sm ${
-                currentPage === page ? "btn-dark" : "btn-outline-secondary"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-
-          {visiblePages[visiblePages.length - 1] < totalPages && (
-            <>
-              <span>...</span>
-              <button
-                className="btn btn-outline-secondary btn-sm"
-                onClick={() => handlePageClick(totalPages)}
-              >
-                {totalPages}
-              </button>
-            </>
-          )}
-
-          <button
-            className="btn btn-outline-secondary btn-sm"
-            onClick={handleNext}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </button>
+      {/* ===== Infinite Loader ===== */}
+      {!loading && visibleCount < products.length && (
+        <div ref={loaderRef} className="bottom-loader">
+          <div className="spinner-border text-secondary" />
         </div>
       )}
 
-      <style>
-        {`
-          .necklace-location {
-            padding: 20px 8%;
-            background-color: #f9f9f9;
-          }
-          .necklace-location span {
-            font-size: 15px;
-            color: gray;
-            display: flex;
-            gap: 5px;
-          }
-          .necklace-product-page h1 {
-            font-size: 30px;
-            font-family: 'Times New Roman', Times, serif;
-          }
-          .necklace-product-page span {
-            font-size: 15px;
-            color: gray;
-          }
-          .necklace-product-filter {
-            display: flex;
-            padding: 20px 8%;
-            gap: 15px;
-            flex-wrap: wrap;
-          }
-          .necklace-product-boxs {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 24px;
-            padding: 24px 8%;
-            max-width: 1400px;
-            margin: 0 auto;
-            box-sizing: border-box;
-          }
-          .filter-btn {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 1px solid gray;
-            background: white;
-            margin: 4px;
-            cursor: pointer;
-          }
-          .filter-btn.active {
-            background: #ffd780;
-            border-color: orange;
-          }
-          .necklace-products-box {
-            width: 100%;
-            min-height: 420px;
-            border: 1px solid #e6e6e6;
-            border-radius: 12px;
-            background-color: #fff;
-            box-shadow: 0 6px 18px rgba(15, 15, 15, 0.06);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 16px;
-            position: relative;
-            box-sizing: border-box;
-            transition: transform 160ms ease, box-shadow 160ms ease;
-          }
-          .necklace-products-box:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 30px rgba(15, 15, 15, 0.12);
-          }
-          .necklace-products-box img {
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
-            border-radius: 8px;
-            background: #f6f6f6;
-          }
-          .necklace-products-box h1 {
-            font-size: 16px;
-            margin: 12px 0 6px;
-            text-align: center;
-            line-height: 1.2;
-            min-height: 44px;
-          }
-          .necklace-products-box p {
-            font-size: 16px;
-            color: #111;
-            margin: 4px 0;
-            font-weight: 600;
-          }
-          .sicon {
-            font-size: 25px;
-            cursor: pointer;
-          }
-        `}
-      </style>
+      {!loading && visibleCount >= products.length && (
+        <div className="end-message">No more products</div>
+      )}
+
+      {/* ================== STYLES ================== */}
+      <style> {`
+
+      /* 🧱 Product Card */
+.product-card {
+  position: relative;
+  border-radius: 12px;
+  background: #fff;
+  transition: all 0.25s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+/* ❤️ Icons */
+.card-icons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+}
+
+.heart-icon {
+  font-size: 20px;
+  cursor: pointer;
+  color: gray;
+  transition: all 0.2s ease;
+}
+
+.heart-icon:hover {
+  transform: scale(1.15);
+  color: #e03131;
+}
+
+/* 🖼 Product Image */
+.product-img {
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+  margin-top: 10px;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-img {
+  transform: scale(1.05);
+}
+
+/* 🧩 Fallback Image */
+.fallback {
+  width: 100%;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.fallback img {
+  width: 60%;
+  opacity: 0.7;
+}
+
+/* 📱 Mobile Responsive */
+@media (max-width: 768px) {
+  .product-img,
+  .fallback {
+    height: 140px;
+  }
+
+  .heart-icon {
+    font-size: 18px;
+  }
+
+  .card-icons {
+    top: 8px;
+    right: 8px;
+  }
+}
+      /* ===== PAGE LAYOUT ===== */
+
+.necklace-location {
+  padding: 18px 8%;
+  background: #f8f8f8;
+  font-size: 14px;
+  color: #555;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.necklace-location a {
+  text-decoration: none;
+  color: #222;
+  font-weight: 500;
+}
+
+.necklace-location a:hover {
+  color: #c59b2a;
+}
+
+/* ===== HEADER ===== */
+
+.page-header {
+  padding: 24px 8%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.page-header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.result-count {
+  font-size: 16px;
+  color: gray;
+  margin-left: 10px;
+  font-weight: 400;
+}
+
+/* ===== SEARCH ===== */
+
+.page-header input {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  min-width: 240px;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.page-header input:focus {
+  border-color: #c59b2a;
+  box-shadow: 0 0 0 3px rgba(197, 155, 42, 0.15);
+}
+
+/* ===== FILTERS ===== */
+
+.filter-row {
+  padding: 10px 8%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+  border-color: #c59b2a;
+  color: #c59b2a;
+}
+
+.filter-btn.active {
+  background: #ffd780;
+  border-color: #e6b85c;
+  color: #222;
+  font-weight: 500;
+}
+
+/* ===== PRODUCT GRID ===== */
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 26px;
+  padding: 26px 8%;
+}
+
+/* ===== PRODUCT CARD ===== */
+
+.product-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* ===== IMAGE ===== */
+
+.product-card img {
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+  border-radius: 10px;
+  transition: transform 0.35s ease;
+}
+
+.product-card:hover img {
+  transform: scale(1.05);
+}
+
+/* ===== ICONS ===== */
+
+.card-icons {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+  font-size: 22px;
+}
+
+.card-icons svg {
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.card-icons svg:hover {
+  transform: scale(1.15);
+}
+
+/* ===== PRODUCT TEXT ===== */
+
+.product-card h3 {
+  font-size: 16px;
+  margin: 12px 0 6px;
+  font-weight: 500;
+  color: #222;
+}
+
+.product-card p {
+  font-size: 15px;
+  color: #444;
+  margin: 0 0 12px;
+  font-weight: 600;
+}
+
+/* ===== BUTTON ===== */
+
+.product-card button {
+  border: none;
+  background: #dbc70e;
+  color: black;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  width: 100%;
+}
+
+.product-card button:hover {
+  background: #f08103c4;
+  transform: translateY(-1px);
+}
+
+/* ===== FALLBACK IMAGE ===== */
+
+.fallback {
+  width: 100%;
+  height: 230px;
+  border-radius: 10px;
+  background: #f7efef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+}
+
+.fallback img {
+  width: 60%;
+  opacity: 0.7;
+}
+
+/* ===== LOADERS ===== */
+
+.network-loader,
+.bottom-loader {
+  text-align: center;
+  padding: 40px;
+}
+
+.spinner-border {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+/* ===== END MESSAGE ===== */
+
+.end-message {
+  text-align: center;
+  padding: 30px;
+  color: gray;
+  font-size: 14px;
+}
+
+/* ===================================================== */
+/* ================= MOBILE RESPONSIVE ================= */
+/* ===================================================== */
+
+@media (max-width: 768px) {
+  .necklace-location {
+    padding: 14px 16px;
+    font-size: 13px;
+  }
+
+  .page-header {
+    padding: 18px 16px;
+  }
+
+  .page-header h1 {
+    font-size: 22px;
+  }
+
+  .result-count {
+    font-size: 13px;
+  }
+
+  .page-header input {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .filter-row {
+    padding: 8px 12px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .filter-btn {
+    white-space: nowrap;
+    font-size: 13px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    padding: 14px 10px;
+  }
+
+  .product-card {
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .product-card img,
+  .fallback {
+    height: 160px;
+  }
+
+  .product-card h3 {
+    font-size: 13px;
+  }
+
+  .product-card p {
+    font-size: 13px;
+  }
+
+  .product-card button {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  .card-icons {
+    font-size: 18px;
+  }
+}
+
+/* ===== SMALL MOBILE ===== */
+
+@media (max-width: 480px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .product-card img,
+  .fallback {
+    height: 140px;
+  }
+}
+      `}</style>
     </>
   );
 };

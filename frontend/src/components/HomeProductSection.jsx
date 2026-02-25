@@ -14,19 +14,12 @@ import {
 import LoginPopup from "./LoginPopup";
 
 const HomeProductSection = () => {
-    const [imgErrors, setImgErrors] = useState({});
-  
-    const handleImageError = (id) => {
-      setImgErrors((prev) => ({ ...prev, [id]: true }));
-    }; 
-  
   const [products, setProducts] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(25);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [imgErrors, setImgErrors] = useState({});
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 20;
-
-  const sectionRef = useRef(null);
+  const loaderRef = useRef(null);
 
   const { addToCart } = useContext(CartContext);
   const { isWished, toggle } = useWishlist();
@@ -42,30 +35,8 @@ const HomeProductSection = () => {
     }
   };
 
-  const scrollToTop = () => {
-    sectionRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  };
-
-  const handleNext = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage((prev) => prev + 1);
-      scrollToTop();
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
-      scrollToTop();
-    }
-  };
-
-  const handlePageClick = (page) => {
-    setCurrentPage(page);
-    scrollToTop();
+  const handleImageError = (id) => {
+    setImgErrors((prev) => ({ ...prev, [id]: true }));
   };
 
   const handleAddToCart = (product) => {
@@ -79,6 +50,7 @@ const HomeProductSection = () => {
   const handleWishlistToggle = (productId, e) => {
     e.preventDefault();
     e.stopPropagation();
+
     if (!isLoggedIn()) {
       setShowLoginPopup(true);
       return;
@@ -86,13 +58,14 @@ const HomeProductSection = () => {
     toggle(productId);
   };
 
+  /** ✅ Fetch Products */
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_API_URI}/products/new-arrivals`
+          `${import.meta.env.VITE_API_URI}/products/new-arrivals`,
         );
-        setProducts(res.data);
+        setProducts(res.data || []);
       } catch (err) {
         console.error("Error fetching products:", err);
       }
@@ -101,249 +74,328 @@ const HomeProductSection = () => {
     fetchProducts();
   }, []);
 
-  const totalPages = Math.ceil(products.length / pageSize);
+  /** ✅ Infinite Scroll */
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
 
-  const paginatedProducts = products.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+        if (first.isIntersecting && visibleCount < products.length) {
+          setVisibleCount((prev) => prev + 25);
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: "150px",
+      },
+    );
 
-  const getVisiblePages = () => {
-    const pages = [];
-    const start = Math.max(1, currentPage - 2);
-    const end = Math.min(totalPages, currentPage + 2);
+    const loader = loaderRef.current;
+    if (loader) observer.observe(loader);
 
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
+    return () => {
+      if (loader) observer.unobserve(loader);
+    };
+  }, [visibleCount, products.length]);
 
-    return pages;
-  };
-
-  const visiblePages = getVisiblePages();
+  const visibleProducts = products.slice(0, visibleCount);
 
   return (
-    <section ref={sectionRef} className="py-5 px-5 bg-light">
-      <h2 className="text-center mb-5 font-serif text-3xl font-bold">
-        Top Trending Collections
-      </h2>
+    <>
+      <section className="py-5 px-5 bg-light ">
+        <h2 className="text-center mb-5 font-serif text-3xl font-bold">
+          Top Trending Collections
+        </h2>
 
-      <div className="row justify-content-start g-4 mx-5 py-5">
-        {paginatedProducts.map((product) => {
-          let currentPrice = 0;
-          let previousPrice = null;
+        <div className="row justify-content-start g-4 mx-5 py-5">
+          {visibleProducts.map((product, index) => {
+            let currentPrice = Number(product.finalPrice || product.price || 0);
+            let previousPrice = null;
 
-          if (product.breakdown) {
-            const breakdown = product.breakdown;
+            if (product.displayActual) {
+              previousPrice = Number(product.displayActual);
+            }
 
-            const actualPrice =
-              breakdown.actualPrice ||
-              (breakdown.goldValue || 0) +
-                (breakdown.makingValue || 0) +
-                (breakdown.wastageValue || 0) +
-                (breakdown.stoneValue || 0);
+            const firstImg = pickFirstImageSrc(normalizeImages(product.images));
 
-            const discountAmount = breakdown.discount || 0;
-            const priceAfterDiscount = actualPrice - discountAmount;
-
-            const gstPercent = Number(product.gst || 0);
-            const gstOnAfterDiscount = Math.round(
-              (priceAfterDiscount * gstPercent) / 100
-            );
-
-            currentPrice = priceAfterDiscount + gstOnAfterDiscount;
-            previousPrice = actualPrice;
-          } else if (
-            product.displaySale !== undefined &&
-            product.displayActual !== undefined
-          ) {
-            const priceAfterDiscount = Number(product.displaySale || 0);
-            const gstPercent = Number(product.gst || 0);
-
-            const gstOnAfterDiscount = Math.round(
-              (priceAfterDiscount * gstPercent) / 100
-            );
-
-            currentPrice = priceAfterDiscount + gstOnAfterDiscount;
-            previousPrice = Number(product.displayActual || 0);
-          } else {
-            currentPrice = Number(product.finalPrice || product.price || 0);
-          }
-
-          const firstImg = pickFirstImageSrc(
-            normalizeImages(product.images)
-          );
-
-          return (
-            <div
-              className="col-12 col-sm-6 col-md-4 col-lg-3"
-              key={product._id}
-            >
-              <div className="rounded-xl overflow-hidden p-0.5 hover:shadow-gold hover:scale-[1.02] transition-all duration-300">
-                <div className="card shadow-sm position-relative">
-                  
-                  {product.discount > 0 && (
-                    <span className="position-absolute start-0 bg-danger text-white py-1 rounded-end w-[90px] text-sm d-flex justify-content-center">
-                      {product.discount}% OFF
-                    </span>
-                  )}
-
-                  <button
-                    onClick={(e) =>
-                      handleWishlistToggle(product._id, e)
-                    }
-                    className="position-absolute top-2 end-2 m-2"
-                    style={{ background: "transparent", border: "none" }}
-                  >
-                    {isWished(product._id) ? (
-                      <IoMdHeart style={{ fontSize: 25, color: "#e03131" }} />
-                    ) : (
-                      <PiHeart style={{ fontSize: 25, color: "gray" }} />
-                    )}
-                  </button>
-
-                  <Link to={`/product/${product._id}`}>
-                    <div
-                      className="d-flex align-items-center justify-content-center"
-                      style={{ height: "260px" }}
+            return (
+              <div
+                className="col-12 col-sm-6 col-md-4 col-lg-3"
+                key={product._id}
+                style={{
+                  animationDelay: `${index * 0.05}s`,
+                }}
+              >
+                <div className="product-card rounded-xl overflow-hidden">
+                  <div className="card shadow-sm position-relative">
+                    {/* Wishlist */}
+                    <button
+                      onClick={(e) => handleWishlistToggle(product._id, e)}
+                      className="position-absolute top-2 end-2 m-2"
+                      style={{ background: "transparent", border: "none" }}
                     >
-                      {!imgErrors[product._id] ? (
-                        <img
-                          src={buildImgSrc(firstImg) || "/default-product.jpg"}
-                          alt={product.name}
-                          style={{ width: "180px", height: "180px", objectFit: "contain" }}
-                          onError={() => handleImageError(product._id)}
-                        />
+                      {isWished(product._id) ? (
+                        <IoMdHeart className="wishlist-icon active" />
                       ) : (
-                        <div
-                          className="d-flex align-items-center justify-content-center bg-gray-100 rounded-lg"
-                          style={{ width: "280px", height: "280px" }}
-                        >
+                        <PiHeart className="wishlist-icon" />
+                      )}
+                    </button>
+
+                    {/* Image */}
+                    <Link to={`/product/${product._id}`}>
+                      <div className="image-wrapper">
+                        {!imgErrors[product._id] ? (
                           <img
-                            src="https://image.pngaaa.com/13/1887013-middle.png"
-                            alt="Product placeholder"
-                            style={{  opacity: 0.4, objectFit: "contain" }}
+                            src={
+                              buildImgSrc(firstImg) || "/default-product.jpg"
+                            }
+                            alt={product.name}
+                            loading="lazy"
+                            onError={() => handleImageError(product._id)}
                           />
-                        </div>
-                      )}
-                    </div>
-                  </Link>
+                        ) : (
+                          <img
+                            src="https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png"
+                            alt="fallback"
+                            className="fallback-img"
+                            style={{ width: "600px" }}
+                          />
+                        )}
+                      </div>
+                    </Link>
 
-                  <div className="card-body text-center">
-                    <h6 className="card-title text-nowrap">
-                      {product.name}
-                    </h6>
+                    {/* Info */}
+                    <div className="card-body text-center">
+                      <h6 className="card-title text-nowrap">{product.name}</h6>
 
-                    <div className="d-flex justify-content-center gap-2">
-                      <span className="fw-bold text-success">
-                        ₹{Number(currentPrice).toLocaleString("en-IN")}
-                      </span>
-
-                      {previousPrice > currentPrice && (
-                        <span className="text-muted text-decoration-line-through">
-                          ₹{Number(previousPrice).toLocaleString("en-IN")}
+                      <div className="d-flex justify-content-center gap-2">
+                        <span className="fw-bold text-success">
+                          ₹{currentPrice.toLocaleString("en-IN")}
                         </span>
-                      )}
-                    </div>
 
-                    <div className="d-flex justify-content-center mt-3 gap-2">
-                      <button
-                        className="btn button-90 btn-sm"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleAddToCart(product);
-                        }}
-                      >
-                        Add to Cart
-                      </button>
+                        {previousPrice > currentPrice && (
+                          <span className="text-muted text-decoration-line-through">
+                            ₹{previousPrice.toLocaleString("en-IN")}
+                          </span>
+                        )}
+                      </div>
 
-                      <button
-                        className="btn button-90 btn-sm"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          if (isLoggedIn()) {
-                            handleAddToCart(product);
-                            navigate("/checkout");
-                          } else {
-                            setShowLoginPopup(true);
-                          }
-                        }}
-                      >
-                        Buy Now
-                      </button>
+                 <div className="product-actions">
+  <button
+    className="btn-cart"
+    onClick={(e) => {
+      e.preventDefault();
+      handleAddToCart(product);
+    }}
+  >
+    Add to Cart
+  </button>
+
+  <button
+    className="btn-buy"
+    onClick={(e) => {
+      e.preventDefault();
+
+      if (isLoggedIn()) {
+        handleAddToCart(product);
+        navigate("/checkout");
+      } else {
+        setShowLoginPopup(true);
+      }
+    }}
+  >
+    Buy Now
+  </button>
+</div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {products.length > pageSize && (
-        <div className="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap">
-          
-          <button
-            className="btn btn-outline-secondary btn-sm"
-            onClick={handlePrev}
-            disabled={currentPage === 1}
-          >
-            Prev
-          </button>
-
-          {visiblePages[0] > 1 && (
-            <>
-              <button
-                className="btn btn-outline-secondary btn-sm"
-                onClick={() => handlePageClick(1)}
-              >
-                1
-              </button>
-              {visiblePages[0] > 2 && <span>...</span>}
-            </>
-          )}
-
-          {visiblePages.map((page) => (
-            <button
-              key={page}
-              onClick={() => handlePageClick(page)}
-              className={`btn btn-sm ${
-                currentPage === page
-                  ? "btn-dark"
-                  : "btn-outline-secondary"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-
-          {visiblePages[visiblePages.length - 1] < totalPages && (
-            <>
-              <span>...</span>
-              <button
-                className="btn btn-outline-secondary btn-sm"
-                onClick={() => handlePageClick(totalPages)}
-              >
-                {totalPages}
-              </button>
-            </>
-          )}
-
-          <button
-            className="btn btn-outline-secondary btn-sm"
-            onClick={handleNext}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </button>
+            );
+          })}
         </div>
-      )}
 
-      <LoginPopup
-        show={showLoginPopup}
-        onClose={() => setShowLoginPopup(false)}
-      />
-    </section>
+        {/* Loader */}
+        {visibleCount < products.length && (
+          <div ref={loaderRef} className="py-5 text-center">
+            <div className="spinner-border text-dark" />
+          </div>
+        )}
+
+        <LoginPopup
+          show={showLoginPopup}
+          onClose={() => setShowLoginPopup(false)}
+        />
+      </section>
+      <style>
+        {` 
+      .product-card {
+  animation: fadeZoomIn 0.6s ease forwards;
+  transform: scale(0.95);
+  opacity: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+@keyframes fadeZoomIn {
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.product-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Image */
+.image-wrapper {
+  height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.image-wrapper img {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  transition: transform 0.4s ease;
+}
+
+.product-card:hover img {
+  transform: scale(1.08);
+}
+
+.fallback-img {
+  opacity: 0.5;
+}
+
+/* Wishlist */
+.wishlist-icon {
+  font-size: 24px;
+  color: gray;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.wishlist-icon:hover {
+  transform: scale(1.2);
+}
+
+.wishlist-icon.active {
+  color: #e03131;
+}
+
+/* Base Button */
+.btn-cart,
+.btn-buy {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 25px;
+  border: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-width: 110px;
+}
+
+/* Add to Cart */
+.btn-cart {
+  background: linear-gradient(135deg, #6cabeb, #1f089ed8);
+  color: #fff;
+}
+
+.btn-cart:hover {
+  background: linear-gradient(135deg, #212529, #000);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Buy Now */
+.btn-buy {
+  background: linear-gradient(135deg, #c9c751, #d3d625);
+  color: #fff;
+}
+
+.btn-buy:hover {
+  background: linear-gradient(135deg, #e03131, #c92a2a);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(224, 49, 49, 0.3);
+}
+
+/* Click Effect */
+.btn-cart:active,
+.btn-buy:active {
+  transform: scale(0.96);
+}
+  /* ===== Product Buttons Wrapper ===== */
+.product-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* ===== Common Button Style ===== */
+.btn-cart,
+.btn-buy {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 90px;
+}
+
+/* Cart Button */
+.btn-cart {
+  background-color: #f1f1f1;
+  White-space: nowrap;
+}
+
+.btn-cart:hover {
+  background-color: #e0e0e0;
+}
+
+/* Buy Button */
+.btn-buy {
+  background-color: #111;
+  color: #fff;
+}
+
+.btn-buy:hover {
+  background-color: #000;
+}
+
+/* ===== Tablet Responsive ===== */
+@media (max-width: 992px) {
+  .btn-cart,
+  .btn-buy {
+    padding: 5px 10px;
+    font-size: 12px;
+    min-width: 80px;
+  }
+}
+
+/* ===== Mobile Responsive ===== */
+@media (max-width: 576px) {
+  .product-actions {
+    gap: 6px;
+  }
+
+  .btn-cart,
+  .btn-buy {
+    padding: 4px 8px;
+    font-size: 11px;
+    min-width: 70px;
+    border-radius: 5px;
+  }
+}
+      `}
+      </style>
+    </>
   );
 };
 
