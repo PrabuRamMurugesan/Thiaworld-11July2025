@@ -188,60 +188,7 @@ const GoldCollection = () => {
             const img = buildImgSrc(pickFirstImageSrc(prod.images));
             const wished = isWished(prod._id);
 
-
-          <div className="d-flex flex-wrap align-items-center gap-3">
-            <span className="fw-bold me-2">Purity:</span>
-            {["18K", "22K", "24K"].map((p) => (
-              <label
-                key={p}
-                className="d-flex align-items-center gap-1 text-sm"
-              >
-                <input
-                  type="checkbox"
-                  checked={purityFilter.includes(p)}
-                  onChange={() => togglePurity(p)}
-                />
-                {p}
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* Products grid */}
-        <section className="d-flex flex-row flex-wrap justify-start gap-4">
-          {paginatedProducts.map((prod) => {
-            const firstImg = pickFirstImageSrc(prod.images);
-            // Calculate price same way as ProductDetail page
-            let payableBase = 0;
-
-            let strike = null;
-
-            if (prod.breakdown) {
-              // Use breakdown to calculate prices (same as ProductDetail)
-              const breakdown = prod.breakdown;
-              const actualPrice =
-                breakdown.actualPrice ||
-                (breakdown.goldValue || 0) +
-                  (breakdown.makingValue || 0) +
-                  (breakdown.wastageValue || 0) +
-                  (breakdown.stoneValue || 0);
-
-              const discountAmount = breakdown.discount || 0;
-              const priceAfterDiscount = actualPrice - discountAmount;
-              const gstPercent = Number(prod.gst || 0);
-              const gstOnAfterDiscount = Math.round(
-                (priceAfterDiscount * gstPercent) / 100,
-              );
-              payableBase = priceAfterDiscount + gstOnAfterDiscount;
-
-              // Strike price = actualPrice (price before discount)
-              strike = actualPrice;
-            } else {
-              // Fallback to product price fields if no breakdown
-              payableBase = Number(
-                prod.finalPrice || prod.totalPayable || prod.price || 0,
-              );
-            }            return (
+            return (
               <motion.div
                 key={prod._id}
                 className="product-card"
@@ -428,4 +375,5 @@ const GoldCollection = () => {
     </>
   );
 };
+
 export default GoldCollection;
