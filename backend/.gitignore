@@ -58,3 +58,5 @@ Thumbs.db
 *.tmp
 *.orig
 *.rej
+.env
+backend/.env
