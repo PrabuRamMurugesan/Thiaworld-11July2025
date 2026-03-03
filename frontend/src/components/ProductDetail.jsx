@@ -63,7 +63,11 @@ const ProductDetailPage = () => {
 
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-
+const MIN_PERCENT = 40;
+const [enablePartial, setEnablePartial] = useState(false);
+const [partialPercent, setPartialPercent] = useState(MIN_PERCENT);
+const [testimonials, setTestimonials] = useState([]);
+const [loadingTestimonials, setLoadingTestimonials] = useState(false);
   // track images that failed to load by product id
   const [imgErrors, setImgErrors] = useState({});
 
@@ -102,9 +106,24 @@ const ProductDetailPage = () => {
       console.error("Failed to fetch product:", err);
     }
   };
+const fetchTestimonials = async () => {
+  try {
+    setLoadingTestimonials(true);
 
+    const res = await axios.get(
+      `${import.meta.env.VITE_API_URI}/testimonials?productId=${id}`
+    );
+
+    setTestimonials(res.data.testimonials || []);
+  } catch (err) {
+    console.error("Failed to fetch testimonials:", err);
+  } finally {
+    setLoadingTestimonials(false);
+  }
+};
   useEffect(() => {
     fetchProduct();
+      fetchTestimonials();
     setUsePartial(false);
     setAdvancePct(40);
   }, [id]);
@@ -200,25 +219,40 @@ const ProductDetailPage = () => {
   };
 
   // Cart
-  const handleAddToCart = (directBuy = false) => {
-    if (!product) return;
+const handleAddToCart = (directBuy = false) => {
+  if (!product) return;
 
-    const cartPayload = {
-      ...product,
-      _partial:
-        product.isPartialPaymentEnabled && usePartial
-          ? { enabled: true, advancePct, advanceAmount, remainingAmount }
-          : { enabled: false },
-    };
+  const isPartialActive =
+    product.isPartialPaymentEnabled && usePartial;
 
-    addToCart(cartPayload);
+  const cartPayload = {
+    ...product,
 
-    setAlertMessage("Product added to cart!");
-    setShowAlert(true);
-    setTimeout(() => setShowAlert(false), 3000);
+    // 🔥 This controls what amount goes to cart
+    price: isPartialActive ? advanceAmount : payableBase,
+    finalPrice: isPartialActive ? advanceAmount : payableBase,
+    totalPayable: isPartialActive ? advanceAmount : payableBase,
 
-    if (directBuy) navigate("/cart");
+    payableNow: isPartialActive ? advanceAmount : payableBase,
+
+    _partial: isPartialActive
+      ? {
+          enabled: true,
+          advancePct,
+          advanceAmount,
+          remainingAmount,
+        }
+      : { enabled: false },
   };
+
+  addToCart(cartPayload);
+
+  setAlertMessage("Product added to cart!");
+  setShowAlert(true);
+  setTimeout(() => setShowAlert(false), 3000);
+
+  if (directBuy) navigate("/cart");
+};
 
   // Zoom move
   const handleMouseMove = (e) => {
@@ -474,19 +508,68 @@ const ProductDetailPage = () => {
                 </span>
               )}
             </div>
-
-            {/* Tags */}
-            <div className="flex gap-2 mb-4">
-              {product.isSecurePlanEnabled && (
+  {product.isSecurePlanEnabled && (
                 <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
                   Secure Plan
                 </span>
               )}
-              {product.isPartialPaymentEnabled && (
-                <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs">
-                  Partial Payment
-                </span>
-              )}
+            {/* Tags */}
+            <div className="flex gap-2 mb-4">
+            
+        {product.isPartialPaymentEnabled && (
+  <div className="mt-2 mb-4 bg-yellow-50 border border-yellow-300 rounded p-3">
+    <label className="flex items-center gap-2 font-semibold text-yellow-800">
+      <input
+        type="checkbox"
+        checked={usePartial}
+        onChange={(e) => {
+          setUsePartial(e.target.checked);
+          setAdvanceSafe(40);
+        }}
+      />
+      Enable partial payment
+    </label>
+
+    {usePartial && (
+      <div className="mt-4">
+
+        {/* Slider Header */}
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-sm font-medium text-gray-700">
+            Advance Percentage
+          </span>
+          <span className="bg-yellow-600 text-white text-xs px-3 py-1 rounded-full">
+            {advancePct}%
+          </span>
+        </div>
+
+        {/* SLIDER */}
+        <input
+          type="range"
+          min="40"
+          max="100"
+          step="1"
+          value={advancePct}
+          onChange={(e) => setAdvanceSafe(e.target.value)}
+          className="w-full accent-yellow-600 cursor-pointer"
+        />
+
+        {/* AMOUNT DISPLAY */}
+        <div className="mt-4 grid gap-1 text-sm text-gray-700">
+          <div>
+            <strong>Advance ({advancePct}%):</strong>{" "}
+            ₹{formatINR(advanceAmount)}
+          </div>
+
+          <div>
+            <strong>Remaining:</strong>{" "}
+            ₹{formatINR(remainingAmount)}
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+)}
               {product.isCombo && (
                 <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs">
                   Combo
@@ -494,31 +577,7 @@ const ProductDetailPage = () => {
               )}
             </div>
 
-            {/* Partial */}
-            {product.isPartialPaymentEnabled && (
-              <div className="mt-2 mb-4 bg-yellow-50 border border-yellow-300 rounded p-3">
-                <label className="flex items-center gap-2 font-semibold text-yellow-800">
-                  <input
-                    type="checkbox"
-                    checked={usePartial}
-                    onChange={(e) => setUsePartial(e.target.checked)}
-                  />
-                  Enable partial payment
-                </label>
-
-                {usePartial && (
-                  <div className="mt-3 grid gap-1 text-sm text-gray-700">
-                    <div>
-                      <strong>Advance ({advancePct}%):</strong> ₹
-                      {formatINR(advanceAmount)}
-                    </div>
-                    <div>
-                      <strong>Remaining:</strong> ₹{formatINR(remainingAmount)}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+         
 
             {/* Specs */}
             <p className="text-sm text-gray-600 mb-1">
@@ -640,6 +699,58 @@ const ProductDetailPage = () => {
         </div>
       </div>
       <ProductBottom product={product} />
+{/* ================= CUSTOMER REVIEWS ================= */}
+
+<div className="mt-12 border-t pt-8">
+  <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
+
+  {loadingTestimonials && (
+    <p className="text-gray-500">Loading reviews...</p>
+  )}
+
+  {!loadingTestimonials && testimonials.length === 0 && (
+    <p className="text-gray-500">No reviews yet.</p>
+  )}
+
+  <div className="space-y-6">
+    {testimonials.map((review) => (
+      <div
+        key={review._id}
+        className="border rounded-lg p-4 shadow-sm bg-white"
+      >
+        <div className="flex justify-between items-center mb-2">
+          <h4 className="font-semibold">{review.name}</h4>
+
+          <div className="flex">
+            {[1,2,3,4,5].map((star) => (
+              <span key={star}>
+                {star <= review.rating ? (
+                  <GoStarFill color="#facc15" size={18} />
+                ) : (
+                  <FiStar color="#d1d5db" size={18} />
+                )}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {review.title && (
+          <p className="font-medium text-sm mb-1">
+            {review.title}
+          </p>
+        )}
+
+        <p className="text-gray-700 text-sm">
+          {review.message}
+        </p>
+
+        <p className="text-xs text-gray-400 mt-2">
+          {new Date(review.createdAt).toLocaleDateString("en-IN")}
+        </p>
+      </div>
+    ))}
+  </div>
+</div>
       <Footer />
       <style>
         {`

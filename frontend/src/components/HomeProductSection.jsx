@@ -180,33 +180,33 @@ const HomeProductSection = () => {
                         )}
                       </div>
 
-                 <div className="product-actions">
-  <button
-    className="btn-cart"
-    onClick={(e) => {
-      e.preventDefault();
-      handleAddToCart(product);
-    }}
-  >
-    Add to Cart
-  </button>
+                      <div className="product-actions">
+                        <button
+                          className="btn-cart"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleAddToCart(product);
+                          }}
+                        >
+                          Add to Cart
+                        </button>
 
-  <button
-    className="btn-buy"
-    onClick={(e) => {
-      e.preventDefault();
+                        <button
+                          className="btn-buy"
+                          onClick={(e) => {
+                            e.preventDefault();
 
-      if (isLoggedIn()) {
-        handleAddToCart(product);
-        navigate("/checkout");
-      } else {
-        setShowLoginPopup(true);
-      }
-    }}
-  >
-    Buy Now
-  </button>
-</div>
+                            if (isLoggedIn()) {
+                              handleAddToCart(product);
+                              navigate("/checkout");
+                            } else {
+                              setShowLoginPopup(true);
+                            }
+                          }}
+                        >
+                          Buy Now
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

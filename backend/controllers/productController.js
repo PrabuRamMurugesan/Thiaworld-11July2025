@@ -497,6 +497,7 @@ const getNewArrivals = async (req, res) => {
           p.displayActual = explain.actualPrice;
           p.displaySale = explain.salesPrice;
           p.displayPrice = explain.salesPrice; // used by UI
+          p.finalPrice = explain.salesPrice;
           p.breakdown = b;
 
           // ✅ Rate source info

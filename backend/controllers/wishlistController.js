@@ -1,10 +1,12 @@
 const Wishlist = require("../models/Wishlist");
+const { getLatestBlockCached, purityToCarat } = require("../services/goldRates");
+const { computePriceExplain } = require("../services/pricing");
 
-// GET /api/wishlist  -> list user's wishlist with basic product fields
 exports.list = async (req, res) => {
   try {
     if (!req.user?._id)
       return res.status(401).json({ message: "Login required" });
+
     const items = await Wishlist.aggregate([
       { $match: { userId: req.user._id } },
       {
@@ -21,22 +23,55 @@ exports.list = async (req, res) => {
           _id: 1,
           productId: 1,
           createdAt: 1,
+
           "product._id": 1,
           "product.name": 1,
           "product.price": 1,
           "product.images": 1,
           "product.category": 1,
           "product.purity": 1,
+          "product.metalType": 1,
+          "product.netWeight": 1,
+          "product.grossWeight": 1,
+          "product.makingCharges": 1,
+          "product.discount": 1,
+          "product.gst": 1,
         },
       },
     ]);
+
+    // 🔥 Attach dynamic pricing
+    const latest = await getLatestBlockCached();
+
+    if (latest) {
+      for (const item of items) {
+        const p = item.product;
+        if (!p) continue;
+
+        if (String(p.metalType || "").toLowerCase() === "gold") {
+          const carat = purityToCarat(p.purity);
+          const rate = latest[carat]?.ratePerGram;
+          if (!rate) continue;
+
+          const explain = computePriceExplain({
+            ratePerGram: rate,
+            product: p,
+          });
+
+          p.displaySale = explain.salesPrice;
+          p.displayActual = explain.actualPrice;
+          p.displayPrice = explain.salesPrice;
+          p.finalPrice = explain.salesPrice;
+        }
+      }
+    }
+
     res.json({ ok: true, items });
   } catch (e) {
     console.error("wishlist.list", e);
     res.status(500).json({ message: "Failed to load wishlist" });
   }
 };
-
 // POST /api/wishlist/toggle  { productId }
 exports.toggle = async (req, res) => {
   try {

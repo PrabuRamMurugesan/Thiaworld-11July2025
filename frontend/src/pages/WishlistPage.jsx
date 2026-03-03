@@ -171,8 +171,16 @@ const WishlistPage = () => {
                 const images = normalizeImages(product.images || []);
                 const firstImage = pickFirstImageSrc(images);
                 const productImage = buildImgSrc(firstImage);
-                const productPrice = Number(product.price || product.finalPrice || product.breakdown?.salesPrice || 0);
+const salePrice = Number(
+  product.displaySale ||
+  product.displayPrice ||
+  product.finalPrice ||
+  0
+);
 
+const strikePrice = Number(
+  product.displayActual || 0
+);
                 return (
                   <div
                     key={it._id}
@@ -225,11 +233,17 @@ const WishlistPage = () => {
 
                       {/* Action Buttons */}
                       <div className="flex flex-col gap-2">
-                                <div className="mb-2">
-                        <p className="text-xl font-bold text-yellow-700">
-                          ₹{formatINR(productPrice)}
-                        </p>
-                      </div>
+                      <div className="mb-2">
+  <p className="text-xl font-bold text-yellow-700">
+    ₹{formatINR(salePrice)}
+  </p>
+
+  {strikePrice > salePrice && (
+    <p className="text-sm text-gray-500 line-through">
+      ₹{formatINR(strikePrice)}
+    </p>
+  )}
+       </div>
                         <Link
                           to={`/product/${product._id}`}
                           className="w-full text-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-medium text-sm"
