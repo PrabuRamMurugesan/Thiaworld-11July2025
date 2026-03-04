@@ -69,43 +69,60 @@ useEffect(() => {
   // ------------------------------
   // ADD TO CART
   // ------------------------------
-  const addToCart = (product) => {
-    // Check if user is logged in
-    if (!isLoggedIn()) {
-      console.warn("User must be logged in to add items to cart");
-      return false; // Return false to indicate failure
-    }
+const addToCart = (product) => {
+  if (!isLoggedIn()) {
+    console.warn("User must be logged in to add items to cart");
+    return false;
+  }
 
-    const raw = product.category || product.metalType || "";
-    const cat = raw.toLowerCase();
+  const raw = product.category || product.metalType || "";
+  const cat = raw.toLowerCase();
 
-    // Add unique cartItemId to each product
-    const itemWithId = {
-      ...product,
-      cartItemId: generateCartItemId()
-    };
+  const updateCategoryCart = (cart, setCart, storageKey) => {
+    const existing = cart.find(
+      (item) => item._id === product._id
+    );
 
-    if (cat === "gold") {
-      const updated = [...goldCart, itemWithId];
-      setGoldCart(updated);
-      localStorage.setItem("goldCart", JSON.stringify(updated));
-    } else if (cat === "silver") {
-      const updated = [...silverCart, itemWithId];
-      setSilverCart(updated);
-      localStorage.setItem("silverCart", JSON.stringify(updated));
-    } else if (cat === "diamond") {
-      const updated = [...diamondCart, itemWithId];
-      setDiamondCart(updated);
-      localStorage.setItem("diamondCart", JSON.stringify(updated));
-    } else if (cat === "platinum") {
-      const updated = [...platinumCart, itemWithId];
-      setPlatinumCart(updated);
-      localStorage.setItem("platinumCart", JSON.stringify(updated));
+    let updated;
+
+    if (existing) {
+      updated = cart.map((item) =>
+        item._id === product._id
+          ? {
+              ...item,
+              quantity: (item.quantity || 1) + 1,
+            }
+          : item
+      );
     } else {
-      console.warn("Unknown category", raw, product);
+      updated = [
+        ...cart,
+        {
+          ...product,
+          quantity: 1,
+          cartItemId: generateCartItemId(),
+        },
+      ];
     }
-    return true; // Return true to indicate success
+
+    setCart(updated);
+    localStorage.setItem(storageKey, JSON.stringify(updated));
   };
+
+  if (cat === "gold") {
+    updateCategoryCart(goldCart, setGoldCart, "goldCart");
+  } else if (cat === "silver") {
+    updateCategoryCart(silverCart, setSilverCart, "silverCart");
+  } else if (cat === "diamond") {
+    updateCategoryCart(diamondCart, setDiamondCart, "diamondCart");
+  } else if (cat === "platinum") {
+    updateCategoryCart(platinumCart, setPlatinumCart, "platinumCart");
+  } else {
+    console.warn("Unknown category", raw, product);
+  }
+
+  return true;
+};
 
   // ------------------------------
   // REMOVE ITEM (by unique cartItemId, not product _id)

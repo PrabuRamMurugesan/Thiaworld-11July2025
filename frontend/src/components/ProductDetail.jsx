@@ -9,6 +9,8 @@ import { HelmetProvider } from "react-helmet-async";
 import { IoIosShareAlt } from "react-icons/io";
 import { AiOutlineHeart } from "react-icons/ai";
 import { AiFillHeart } from "react-icons/ai";
+import { FaInstagram } from "react-icons/fa";
+
 import {
   FaWhatsapp,
   FaFacebookF,
@@ -63,13 +65,14 @@ const ProductDetailPage = () => {
 
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-const MIN_PERCENT = 40;
-const [enablePartial, setEnablePartial] = useState(false);
-const [partialPercent, setPartialPercent] = useState(MIN_PERCENT);
-const [testimonials, setTestimonials] = useState([]);
-const [loadingTestimonials, setLoadingTestimonials] = useState(false);
+  const MIN_PERCENT = 40;
+  const [enablePartial, setEnablePartial] = useState(false);
+  const [partialPercent, setPartialPercent] = useState(MIN_PERCENT);
+  const [testimonials, setTestimonials] = useState([]);
+  const [loadingTestimonials, setLoadingTestimonials] = useState(false);
   // track images that failed to load by product id
   const [imgErrors, setImgErrors] = useState({});
+const moreCollectionRef = useRef(null);
 
   const handleImageError = (id, e) => {
     // hide the broken image element if provided
@@ -80,7 +83,10 @@ const [loadingTestimonials, setLoadingTestimonials] = useState(false);
     }
     setImgErrors((prev) => ({ ...prev, [id]: true }));
   };
-
+const scrollToMoreCollection = () => {
+  const element = document.getElementById("more-collection-section");
+  element?.scrollIntoView({ behavior: "smooth", block: "start" });
+};
   // Zoom
   const imgRef = useRef(null);
   const [lensPos, setLensPos] = useState({ x: 10, y: 0 });
@@ -106,24 +112,24 @@ const [loadingTestimonials, setLoadingTestimonials] = useState(false);
       console.error("Failed to fetch product:", err);
     }
   };
-const fetchTestimonials = async () => {
-  try {
-    setLoadingTestimonials(true);
+  const fetchTestimonials = async () => {
+    try {
+      setLoadingTestimonials(true);
 
-    const res = await axios.get(
-      `${import.meta.env.VITE_API_URI}/testimonials?productId=${id}`
-    );
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URI}/testimonials?productId=${id}`
+      );
 
-    setTestimonials(res.data.testimonials || []);
-  } catch (err) {
-    console.error("Failed to fetch testimonials:", err);
-  } finally {
-    setLoadingTestimonials(false);
-  }
-};
+      setTestimonials(res.data.testimonials || []);
+    } catch (err) {
+      console.error("Failed to fetch testimonials:", err);
+    } finally {
+      setLoadingTestimonials(false);
+    }
+  };
   useEffect(() => {
     fetchProduct();
-      fetchTestimonials();
+    fetchTestimonials();
     setUsePartial(false);
     setAdvancePct(40);
   }, [id]);
@@ -140,26 +146,26 @@ const fetchTestimonials = async () => {
   // ================================
   const payableBase = useMemo(() => {
     if (!product) return 0;
-    
+
     // If breakdown exists, calculate final price from breakdown
     if (product.breakdown) {
       const breakdown = product.breakdown;
-      const actualPrice = breakdown.actualPrice || 
-        (breakdown.goldValue || 0) + 
-        (breakdown.makingValue || 0) + 
-        (breakdown.wastageValue || 0) + 
+      const actualPrice = breakdown.actualPrice ||
+        (breakdown.goldValue || 0) +
+        (breakdown.makingValue || 0) +
+        (breakdown.wastageValue || 0) +
         (breakdown.stoneValue || 0);
-      
+
       const discountAmount = breakdown.discount || 0;
       const priceAfterDiscount = actualPrice - discountAmount;
       const gstPercent = Number(product.gst || 0);
       // Match PriceBreakup calculation exactly (with rounding)
       const gstOnAfterDiscount = Math.round((priceAfterDiscount * gstPercent) / 100);
       const finalPrice = priceAfterDiscount + gstOnAfterDiscount;
-      
+
       return finalPrice;
     }
-    
+
     // Fallback to product price fields if no breakdown
     return Number(
       product.finalPrice || product.totalPayable || product.price || 0
@@ -174,11 +180,11 @@ const fetchTestimonials = async () => {
     if (!product || !product.breakdown) return null;
 
     // Use actualPrice (price before discount) as strike-through price
-    const actualPrice = product.breakdown.actualPrice || product.breakdown.goldValue + 
-      (product.breakdown.makingValue || 0) + 
-      (product.breakdown.wastageValue || 0) + 
+    const actualPrice = product.breakdown.actualPrice || product.breakdown.goldValue +
+      (product.breakdown.makingValue || 0) +
+      (product.breakdown.wastageValue || 0) +
       (product.breakdown.stoneValue || 0);
-    
+
     return actualPrice;
   }, [product]);
 
@@ -200,7 +206,7 @@ const fetchTestimonials = async () => {
   const handleShare = async () => {
     const shareUrl = `${window.location.origin}/product/${id}`;
     const shareText = `Check out this beautiful jewellery: ${product?.name}`;
-    
+
     if (navigator.share) {
       try {
         await navigator.share({
@@ -219,40 +225,40 @@ const fetchTestimonials = async () => {
   };
 
   // Cart
-const handleAddToCart = (directBuy = false) => {
-  if (!product) return;
+  const handleAddToCart = (directBuy = false) => {
+    if (!product) return;
 
-  const isPartialActive =
-    product.isPartialPaymentEnabled && usePartial;
+    const isPartialActive =
+      product.isPartialPaymentEnabled && usePartial;
 
-  const cartPayload = {
-    ...product,
+    const cartPayload = {
+      ...product,
 
-    // 🔥 This controls what amount goes to cart
-    price: isPartialActive ? advanceAmount : payableBase,
-    finalPrice: isPartialActive ? advanceAmount : payableBase,
-    totalPayable: isPartialActive ? advanceAmount : payableBase,
+      // 🔥 This controls what amount goes to cart
+      price: isPartialActive ? advanceAmount : payableBase,
+      finalPrice: isPartialActive ? advanceAmount : payableBase,
+      totalPayable: isPartialActive ? advanceAmount : payableBase,
 
-    payableNow: isPartialActive ? advanceAmount : payableBase,
+      payableNow: isPartialActive ? advanceAmount : payableBase,
 
-    _partial: isPartialActive
-      ? {
+      _partial: isPartialActive
+        ? {
           enabled: true,
           advancePct,
           advanceAmount,
           remainingAmount,
         }
-      : { enabled: false },
+        : { enabled: false },
+    };
+
+    addToCart(cartPayload);
+
+    setAlertMessage("Product added to cart!");
+    setShowAlert(true);
+    setTimeout(() => setShowAlert(false), 3000);
+
+    if (directBuy) navigate("/cart");
   };
-
-  addToCart(cartPayload);
-
-  setAlertMessage("Product added to cart!");
-  setShowAlert(true);
-  setTimeout(() => setShowAlert(false), 3000);
-
-  if (directBuy) navigate("/cart");
-};
 
   // Zoom move
   const handleMouseMove = (e) => {
@@ -341,12 +347,10 @@ const handleAddToCart = (directBuy = false) => {
                     border: "2px solid rgba(255,200,0,0.8)",
                     backgroundImage: `url(${selectedImage})`,
                     backgroundRepeat: "no-repeat",
-                    backgroundSize: `${mainImageSize * zoom}px ${
-                      mainImageSize * zoom
-                    }px`,
-                    backgroundPosition: `-${
-                      lensPos.x * zoom - lensSize / 2
-                    }px -${lensPos.y * zoom - lensSize / 2}px`,
+                    backgroundSize: `${mainImageSize * zoom}px ${mainImageSize * zoom
+                      }px`,
+                    backgroundPosition: `-${lensPos.x * zoom - lensSize / 2
+                      }px -${lensPos.y * zoom - lensSize / 2}px`,
                     pointerEvents: "none",
                   }}
                 />
@@ -470,9 +474,13 @@ const handleAddToCart = (directBuy = false) => {
               <span className="divider" />
 
               {/* View Similar */}
-              <span className="view-similar">View Similar</span>
-            </div>
-            
+              <span
+                className="view-similar"
+                onClick={scrollToMoreCollection}
+              >
+                View Similar
+              </span>            </div>
+
             {/* Delivery Info Popup */}
             {showDeliveryInfo && (
               <div
@@ -508,68 +516,68 @@ const handleAddToCart = (directBuy = false) => {
                 </span>
               )}
             </div>
-  {product.isSecurePlanEnabled && (
-                <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
-                  Secure Plan
-                </span>
-              )}
+            {product.isSecurePlanEnabled && (
+              <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
+                Secure Plan
+              </span>
+            )}
             {/* Tags */}
             <div className="flex gap-2 mb-4">
-            
-        {product.isPartialPaymentEnabled && (
-  <div className="mt-2 mb-4 bg-yellow-50 border border-yellow-300 rounded p-3">
-    <label className="flex items-center gap-2 font-semibold text-yellow-800">
-      <input
-        type="checkbox"
-        checked={usePartial}
-        onChange={(e) => {
-          setUsePartial(e.target.checked);
-          setAdvanceSafe(40);
-        }}
-      />
-      Enable partial payment
-    </label>
 
-    {usePartial && (
-      <div className="mt-4">
+              {product.isPartialPaymentEnabled && (
+                <div className="mt-2 mb-4 bg-yellow-50 border border-yellow-300 rounded p-3">
+                  <label className="flex items-center gap-2 font-semibold text-yellow-800">
+                    <input
+                      type="checkbox"
+                      checked={usePartial}
+                      onChange={(e) => {
+                        setUsePartial(e.target.checked);
+                        setAdvanceSafe(40);
+                      }}
+                    />
+                    Enable partial payment
+                  </label>
 
-        {/* Slider Header */}
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium text-gray-700">
-            Advance Percentage
-          </span>
-          <span className="bg-yellow-600 text-white text-xs px-3 py-1 rounded-full">
-            {advancePct}%
-          </span>
-        </div>
+                  {usePartial && (
+                    <div className="mt-4">
 
-        {/* SLIDER */}
-        <input
-          type="range"
-          min="40"
-          max="100"
-          step="1"
-          value={advancePct}
-          onChange={(e) => setAdvanceSafe(e.target.value)}
-          className="w-full accent-yellow-600 cursor-pointer"
-        />
+                      {/* Slider Header */}
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium text-gray-700">
+                          Advance Percentage
+                        </span>
+                        <span className="bg-yellow-600 text-white text-xs px-3 py-1 rounded-full">
+                          {advancePct}%
+                        </span>
+                      </div>
 
-        {/* AMOUNT DISPLAY */}
-        <div className="mt-4 grid gap-1 text-sm text-gray-700">
-          <div>
-            <strong>Advance ({advancePct}%):</strong>{" "}
-            ₹{formatINR(advanceAmount)}
-          </div>
+                      {/* SLIDER */}
+                      <input
+                        type="range"
+                        min="40"
+                        max="100"
+                        step="1"
+                        value={advancePct}
+                        onChange={(e) => setAdvanceSafe(e.target.value)}
+                        className="w-full accent-yellow-600 cursor-pointer"
+                      />
 
-          <div>
-            <strong>Remaining:</strong>{" "}
-            ₹{formatINR(remainingAmount)}
-          </div>
-        </div>
-      </div>
-    )}
-  </div>
-)}
+                      {/* AMOUNT DISPLAY */}
+                      <div className="mt-4 grid gap-1 text-sm text-gray-700">
+                        <div>
+                          <strong>Advance ({advancePct}%):</strong>{" "}
+                          ₹{formatINR(advanceAmount)}
+                        </div>
+
+                        <div>
+                          <strong>Remaining:</strong>{" "}
+                          ₹{formatINR(remainingAmount)}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
               {product.isCombo && (
                 <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs">
                   Combo
@@ -577,7 +585,7 @@ const handleAddToCart = (directBuy = false) => {
               )}
             </div>
 
-         
+
 
             {/* Specs */}
             <p className="text-sm text-gray-600 mb-1">
@@ -586,13 +594,13 @@ const handleAddToCart = (directBuy = false) => {
 
             {/* 22K Gold Rate Display */}
             {product.metalType?.toLowerCase() === "gold" &&
-             product.purity?.includes("22") &&
-             (product.priceSource?.ratePerGram || (product.breakdown?.goldValue && product.netWeight)) && (
-              <p className="text-sm text-gray-600 mb-1">
-                <strong>22K Gold Rate:</strong>{' '}
-                {product.priceSource?.ratePerGram
-                  ? `₹${formatINR(product.priceSource.ratePerGram)}/gram`
-                  : (() => {
+              product.purity?.includes("22") &&
+              (product.priceSource?.ratePerGram || (product.breakdown?.goldValue && product.netWeight)) && (
+                <p className="text-sm text-gray-600 mb-1">
+                  <strong>22K Gold Rate:</strong>{' '}
+                  {product.priceSource?.ratePerGram
+                    ? `₹${formatINR(product.priceSource.ratePerGram)}/gram`
+                    : (() => {
                       const goldVal = product.breakdown.goldValue;
                       const wt = product.netWeight;
                       if (goldVal && wt) {
@@ -601,13 +609,13 @@ const handleAddToCart = (directBuy = false) => {
                       }
                       return '—';
                     })()}
-                {product.priceSource?.effectiveDate && (
-                  <span className="text-xs text-gray-500 ml-2">
-                    (Effective: {new Date(product.priceSource.effectiveDate).toLocaleDateString('en-IN')})
-                  </span>
-                )}
-              </p>
-            )}
+                  {product.priceSource?.effectiveDate && (
+                    <span className="text-xs text-gray-500 ml-2">
+                      (Effective: {new Date(product.priceSource.effectiveDate).toLocaleDateString('en-IN')})
+                    </span>
+                  )}
+                </p>
+              )}
 
             <p className="text-sm text-gray-600 mb-1">
               Net Weight: {product.netWeight}g | Gross: {product.grossWeight}g
@@ -635,15 +643,34 @@ const handleAddToCart = (directBuy = false) => {
 
             {/* Share */}
             <div className="flex items-center gap-4 mt-4">
-              <FaWhatsapp className="cursor-pointer" />
-              <FaFacebookF className="cursor-pointer" />
-              <FaTwitter className="cursor-pointer" />
-              <FaPinterest className="cursor-pointer" />
+              <FaWhatsapp
+                className="cursor-pointer text-green-500 hover:scale-110 transition"
+                onClick={() =>
+                  window.open(
+                    "https://api.whatsapp.com/send/?phone=919600729596&text&type=phone_number&app_absent=0",
+                    "_blank",
+                    "noopener,noreferrer"
+                  )
+                }
+              />
+              <FaFacebookF className="cursor-pointer" onClick={() =>
+                window.open(
+                  "https://www.facebook.com/profile.php?id=100090821565338",
+                  "_blank",
+                  "noopener,noreferrer"
+                )
+              } />
+              {/* <FaTwitter className="cursor-pointer" />
+              <FaPinterest className="cursor-pointer" /> */}
+              <FaInstagram size={22} />
+              {/* 
               <FaLink
                 className="cursor-pointer"
                 onClick={() => navigator.clipboard.writeText(shareUrl)}
-              />
-              <FaEnvelope className="cursor-pointer" />
+              /> */}
+              <a href="mailto:info@thiaworld.com?subject=Website Inquiry&body=Hello Thiaworld Team,">
+                <FaEnvelope className="cursor-pointer hover:text-red-500 transition" />
+              </a>
             </div>
 
             <Link
@@ -698,59 +725,59 @@ const handleAddToCart = (directBuy = false) => {
           </div>
         </div>
       </div>
-      <ProductBottom product={product} />
+  <ProductBottom product={product} />
 {/* ================= CUSTOMER REVIEWS ================= */}
 
-<div className="mt-12 border-t pt-8">
-  <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
+      <div className="mt-12 border-t pt-8">
+        <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
 
-  {loadingTestimonials && (
-    <p className="text-gray-500">Loading reviews...</p>
-  )}
-
-  {!loadingTestimonials && testimonials.length === 0 && (
-    <p className="text-gray-500">No reviews yet.</p>
-  )}
-
-  <div className="space-y-6">
-    {testimonials.map((review) => (
-      <div
-        key={review._id}
-        className="border rounded-lg p-4 shadow-sm bg-white"
-      >
-        <div className="flex justify-between items-center mb-2">
-          <h4 className="font-semibold">{review.name}</h4>
-
-          <div className="flex">
-            {[1,2,3,4,5].map((star) => (
-              <span key={star}>
-                {star <= review.rating ? (
-                  <GoStarFill color="#facc15" size={18} />
-                ) : (
-                  <FiStar color="#d1d5db" size={18} />
-                )}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {review.title && (
-          <p className="font-medium text-sm mb-1">
-            {review.title}
-          </p>
+        {loadingTestimonials && (
+          <p className="text-gray-500">Loading reviews...</p>
         )}
 
-        <p className="text-gray-700 text-sm">
-          {review.message}
-        </p>
+        {!loadingTestimonials && testimonials.length === 0 && (
+          <p className="text-gray-500">No reviews yet.</p>
+        )}
 
-        <p className="text-xs text-gray-400 mt-2">
-          {new Date(review.createdAt).toLocaleDateString("en-IN")}
-        </p>
+        <div className="space-y-6">
+          {testimonials.map((review) => (
+            <div
+              key={review._id}
+              className="border rounded-lg p-4 shadow-sm bg-white"
+            >
+              <div className="flex justify-between items-center mb-2">
+                <h4 className="font-semibold">{review.name}</h4>
+
+                <div className="flex">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span key={star}>
+                      {star <= review.rating ? (
+                        <GoStarFill color="#facc15" size={18} />
+                      ) : (
+                        <FiStar color="#d1d5db" size={18} />
+                      )}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {review.title && (
+                <p className="font-medium text-sm mb-1">
+                  {review.title}
+                </p>
+              )}
+
+              <p className="text-gray-700 text-sm">
+                {review.message}
+              </p>
+
+              <p className="text-xs text-gray-400 mt-2">
+                {new Date(review.createdAt).toLocaleDateString("en-IN")}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
-    ))}
-  </div>
-</div>
       <Footer />
       <style>
         {`

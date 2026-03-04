@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Zoom from "../../public/assets/zoom.png";
 import Fast from "../../public/assets/fast.png";
 import Gift from "../../public/assets/gift.png";
 import Return from "../../public/assets/return.png";
-import { FaStar, FaHeart } from "react-icons/fa";
 import Popular from "./PopularSearch";
-import JewelleryMaintenance from "./JewelleryMaintenance";
 import PriceBreakup from "./PriceBreakup";
 import MoreFromCollection from "./MoreFromCollection";
 
@@ -15,34 +13,45 @@ const ProductBottom = ({ product }) => {
 
   useEffect(() => {
     if (!product) return;
+
     const loadRelated = async () => {
       try {
         const query = [];
-        if (product.category) query.push(`category=${encodeURIComponent(product.category)}`);
-        else if (Array.isArray(product.tags) && product.tags.length)
-          query.push(`tags=${encodeURIComponent(product.tags[0])}`);
 
-        // limit to 10 for performance
+        if (product.category)
+          query.push(
+            `category=${encodeURIComponent(product.category)}`
+          );
+        else if (Array.isArray(product.tags) && product.tags.length)
+          query.push(
+            `tags=${encodeURIComponent(product.tags[0])}`
+          );
+
         const res = await axios.get(
-          `${import.meta.env.VITE_API_URI}/products/all?${query.join("&")}&limit=10`
+          `${import.meta.env.VITE_API_URI}/products/all?${query.join(
+            "&"
+          )}&limit=10`
         );
+
         const items = Array.isArray(res.data) ? res.data : [];
         setRelatedItems(items.filter((p) => p._id !== product._id));
       } catch (err) {
         console.error("Failed to fetch related items", err);
       }
     };
+
     loadRelated();
   }, [product]);
 
-  return <Product product={product} relatedItems={relatedItems} />;
+  return (
+    <Product
+      product={product}
+      relatedItems={relatedItems}
+    />
+  );
 };
 
-// fallback static list is no longer needed; dynamic data will be fetched above
-
 function Product({ product, relatedItems = [] }) {
-  // `relatedItems` will be injected by the parent and used below
-
   return (
     <>
       <div
@@ -171,8 +180,9 @@ function Product({ product, relatedItems = [] }) {
      <PriceBreakup product={product} />
 
       {/* More from this collection (dynamic) */}
-      <MoreFromCollection items={relatedItems} />
-
+<div id="more-collection-section">
+  <MoreFromCollection items={relatedItems} />
+</div>
       {/* <JewelleryMaintenance/> */}
       <Popular/>
     </>

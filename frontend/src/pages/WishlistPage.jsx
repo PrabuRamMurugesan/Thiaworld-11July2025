@@ -26,11 +26,11 @@ function apiOrigin() {
 
 const WishlistPage = () => {
 
-    const [imgErrors, setImgErrors] = useState({});
-  
-    const handleImageError = (id) => {
-      setImgErrors((prev) => ({ ...prev, [id]: true }));
-    };
+  const [imgErrors, setImgErrors] = useState({});
+
+  const handleImageError = (id) => {
+    setImgErrors((prev) => ({ ...prev, [id]: true }));
+  };
   const [items, setItems] = useState([]);
   const [err, setErr] = useState("");
   const [showLoginPopup, setShowLoginPopup] = useState(false);
@@ -89,7 +89,7 @@ const WishlistPage = () => {
 
       // update header count instantly
       refresh();
-    } catch {}
+    } catch { }
   };
 
   if (loading) {
@@ -164,23 +164,23 @@ const WishlistPage = () => {
             <div className="mb-4 text-gray-600">
               {items.length} {items.length === 1 ? "item" : "items"} in your wishlist
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {items.map((it) => {
                 const product = it.product;
                 const images = normalizeImages(product.images || []);
                 const firstImage = pickFirstImageSrc(images);
                 const productImage = buildImgSrc(firstImage);
-const salePrice = Number(
-  product.displaySale ||
-  product.displayPrice ||
-  product.finalPrice ||
-  0
-);
+                const salePrice = Number(
+                  product.displaySale ||
+                  product.displayPrice ||
+                  product.finalPrice ||
+                  0
+                );
 
-const strikePrice = Number(
-  product.displayActual || 0
-);
+                const strikePrice = Number(
+                  product.displayActual || 0
+                );
                 return (
                   <div
                     key={it._id}
@@ -212,38 +212,38 @@ const strikePrice = Number(
                     <div className="p-4">
                       <div className="h-24 mb-2">
                         <Link to={`/product/${product._id}`}>
-                        <h4 className="text-lg font-semibold text-gray-800 hover:text-yellow-600 transition-colors mb-2 line-clamp-2">
-                          {product.name || "Product Name"}
-                        </h4>
-                      </Link>
-                      
-                      {product.purity && (
-                        <p className="text-sm text-gray-600 mb-1">
-                          Purity: {product.purity}
-                        </p>
-                      )}
-                      {(product.netWeight || product.grossWeight) && (
-                        <p className="text-sm text-gray-600 mb-2">
-                          Weight: {product.netWeight || product.grossWeight}g
-                        </p>
-                      )}
+                          <h4 className="text-lg font-semibold text-gray-800 hover:text-yellow-600 transition-colors mb-2 line-clamp-2">
+                            {product.name || "Product Name"}
+                          </h4>
+                        </Link>
 
-                      
+                        {product.purity && (
+                          <p className="text-sm text-gray-600 mb-1">
+                            Purity: {product.purity}
+                          </p>
+                        )}
+                        {(product.netWeight || product.grossWeight) && (
+                          <p className="text-sm text-gray-600 mb-2">
+                            Weight: {product.netWeight || product.grossWeight}g
+                          </p>
+                        )}
+
+
                       </div>
 
                       {/* Action Buttons */}
                       <div className="flex flex-col gap-2">
-                      <div className="mb-2">
-  <p className="text-xl font-bold text-yellow-700">
-    ₹{formatINR(salePrice)}
-  </p>
+                        <div className="mb-2">
+                          <p className="text-xl font-bold text-yellow-700">
+                            ₹{formatINR(salePrice)}
+                          </p>
 
-  {strikePrice > salePrice && (
-    <p className="text-sm text-gray-500 line-through">
-      ₹{formatINR(strikePrice)}
-    </p>
-  )}
-       </div>
+                          {strikePrice > salePrice && (
+                            <p className="text-sm text-gray-500 line-through">
+                              ₹{formatINR(strikePrice)}
+                            </p>
+                          )}
+                        </div>
                         <Link
                           to={`/product/${product._id}`}
                           className="w-full text-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-medium text-sm"
@@ -267,7 +267,7 @@ const strikePrice = Number(
                         </div>
                       </div>
 
-                      
+
                     </div>
                   </div>
                 );
@@ -280,7 +280,7 @@ const strikePrice = Number(
                 to="/"
                 className="inline-block px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
               >
-                Continue Shopping 
+                Continue Shopping
               </Link>
             </div>
           </>
