@@ -2,8 +2,14 @@ import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const AccountSettingsPage = () => {
+  const [showPassword, setShowPassword] = useState({
+  old: false,
+  new: false,
+  confirm: false,
+});
   const [activeTab, setActiveTab] = useState("personal");
   const [form, setForm] = useState({
     fullName: "",
@@ -69,21 +75,89 @@ const AccountSettingsPage = () => {
 
   const renderPasswordTab = () => (
     <form onSubmit={handleSubmit}>
-      <h5 className="mb-3">Change Password</h5>
-      <div className="mb-3">
-        <label className="form-label">Current Password</label>
-        <input type="password" className="form-control" name="oldPassword" value={form.oldPassword} onChange={handleChange} />
-      </div>
-      <div className="mb-3">
-        <label className="form-label">New Password</label>
-        <input type="password" className="form-control" name="newPassword" value={form.newPassword} onChange={handleChange} />
-      </div>
-      <div className="mb-3">
-        <label className="form-label">Confirm New Password</label>
-        <input type="password" className="form-control" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} />
-      </div>
-      <button className="btn btn-warning">Update Password</button>
-    </form>
+     <h5 className="mb-3 fw-bold">Change Password</h5>
+
+{/* Current Password */}
+<div className="mb-3 position-relative">
+  <label className="form-label">Current Password</label>
+  <input
+    type={showPassword.old ? "text" : "password"}
+    className="form-control pe-5"
+    name="oldPassword"
+    value={form.oldPassword}
+    onChange={handleChange}
+  />
+  <span
+    onClick={() =>
+      setShowPassword({ ...showPassword, old: !showPassword.old })
+    }
+    style={{
+      position: "absolute",
+      right: "15px",
+           top: "42px",
+      cursor: "pointer",
+      color: "#666",
+    }}
+  >
+    {showPassword.old ? <FaEyeSlash /> : <FaEye />}
+  </span>
+</div>
+
+{/* New Password */}
+<div className="mb-3 position-relative">
+  <label className="form-label">New Password</label>
+  <input
+    type={showPassword.new ? "text" : "password"}
+    className="form-control pe-5"
+    name="newPassword"
+    value={form.newPassword}
+    onChange={handleChange}
+  />
+  <span
+    onClick={() =>
+      setShowPassword({ ...showPassword, new: !showPassword.new })
+    }
+    style={{
+      position: "absolute",
+      right: "15px",
+            top: "42px",
+      cursor: "pointer",
+      color: "#666",
+    }}
+  >
+    {showPassword.new ? <FaEyeSlash /> : <FaEye />}
+  </span>
+</div>
+
+{/* Confirm Password */}
+<div className="mb-3 position-relative">
+  <label className="form-label">Confirm New Password</label>
+  <input
+    type={showPassword.confirm ? "text" : "password"}
+    className="form-control pe-5"
+    name="confirmPassword"
+    value={form.confirmPassword}
+    onChange={handleChange}
+  />
+  <span
+    onClick={() =>
+      setShowPassword({ ...showPassword, confirm: !showPassword.confirm })
+    }
+    style={{
+      position: "absolute",
+      right: "15px",
+      top: "42px",
+      cursor: "pointer",
+      color: "#666",
+    }}
+  >
+    {showPassword.confirm ? <FaEyeSlash /> : <FaEye />}
+  </span>
+</div>
+
+<button className="btn btn-warning w-100 fw-semibold">
+  Update Password
+</button> </form>
   );
 
   const renderPreferencesTab = () => (
