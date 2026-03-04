@@ -398,9 +398,12 @@ const handleSearch = () => {
 
                 {/* Dropdown / Option Box */}
                 {open && (
-                  <div className="absolute right-22 top-[1.5rem] mt-2 bg-white text-black shadow-lg rounded-lg z-50 w-[250px] sm:w-[300px] md:w-[500px] max-h-[80vh] overflow-y-auto no-scrollbar transition-all duration-200">
+                             <div className="absolute right-22 top-[1rem] mt-2 bg-white text-black shadow-lg rounded-lg z-50 w-[250px] sm:w-[300px] md:w-[500px] max-h-[80vh] overflow-y-auto no-scrollbar transition-all duration-200">
                     <AccountMenu />
                   </div>
+
+
+
                 )}
               </div>
             ) : (
