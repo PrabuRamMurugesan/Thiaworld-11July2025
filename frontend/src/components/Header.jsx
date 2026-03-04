@@ -389,10 +389,10 @@ const handleSearch = () => {
                   />
                 ) : null}
                 {/* Welcome Text */}
-                <div className="flex flex-col  items-start justify-start whitespace-nowrap text-decoration-none cursor-pointer">
+                <div className="flex flex-row  gap-2  items-start justify-start whitespace-wrap text-decoration-none cursor-pointer">
                   <span className="hidden sm:inline text-black">Welcome</span>
                   <span className="hidden sm:inline text-black">
-                    {user.name || "Profile"}
+                    {user.name || "Profile"} 
                   </span>
                 </div>
 

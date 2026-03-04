@@ -33,7 +33,7 @@ const FestiveOffers = () => {
                   />
                 </div>
                 <p className="mt-4 text-muted" style={{ fontSize: '14px' }}>
-                  © 2025 Thiaworld • All Rights Reserved
+                  © 2026 Thiaworld • All Rights Reserved
                 </p>
               </Card.Body>
             </Card>

@@ -538,10 +538,10 @@ const getFeaturedProducts = async (req, res) => {
 
 const getBestSellingProducts = async (req, res) => {
   try {
-    const products = await Product.find({
-      isPublished: true,
-      bestSelling: true,
-    });
+    const products = await Product.find({ isPublished: true })
+      .sort({ soldCount: -1 })
+      .limit(8);
+
     res.status(200).json(products);
   } catch (error) {
     console.error("Error fetching best selling products:", error);

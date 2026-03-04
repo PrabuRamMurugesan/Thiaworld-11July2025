@@ -18,22 +18,34 @@ const BestSellingProducts = () => {
   const { addToCart } = useContext(CartContext);
   const { isWished, toggle } = useWishlist();
 
-  useEffect(() => {
-    const fetchBestSelling = async () => {
-      try {
-        // If your endpoint path is different, change only this URL:
-        const response = await axios.get(
-          `${API_BASE}/api/products/best-selling`
-        );
-        setProducts(response.data?.items || response.data || []);
-      } catch (error) {
-        console.error("Error fetching best-selling products:", error);
-      }
-    };
+useEffect(() => {
+  const fetchBestSelling = async () => {
+    try {
+      const url = `${API_BASE}/api/products/best-selling`;
 
-    fetchBestSelling();
-  }, []);
+      console.log("Calling best selling API:", url);
 
+      const response = await axios.get(url);
+
+      console.log("Best selling API full response:", response);
+      console.log("Best selling API data:", response.data);
+
+      const data =
+        response.data?.items ||
+        response.data?.products ||
+        response.data ||
+        [];
+
+      console.log("Parsed best selling products:", data);
+
+      setProducts(data);
+    } catch (error) {
+      console.error("Error fetching best-selling products:", error);
+    }
+  };
+
+  fetchBestSelling();
+}, []);
   const formatPrice = (value) => {
     const n = Number(value || 0);
     if (!Number.isFinite(n)) return "₹0";
@@ -56,7 +68,6 @@ const BestSellingProducts = () => {
         }}
       >
     <div className="container my-5">
-      <h2 className="text-center fw-bold mb-4">Best Selling Products</h2>
 
       <div className="row g-3">
         {products.map((product) => {

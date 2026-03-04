@@ -72,7 +72,7 @@ const ProductDetailPage = () => {
   const [loadingTestimonials, setLoadingTestimonials] = useState(false);
   // track images that failed to load by product id
   const [imgErrors, setImgErrors] = useState({});
-const moreCollectionRef = useRef(null);
+  const moreCollectionRef = useRef(null);
 
   const handleImageError = (id, e) => {
     // hide the broken image element if provided
@@ -83,10 +83,10 @@ const moreCollectionRef = useRef(null);
     }
     setImgErrors((prev) => ({ ...prev, [id]: true }));
   };
-const scrollToMoreCollection = () => {
-  const element = document.getElementById("more-collection-section");
-  element?.scrollIntoView({ behavior: "smooth", block: "start" });
-};
+  const scrollToMoreCollection = () => {
+    const element = document.getElementById("more-collection-section");
+    element?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
   // Zoom
   const imgRef = useRef(null);
   const [lensPos, setLensPos] = useState({ x: 10, y: 0 });
@@ -99,7 +99,7 @@ const scrollToMoreCollection = () => {
   const fetchProduct = async () => {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_API_URI}/products/${id}`
+        `${import.meta.env.VITE_API_URI}/products/${id}`,
       );
       const prod = res.data;
       prod.category = prod.category || prod.metalType;
@@ -117,7 +117,7 @@ const scrollToMoreCollection = () => {
       setLoadingTestimonials(true);
 
       const res = await axios.get(
-        `${import.meta.env.VITE_API_URI}/testimonials?productId=${id}`
+        `${import.meta.env.VITE_API_URI}/testimonials?productId=${id}`,
       );
 
       setTestimonials(res.data.testimonials || []);
@@ -150,17 +150,20 @@ const scrollToMoreCollection = () => {
     // If breakdown exists, calculate final price from breakdown
     if (product.breakdown) {
       const breakdown = product.breakdown;
-      const actualPrice = breakdown.actualPrice ||
+      const actualPrice =
+        breakdown.actualPrice ||
         (breakdown.goldValue || 0) +
-        (breakdown.makingValue || 0) +
-        (breakdown.wastageValue || 0) +
-        (breakdown.stoneValue || 0);
+          (breakdown.makingValue || 0) +
+          (breakdown.wastageValue || 0) +
+          (breakdown.stoneValue || 0);
 
       const discountAmount = breakdown.discount || 0;
       const priceAfterDiscount = actualPrice - discountAmount;
       const gstPercent = Number(product.gst || 0);
       // Match PriceBreakup calculation exactly (with rounding)
-      const gstOnAfterDiscount = Math.round((priceAfterDiscount * gstPercent) / 100);
+      const gstOnAfterDiscount = Math.round(
+        (priceAfterDiscount * gstPercent) / 100,
+      );
       const finalPrice = priceAfterDiscount + gstOnAfterDiscount;
 
       return finalPrice;
@@ -168,7 +171,7 @@ const scrollToMoreCollection = () => {
 
     // Fallback to product price fields if no breakdown
     return Number(
-      product.finalPrice || product.totalPayable || product.price || 0
+      product.finalPrice || product.totalPayable || product.price || 0,
     );
   }, [product]);
 
@@ -180,10 +183,12 @@ const scrollToMoreCollection = () => {
     if (!product || !product.breakdown) return null;
 
     // Use actualPrice (price before discount) as strike-through price
-    const actualPrice = product.breakdown.actualPrice || product.breakdown.goldValue +
-      (product.breakdown.makingValue || 0) +
-      (product.breakdown.wastageValue || 0) +
-      (product.breakdown.stoneValue || 0);
+    const actualPrice =
+      product.breakdown.actualPrice ||
+      product.breakdown.goldValue +
+        (product.breakdown.makingValue || 0) +
+        (product.breakdown.wastageValue || 0) +
+        (product.breakdown.stoneValue || 0);
 
     return actualPrice;
   }, [product]);
@@ -194,12 +199,12 @@ const scrollToMoreCollection = () => {
 
   const advanceAmount = useMemo(
     () => (usePartial ? Math.round((payableBase * advancePct) / 100) : 0),
-    [usePartial, advancePct, payableBase]
+    [usePartial, advancePct, payableBase],
   );
 
   const remainingAmount = useMemo(
     () => (usePartial ? Math.max(0, payableBase - advanceAmount) : payableBase),
-    [usePartial, payableBase, advanceAmount]
+    [usePartial, payableBase, advanceAmount],
   );
 
   // Share Handler
@@ -228,8 +233,7 @@ const scrollToMoreCollection = () => {
   const handleAddToCart = (directBuy = false) => {
     if (!product) return;
 
-    const isPartialActive =
-      product.isPartialPaymentEnabled && usePartial;
+    const isPartialActive = product.isPartialPaymentEnabled && usePartial;
 
     const cartPayload = {
       ...product,
@@ -243,11 +247,11 @@ const scrollToMoreCollection = () => {
 
       _partial: isPartialActive
         ? {
-          enabled: true,
-          advancePct,
-          advanceAmount,
-          remainingAmount,
-        }
+            enabled: true,
+            advancePct,
+            advanceAmount,
+            remainingAmount,
+          }
         : { enabled: false },
     };
 
@@ -347,10 +351,12 @@ const scrollToMoreCollection = () => {
                     border: "2px solid rgba(255,200,0,0.8)",
                     backgroundImage: `url(${selectedImage})`,
                     backgroundRepeat: "no-repeat",
-                    backgroundSize: `${mainImageSize * zoom}px ${mainImageSize * zoom
-                      }px`,
-                    backgroundPosition: `-${lensPos.x * zoom - lensSize / 2
-                      }px -${lensPos.y * zoom - lensSize / 2}px`,
+                    backgroundSize: `${mainImageSize * zoom}px ${
+                      mainImageSize * zoom
+                    }px`,
+                    backgroundPosition: `-${
+                      lensPos.x * zoom - lensSize / 2
+                    }px -${lensPos.y * zoom - lensSize / 2}px`,
                     pointerEvents: "none",
                   }}
                 />
@@ -405,6 +411,45 @@ const scrollToMoreCollection = () => {
                 </div>
               ))}
             </div>
+
+            <div
+              style={{
+                background:
+                  "linear-gradient(135deg, #fff8e1 0%, #ffecb3 50%, #fff8e1 100%)",
+                boxShadow: "0 0 25px rgba(255, 215, 0, 0.3)",
+                borderRadius: "20px",
+                padding: "30px",
+                textAlign: "left",
+                margin: "20px",
+              }}
+            >
+              <div className="mb-4">
+                <h1
+                  style={{
+                    color: "#7a5901",
+                    fontWeight: "700",
+                    marginBottom: "15px",
+                  }}
+                >
+                  Product Description
+                </h1>
+                <p
+                  style={{
+                    color: "#5c4b00",
+                    borderLeft: "4px solid #c8a200",
+                    paddingLeft: "15px",
+                    lineHeight: "1.7",
+                    fontSize: "16px",
+                    width: "65%",
+                  }}
+                >
+                  Adorn yourself with this stunning 22KT Gold necklace featuring
+                  an intricate filigree design. Perfect for parties, this long
+                  necklace showcases excellent craftsmanship. Enjoy free insured
+                  shipping when you buy online from GRT Jewellers.
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Info */}
@@ -426,11 +471,13 @@ const scrollToMoreCollection = () => {
                 className="action-item"
                 style={{ cursor: "pointer" }}
               >
-                {active ? <GoStarFill color="#ffb703" size={24} /> : <FiStar size={24} />}
+                {active ? (
+                  <GoStarFill color="#ffb703" size={24} />
+                ) : (
+                  <FiStar size={24} />
+                )}
               </span>
-
               <span className="divider" />
-
               {/* Delivery */}
               <span
                 title="Fast Delivery"
@@ -440,9 +487,7 @@ const scrollToMoreCollection = () => {
               >
                 <TbTruckDelivery size={24} />
               </span>
-
               <span className="divider" />
-
               {/* Share */}
               <span
                 title="Share this product"
@@ -453,12 +498,12 @@ const scrollToMoreCollection = () => {
                 <IoIosShareAlt size={20} />
                 <span>{shareCopied ? "Copied!" : "Share"}</span>
               </span>
-
               <span className="divider" />
-
               {/* Wishlist */}
               <span
-                title={isWished(id) ? "Remove from Wishlist" : "Add to Wishlist"}
+                title={
+                  isWished(id) ? "Remove from Wishlist" : "Add to Wishlist"
+                }
                 onClick={() => toggleWishlist(id)}
                 className="action-item text"
                 style={{ cursor: "pointer" }}
@@ -470,16 +515,12 @@ const scrollToMoreCollection = () => {
                 )}
                 <span>{isWished(id) ? "Wishlisted" : "Wishlist"}</span>
               </span>
-
               <span className="divider" />
-
               {/* View Similar */}
-              <span
-                className="view-similar"
-                onClick={scrollToMoreCollection}
-              >
+              <span className="view-similar" onClick={scrollToMoreCollection}>
                 View Similar
-              </span>            </div>
+              </span>{" "}
+            </div>
 
             {/* Delivery Info Popup */}
             {showDeliveryInfo && (
@@ -496,7 +537,8 @@ const scrollToMoreCollection = () => {
               >
                 <strong>🚚 Fast & Secure Delivery</strong>
                 <p style={{ marginTop: "8px", marginBottom: "0" }}>
-                  FREE insured shipping to your doorstep. Track your order in real-time. Typically arrives in 2-3 business days.
+                  FREE insured shipping to your doorstep. Track your order in
+                  real-time. Typically arrives in 2-3 business days.
                 </p>
               </div>
             )}
@@ -523,9 +565,8 @@ const scrollToMoreCollection = () => {
             )}
             {/* Tags */}
             <div className="flex gap-2 mb-4">
-
               {product.isPartialPaymentEnabled && (
-                <div className="mt-2 mb-4 bg-yellow-50 border border-yellow-300 rounded p-3">
+                <div className="mt-2 mb-4 bg-yellow-50 border border-yellow-300 rounded p-3 w-full">
                   <label className="flex items-center gap-2 font-semibold text-yellow-800">
                     <input
                       type="checkbox"
@@ -539,39 +580,49 @@ const scrollToMoreCollection = () => {
                   </label>
 
                   {usePartial && (
-                    <div className="mt-4">
+                    <div className="bg-white p-4 rounded-4 shadow-sm mt-3 flex gap-5">
+                      {/* Header */}
+                      <div className="flex flex-col">
+                        <div className="flex gap-3 justify-between items-center">
+                          <span className="text-base font-semibold text-gray-700">
+                            Advance Percentage
+                          </span>
 
-                      {/* Slider Header */}
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-medium text-gray-700">
-                          Advance Percentage
-                        </span>
-                        <span className="bg-yellow-600 text-white text-xs px-3 py-1 rounded-full">
-                          {advancePct}%
-                        </span>
-                      </div>
-
-                      {/* SLIDER */}
-                      <input
-                        type="range"
-                        min="40"
-                        max="100"
-                        step="1"
-                        value={advancePct}
-                        onChange={(e) => setAdvanceSafe(e.target.value)}
-                        className="w-full accent-yellow-600 cursor-pointer"
-                      />
-
-                      {/* AMOUNT DISPLAY */}
-                      <div className="mt-4 grid gap-1 text-sm text-gray-700">
-                        <div>
-                          <strong>Advance ({advancePct}%):</strong>{" "}
-                          ₹{formatINR(advanceAmount)}
+                          <span className="bg-yellow-600 text-white text-sm px-3 py-1 rounded-full font-semibold">
+                            {advancePct}%
+                          </span>
                         </div>
 
-                        <div>
-                          <strong>Remaining:</strong>{" "}
-                          ₹{formatINR(remainingAmount)}
+                        {/* Slider */}
+                        <input
+                          type="range"
+                          min="40"
+                          max="100"
+                          step="1"
+                          value={advancePct}
+                          onChange={(e) => setAdvanceSafe(e.target.value)}
+                          className="w-full accent-yellow-600 cursor-pointer mt-2 "
+                        />
+                      </div>
+
+                      {/* TWO ROW SIDE DISPLAY */}
+                      <div className="flex justify-between items-center gap-3   text-sm text-gray-700 ">
+                        {/* Advance */}
+                        <div className="text-left ">
+                          <p className="mb-1 font-medium">
+                            Advance ({advancePct}%)
+                          </p>
+                          <p className="text-green-600 font-semibold">
+                            ₹ {formatINR(advanceAmount)}
+                          </p>
+                        </div>
+
+                        {/* Remaining */}
+                        <div className="text-right">
+                          <p className="mb-1 font-medium">Remaining</p>
+                          <p className="text-red-500 font-semibold">
+                            ₹ {formatINR(remainingAmount)}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -585,8 +636,6 @@ const scrollToMoreCollection = () => {
               )}
             </div>
 
-
-
             {/* Specs */}
             <p className="text-sm text-gray-600 mb-1">
               Metal: {product.metalType} | Purity: {product.purity}
@@ -595,23 +644,28 @@ const scrollToMoreCollection = () => {
             {/* 22K Gold Rate Display */}
             {product.metalType?.toLowerCase() === "gold" &&
               product.purity?.includes("22") &&
-              (product.priceSource?.ratePerGram || (product.breakdown?.goldValue && product.netWeight)) && (
+              (product.priceSource?.ratePerGram ||
+                (product.breakdown?.goldValue && product.netWeight)) && (
                 <p className="text-sm text-gray-600 mb-1">
-                  <strong>22K Gold Rate:</strong>{' '}
+                  <strong>22K Gold Rate:</strong>{" "}
                   {product.priceSource?.ratePerGram
                     ? `₹${formatINR(product.priceSource.ratePerGram)}/gram`
                     : (() => {
-                      const goldVal = product.breakdown.goldValue;
-                      const wt = product.netWeight;
-                      if (goldVal && wt) {
-                        const computed = goldVal / wt;
-                        return `₹${formatINR(computed)}/gram (derived)`;
-                      }
-                      return '—';
-                    })()}
+                        const goldVal = product.breakdown.goldValue;
+                        const wt = product.netWeight;
+                        if (goldVal && wt) {
+                          const computed = goldVal / wt;
+                          return `₹${formatINR(computed)}/gram (derived)`;
+                        }
+                        return "—";
+                      })()}
                   {product.priceSource?.effectiveDate && (
                     <span className="text-xs text-gray-500 ml-2">
-                      (Effective: {new Date(product.priceSource.effectiveDate).toLocaleDateString('en-IN')})
+                      (Effective:{" "}
+                      {new Date(
+                        product.priceSource.effectiveDate,
+                      ).toLocaleDateString("en-IN")}
+                      )
                     </span>
                   )}
                 </p>
@@ -649,17 +703,20 @@ const scrollToMoreCollection = () => {
                   window.open(
                     "https://api.whatsapp.com/send/?phone=919600729596&text&type=phone_number&app_absent=0",
                     "_blank",
-                    "noopener,noreferrer"
+                    "noopener,noreferrer",
                   )
                 }
               />
-              <FaFacebookF className="cursor-pointer" onClick={() =>
-                window.open(
-                  "https://www.facebook.com/profile.php?id=100090821565338",
-                  "_blank",
-                  "noopener,noreferrer"
-                )
-              } />
+              <FaFacebookF
+                className="cursor-pointer"
+                onClick={() =>
+                  window.open(
+                    "https://www.facebook.com/profile.php?id=100090821565338",
+                    "_blank",
+                    "noopener,noreferrer",
+                  )
+                }
+              />
               {/* <FaTwitter className="cursor-pointer" />
               <FaPinterest className="cursor-pointer" /> */}
               <FaInstagram size={22} />
@@ -725,8 +782,8 @@ const scrollToMoreCollection = () => {
           </div>
         </div>
       </div>
-  <ProductBottom product={product} />
-{/* ================= CUSTOMER REVIEWS ================= */}
+      <ProductBottom product={product} />
+      {/* ================= CUSTOMER REVIEWS ================= */}
 
       <div className="mt-12 border-t pt-8">
         <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
@@ -762,14 +819,10 @@ const scrollToMoreCollection = () => {
               </div>
 
               {review.title && (
-                <p className="font-medium text-sm mb-1">
-                  {review.title}
-                </p>
+                <p className="font-medium text-sm mb-1">{review.title}</p>
               )}
 
-              <p className="text-gray-700 text-sm">
-                {review.message}
-              </p>
+              <p className="text-gray-700 text-sm">{review.message}</p>
 
               <p className="text-xs text-gray-400 mt-2">
                 {new Date(review.createdAt).toLocaleDateString("en-IN")}

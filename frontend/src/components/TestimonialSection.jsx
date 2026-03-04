@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from "react";
+import image1 from "../../public/assets/image1.png";
+import image2 from "../../public/assets/image2.png";
+import image3 from "../../public/assets/image3.png";
+import image4 from "../../public/assets/image4.png";
+import image5 from "../../public/assets/image5.png";
+import image6 from "../../public/assets/image6.png";
+import image7 from "../../public/assets/image7.png";
+import image8 from "../../public/assets/image8.png";
+
 const TestimonialsSection = () => {
 
   // 3-Image Auto-Rotate Carousel Images
   const imgs = [
-    "https://img.freepik.com/premium-photo/allure-thick-traditional-gold-jewellery_670382-94026.jpg",
-    "https://img.freepik.com/premium-photo/nice-woman-wearing-elegant-jewellery_85869-1043.jpg",
-    "https://img.freepik.com/premium-photo/beautiful-girl-wearing-stylish-indian-saree-gold-jewellery_5095-3223.jpg"
+    image1,
+    image2,
+    image3
   ];
   const [index, setIndex] = useState(1);
 
@@ -17,11 +26,11 @@ const TestimonialsSection = () => {
     return () => clearInterval(id);
   }, []);
   const topImages = [
-    "https://i.etsystatic.com/26766328/r/il/2c5c4c/4702110678/il_1080xN.4702110678_git3.jpg",
-    "https://tse1.explicit.bing.net/th/id/OIP.nMI5KpFuEPKbAKTtvcHARQHaJQ?rs=1&pid=ImgDetMain&o=7&rm=3",
-    "https://img.freepik.com/premium-photo/allure-thick-traditional-gold-jewellery_670382-94028.jpg",
-    "https://alfajewellers.com/wp-content/uploads/sites/2/2024/03/How-to-Safely-Travel-with-Gold-Jewellery-in-India.webp",
-    "https://as1.ftcdn.net/v2/jpg/04/01/33/16/1000_F_401331663_bznlwK3J9lozSWTM4fro071NWMAGpE9H.jpg",
+ image4,
+ image5,
+ image6,
+ image7,
+ image8,
   ];
 
   return (

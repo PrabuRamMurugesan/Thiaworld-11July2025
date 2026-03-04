@@ -121,7 +121,7 @@ function Product({ product, relatedItems = [] }) {
           margin: "20px",
         }}
       >
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <h1
             style={{
               color: "#7a5901",
@@ -129,7 +129,7 @@ function Product({ product, relatedItems = [] }) {
               marginBottom: "15px",
             }}
           >
-            Product Description
+            Product Description a
           </h1>
           <p
             style={{
@@ -146,7 +146,7 @@ function Product({ product, relatedItems = [] }) {
             showcases excellent craftsmanship. Enjoy free insured shipping when
             you buy online from GRT Jewellers.
           </p>
-        </div>
+        </div> */}
 
         <div>
           <h1
