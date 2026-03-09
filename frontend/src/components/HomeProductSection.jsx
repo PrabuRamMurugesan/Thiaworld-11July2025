@@ -12,7 +12,7 @@ import {
   buildImgSrc,
 } from "../utils/imageTools";
 import LoginPopup from "./LoginPopup";
-
+import { ToastContainer, toast } from "react-toastify";
 const HomeProductSection = () => {
   const [products, setProducts] = useState([]);
   const [visibleCount, setVisibleCount] = useState(25);
@@ -21,7 +21,7 @@ const HomeProductSection = () => {
 
   const loaderRef = useRef(null);
 
-  const { addToCart } = useContext(CartContext);
+const { addToCart, mergedCart  } = useContext(CartContext);
   const { isWished, toggle } = useWishlist();
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -38,15 +38,26 @@ const HomeProductSection = () => {
   const handleImageError = (id) => {
     setImgErrors((prev) => ({ ...prev, [id]: true }));
   };
+const handleAddToCart = (product) => {
+  if (!isLoggedIn()) {
+    setShowLoginPopup(true);
+    return;
+  }
 
-  const handleAddToCart = (product) => {
-    if (!isLoggedIn()) {
-      setShowLoginPopup(true);
-      return;
-    }
-    addToCart(product);
-  };
+  const productId = String(product._id);
 
+  const alreadyInCart = mergedCart?.find(
+    (item) => String(item._id) === productId
+  );
+
+  if (alreadyInCart) {
+    toast.error("Only one quantity allowed for this product");
+    return;
+  }
+
+  addToCart(product);
+  toast.success("Product added to cart");
+};
   const handleWishlistToggle = (productId, e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -302,12 +313,12 @@ const HomeProductSection = () => {
 
 /* Add to Cart */
 .btn-cart {
-  background: linear-gradient(135deg, #6cabeb, #1f089ed8);
+  background: linear-gradient(135deg, #000000, #000000);
   color: #fff;
 }
 
 .btn-cart:hover {
-  background: linear-gradient(135deg, #212529, #000);
+  background: linear-gradient(135deg,  #000000, #000000);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
@@ -319,7 +330,7 @@ const HomeProductSection = () => {
 }
 
 .btn-buy:hover {
-  background: linear-gradient(135deg, #e03131, #c92a2a);
+  background: linear-gradient(135deg, #c9c751, #d3d625);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(224, 49, 49, 0.3);
 }

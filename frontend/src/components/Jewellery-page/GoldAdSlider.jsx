@@ -1,159 +1,157 @@
-
 import React, { useState, useEffect } from "react";
-import { Row, Col, Button } from "react-bootstrap";
+import banner1 from "../../../public/assets/banner1.png";
+import banner2 from "../../../public/assets/banner2.png";
+import banner3 from "../../../public/assets/banner3.png";
 import bbscart from "../../../public/assets/bbscart.png";
 import healthAccess from "../../../public/assets/healthacess.png";
-// Single-file React component (Tailwind CSS required in your project)
-// Uses the uploaded image at: /mnt/data/cfd48b56-8e7c-49c9-aa4f-39dc21430403.png
+import { useNavigate } from "react-router-dom";
+import { Row, Col, Button } from "react-bootstrap";
 
-export default function ThreeImageCarousel({ images }) {
-  // if user doesn't pass images, default to three copies of the uploaded file
-  const defaultSrc = "/mnt/data/cfd48b56-8e7c-49c9-aa4f-39dc21430403.png";
-  const imgs =
-    images && images.length >= 3
-      ? images
-      : [
-          "https://assets0.mirraw.com/images/9023035/SetMele_271_zoom.JPG?1688206870",
-          "https://i.pinimg.com/originals/6b/eb/05/6beb050cf78203cdcfa8a2cd24229e04.png",
-          "https://img.freepik.com/premium-photo/beautiful-girl-wearing-stylish-indian-saree-gold-jewellery_5095-3223.jpg",
-        ];
+export default function ThreeImageCarousel() {
 
-  const [index, setIndex] = useState(1); // center image index (0/1/2)
+const slides = [
+{
+image: banner1,
+title: "Luxury Gold Jewellery",
+subtitle: "Discover timeless elegance for every occasion"
+},
+{
+image: banner2,
+title: "Wedding Collection",
+subtitle: "Exclusive bridal jewellery designs"
+},
+{
+image: banner3,
+title: "Silver Collection",
+subtitle: "Sparkle with premium diamonds"
+}
+];
+const navigate = useNavigate();
+const [index, setIndex] = useState(0);
 
-  useEffect(() => {
-    const id = setInterval(() => {
-      setIndex((i) => (i + 1) % 3);
-    }, 4000); // auto-rotate every 4s
-    return () => clearInterval(id);
-  }, []);
+useEffect(() => {
+const interval = setInterval(() => {
+setIndex((prev) => (prev + 1) % slides.length);
+}, 5000);
 
-  const prev = () => setIndex((i) => (i + 2) % 3);
-  const next = () => setIndex((i) => (i + 1) % 3);
+return () => clearInterval(interval);
+}, []);
 
-  return (
-    <>
-      <div className=" border-t border-b py-6 max-w-5xl mx-auto">
-        <Row>
-          <Col className="d-flex justify-content-center gap-3 my-3">
-            <Button
-              className=" px-3"
-              variant="none"
-              size="sm"
-              style={{ color: "black" }}
-              onClick={() => (window.location.href = "https://bbscart.com/")}
-            >
-              <span
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
-              >
-                <img
-                  src={bbscart}
-                  alt="BBSCart"
-                  style={{ height: "30px", objectFit: "contain" }}
-                />
-                BBSCart Online Shopping
-              </span>
-            </Button>
+const next = () => setIndex((index + 1) % slides.length);
+const prev = () => setIndex((index - 1 + slides.length) % slides.length);
 
-            <Button
-              className="px-3"
-              variant="none"
-              size="sm"
-              style={{ color: "black" }}
-              onClick={() =>
-                (window.location.href = "http://healthcare.bbscart.com/")
-              }
-            >
-              <span
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
-              >
-                <img
-                  src={healthAccess}
-                  alt="HealthAccess"
-                  style={{ height: "30px", objectFit: "contain" }}
-                />
-                BBS Global Health Access
-              </span>
-            </Button>
-          </Col>
-        </Row>
+return (
+<>      
+<div className="relative w-full h-[520px] md:h-[600px] overflow-hidden">
 
-        <div
-          className="relative w-full max-w-5xl mx-auto overflow-hidden"
-          style={{
-            padding: "2rem",
-          }}
-        >
-          <div className="relative h-52 md:h-56 lg:h-72 flex items-center justify-center overflow-visible">
-            {/* Left image */}
-            <div
-              className={`absolute left-[-3rem] transform transition-all duration-700 ease-in-out pointer-events-none ${
-                index === 0
-                  ? "opacity-100 translate-x-2 scale-95 rotate-0 z-20"
-                  : "opacity-60 -translate-x-20 scale-90 -rotate-6 z-10"
-              }`}
-              style={{ width: "38%", maxWidth: 420 }}
-            >
-              <img
-                src={imgs[(index + 2) % 3]}
-                alt="left"
-                className="w-full h-full object-cover rounded-xl shadow-lg border border-gray-200"
-              />
-            </div>
+{slides.map((slide, i) => (
+<div
+key={i}
+className={`absolute inset-0 transition-opacity duration-700 ${
+i === index ? "opacity-100 z-10" : "opacity-0"
+}`}
+>
 
-            {/* Center image */}
-            <div
-              className="relative transform transition-all duration-700 ease-in-out z-30 scale-105"
-              style={{ width: "100%", maxWidth: "750px", height: "500px" }} // FIXED WIDTH HERE ONLY
-            >
-              <img
-                src={imgs[index]}
-                alt="center"
-                className="w-full h-full object-cover rounded-2xl shadow-2xl border border-gray-200"
-              />
-            </div>
+{/* Banner Image */}
+<img
+src={slide.image}
+alt="banner"
+className="w-full h-full object-cover object-[70%_center]"
+/>
 
-            {/* Right image */}
-            <div
-              className={`absolute right-[-3rem] transform transition-all duration-700 ease-in-out pointer-events-none ${
-                index === 2
-                  ? "opacity-100 -translate-x-2 scale-95 rotate-0 z-20"
-                  : "opacity-60 translate-x-20 scale-90 rotate-6 z-10"
-              }`}
-              style={{ width: "38%", maxWidth: 420 }}
-            >
-              <img
-                src={imgs[(index + 1) % 3]}
-                alt="right"
-                className="w-full h-full object-cover rounded-xl shadow-lg border border-gray-200"
-              />
-            </div>
-          </div>
+{/* Overlay */}
+<div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent flex items-center justify-start">
 
-          {/* Dots */}
-          <div className="mt-4 flex items-center justify-center gap-3">
-            {[0, 1, 2].map((i) => (
-              <button
-                key={i}
-                onClick={() => setIndex(i)}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  i === index ? "scale-125 bg-gray-800" : "bg-gray-300"
-                }`}
-              ></button>
-            ))}
-          </div>
-        </div>
+{/* LEFT SIDE TEXT AREA */}
+<div className="max-w-xl pl-16 md:pl-24">
 
-        <div className="text-center mb-12 py-2 bg-pink-50">
-          <h2 className="text-3xl font-bold tracking-wide text-gray-900">
-            DISCOVER OUR EXQUISITE JEWELLERY COLLECTION
-          </h2>
+<h1 className="text-4xl md:text-6xl font-luxury font-semibold text-[#D4AF37] mb-4 drop-shadow-lg tracking-wide">
+{slide.title}
+</h1>
 
-          <p className="text-lg text-gray-600 mt-2">
-            These classy and elegant sparkling jewels are perfect for every
-            occasion.
-          </p>
-        </div>
-      </div>
-    </>
-  );
+<p className="text-gray-200 text-lg md:text-xl mb-6 font-body leading-relaxed">
+{slide.subtitle}
+</p>
+
+<button
+onClick={() => navigate("/all-jewellery")}
+className="bg-[#D4AF37] text-black px-8 py-3 rounded-md font-semibold hover:bg-[#C8A22F] transition shadow-lg"
+>
+Shop Now
+</button>
+
+</div>
+
+</div>
+
+</div>
+))}
+
+{/* Left Arrow */}
+<button
+onClick={prev}
+className="absolute left-6 top-1/2 -translate-y-1/2 bg-black/40 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-black/60"
+>
+❮
+</button>
+
+{/* Right Arrow */}
+<button
+onClick={next}
+className="absolute right-6 top-1/2 -translate-y-1/2 bg-black/40 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-black/60"
+>
+❯
+</button>
+
+{/* Dots */}
+<div className="absolute bottom-6 w-full flex justify-center gap-3">
+{slides.map((_, i) => (
+<div
+key={i}
+onClick={() => setIndex(i)}
+className={`w-3 h-3 rounded-full cursor-pointer ${
+i === index ? "bg-[#D4AF37]" : "bg-white/50"
+}`}
+></div>
+))}
+</div>
+
+</div>
+<div className="py-6 max-w-4xl mx-auto flex flex-col md:flex-row justify-center items-center gap-8">
+
+  <Button
+    className="px-6 py-4 text-lg rounded-lg shadow-lg border-none focus:outline-none focus:ring-0"
+    style={{ background: "#D4AF37", color: "#000" }}
+    onClick={() => (window.location.href = "https://bbscart.com/")}
+  >
+    <span className="flex items-center gap-3">
+      <img
+        src={bbscart}
+        alt="BBSCart"
+        style={{ height: "30px", objectFit: "contain" }}
+      />
+      BBSCart Online Shopping
+    </span>
+  </Button>
+
+  <Button
+    className="px-6 py-4 text-lg rounded-lg shadow-lg border-none focus:outline-none focus:ring-0"
+    style={{ background: "#1C1C1C", color: "#D4AF37" }}
+    onClick={() =>
+      (window.location.href = "http://healthcare.bbscart.com/")
+    }
+  >
+    <span className="flex items-center gap-3">
+      <img
+        src={healthAccess}
+        alt="HealthAccess"
+        style={{ height: "30px", objectFit: "contain" }}
+      />
+      BBS Global Health Access
+    </span>
+  </Button>
+
+</div>
+</>
+);
 }

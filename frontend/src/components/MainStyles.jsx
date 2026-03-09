@@ -45,8 +45,12 @@ function MainStyles() {
               style={{
                 borderRadius: '30% 40% 0% 30%',
                 objectFit: 'cover',
-                border: '1px solid rgba(13,88,102)',
                 padding: '4px', 
+                 width: "100px",
+                height: "100px",
+                padding: "4px",
+                background: "linear-gradient(135deg,#caa43b,#f5e08a)",
+                boxShadow: "0 6px 16px rgba(0,0,0,0.15)"
                 
               }}
             />

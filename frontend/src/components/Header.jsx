@@ -148,12 +148,12 @@ const Header = () => {
     clearTimeout(timerRef.current);
     setOpen(true);
   };
-const handleSearch = () => {
-  if (!searchTerm.trim()) return;
+  const handleSearch = () => {
+    if (!searchTerm.trim()) return;
 
-  navigate(`/all-jewellery?search=${searchTerm.trim()}`);
-  window.location.reload();
-};
+    navigate(`/all-jewellery?search=${searchTerm.trim()}`);
+    window.location.reload();
+  };
 
   const handleLeave = () => {
     // Close after 500 ms
@@ -170,173 +170,169 @@ const handleSearch = () => {
   }, [cartCount]);
   return (
     <>
-      <header className="bg-black shadow-sm border-b border-gray-200  z-50 sticky top-0">
-        <div className="max-w-screen-xxl  flex flex-row md:flex-row items-center justify-between gap-2">
-          <h1
+      <header className="bg-[#0B0B0B] shadow-sm border-b border-[#C9A227] z-50 sticky top-0">        <div className="max-w-screen-xxl  flex flex-row md:flex-row items-center justify-between gap-2">
+        <h1
+          style={{
+            fontFamily: "Lucida Handwriting",
+            fontSize: "30px",
+            textAlign: "center",
+            background: "linear-gradient(to right, red, yellow, green)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            textShadow: "1px 1px 1px rgba(0, 0, 0, 0.3)",
+          }}
+        >
+          <a href="/">
+            <img
+              src={thia}
+              alt="Thiaworld"
+              style={{ width: "300px", height: "100px" }}
+            />
+          </a>
+        </h1>
+
+        <button
+          className="md:hidden text-amber-300 text-3xl text-bold p-5"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          {menuOpen ? <TbJewishStarFilled /> : <TbJewishStarFilled />}
+        </button>
+        <div className="hidden md:flex items-center gap-4 w-full px-4 ">
+          {/* Marquee */}
+          <div className="relative flex-1 overflow-hidden bg-[#0B0B0B] text-[#F5F5F5] h-8 rounded-md border border-[#C9A227]">              <div
+            className="absolute left-0 top-0 flex items-center animate-marquee-slow"
             style={{
-              fontFamily: "Lucida Handwriting",
-              fontSize: "30px",
-              textAlign: "center",
-              background: "linear-gradient(to right, red, yellow, green)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              textShadow: "1px 1px 1px rgba(0, 0, 0, 0.3)",
+              whiteSpace: "nowrap",
+              lineHeight: "32px",
+              gap: "50px",
             }}
           >
-            <a href="/">
-              <img
-                src={thia}
-                alt="Thiaworld"      
-                style={{ width: "300px", height: "100px" }}
-              />
-            </a>
-          </h1>
+            {/* COPY 1 */}
+            <span className="flex items-center gap-2">
+              <span className="text-yellow-300 flex items-center gap-1">
+                <PiCoinVertical size={22} className="animate-coin-rotate" />
+                Matte Finish Bangles
+              </span>
+              · 22K Necklaces · Antique Temple Jewelry · Lightweight Gold
+              Chains
+            </span>
 
-          <button
-            className="md:hidden text-amber-300 text-3xl text-bold p-5"
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            {menuOpen ? <TbJewishStarFilled /> : <TbJewishStarFilled />}
-          </button>
-          <div className="hidden md:flex items-center gap-4 w-full px-4 ">
-            {/* Marquee */}
-            <div className="relative flex-1 overflow-hidden bg-black text-white h-8 rounded-md border border-gray-300">
-              <div
-                className="absolute left-0 top-0 flex items-center animate-marquee-slow"
-                style={{
-                  whiteSpace: "nowrap",
-                  lineHeight: "32px",
-                  gap: "50px",
-                }}
-              >
-                {/* COPY 1 */}
-                <span className="flex items-center gap-2">
-                  <span className="text-yellow-300 flex items-center gap-1">
-                    <PiCoinVertical size={22} className="animate-coin-rotate" />
-                    Matte Finish Bangles
-                  </span>
-                  · 22K Necklaces · Antique Temple Jewelry · Lightweight Gold
-                  Chains
-                </span>
+            {/* COPY 2 */}
+            <span className="flex items-center gap-2">
+              <span className="text-yellow-300 flex items-center gap-1">
+                <PiCoinVertical size={22} className="animate-coin-rotate" />
+                Matte Finish Bangles
+              </span>
+              · 22K Necklaces · Antique Temple Jewelry · Lightweight Gold
+              Chains
+            </span>
+          </div>
+          </div>
 
-                {/* COPY 2 */}
-                <span className="flex items-center gap-2">
-                  <span className="text-yellow-300 flex items-center gap-1">
-                    <PiCoinVertical size={22} className="animate-coin-rotate" />
-                    Matte Finish Bangles
-                  </span>
-                  · 22K Necklaces · Antique Temple Jewelry · Lightweight Gold
-                  Chains
-                </span>
+          {/* Search */}
+          <div className="relative w-[320px] h-8">
+            <FaSearch
+              onClick={handleSearch}
+              className="absolute right-3 top-2.5 text-gray-400 text-sm cursor-pointer"
+            />
+            <input
+              type="text"
+              placeholder="Search jewelry..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && searchTerm.trim()) {
+                  navigate(`/all-jewellery?search=${searchTerm.trim()}`);
+                  window.location.reload();
+                }
+              }}
+              className="w-full h-full pl-3 pr-8 rounded-md border border-[#C9A227] focus:outline-none focus:ring-2 focus:ring-[#D4AF37] text-sm"
+            />
+          </div>
+
+          {/* Select */}
+          <div className="w-[90px] h-8">
+            <Select
+              value={selectedOption}
+              onChange={setSelectedOption}
+              options={options}
+              isSearchable={false}
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  minHeight: "32px",
+                  height: "32px",
+                }),
+                valueContainer: (base) => ({
+                  ...base,
+                  height: "32px",
+                  padding: "0 8px",
+                }),
+                indicatorsContainer: (base) => ({
+                  ...base,
+                  height: "32px",
+                }),
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Mobile Menu Overlay */}
+        {menuOpen && (
+          <div className="md:hidden bg-white w-75 p-5 space-y-4">
+            <div className="text-sm text-[#0B0B0B] overflow-hidden whitespace-nowrap">
+              <div className="animate-marquee inline-block">
+                Matte Finish Bangles · 22K Necklaces · Antique Temple Jewelry
+                · Lightweight Gold Chains
               </div>
             </div>
-
-            {/* Search */}
-            <div className="relative w-[320px] h-8">
-<FaSearch
-  onClick={handleSearch}
-  className="absolute right-3 top-2.5 text-gray-400 text-sm cursor-pointer"
-/>
+            <div className="relative">
+              <FaSearch className="absolute right-3 top-3 text-gray-400 text-sm" />
               <input
                 type="text"
-                placeholder="Search jewelry..."
+                placeholder="Search jewelry, collections, categories..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && searchTerm.trim()) {
+                  if (e.key === "Enter" && searchTerm.trim() !== "") {
                     navigate(`/all-jewellery?search=${searchTerm.trim()}`);
+                    setMobileOpen(false);
                     window.location.reload();
                   }
                 }}
-                className="w-full h-full pl-3 pr-8 rounded-md border border-gray-300
-                 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
+                className="w-full pl-3 pr-8 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
               />
             </div>
-
-            {/* Select */}
-            <div className="w-[90px] h-8">
+            <div className="w-full">
               <Select
                 value={selectedOption}
                 onChange={setSelectedOption}
                 options={options}
                 isSearchable={false}
-                styles={{
-                  control: (base) => ({
-                    ...base,
-                    minHeight: "32px",
-                    height: "32px",
-                  }),
-                  valueContainer: (base) => ({
-                    ...base,
-                    height: "32px",
-                    padding: "0 8px",
-                  }),
-                  indicatorsContainer: (base) => ({
-                    ...base,
-                    height: "32px",
-                  }),
-                }}
               />
             </div>
           </div>
-
-          {/* Mobile Menu Overlay */}
-          {menuOpen && (
-            <div className="md:hidden bg-white w-75 p-5 space-y-4">
-              <div className="text-sm text-black overflow-hidden whitespace-nowrap">
-                <div className="animate-marquee inline-block">
-                  Matte Finish Bangles · 22K Necklaces · Antique Temple Jewelry
-                  · Lightweight Gold Chains
-                </div>
-              </div>
-              <div className="relative">
-                <FaSearch className="absolute right-3 top-3 text-gray-400 text-sm" />
-                <input
-                  type="text"
-                  placeholder="Search jewelry, collections, categories..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && searchTerm.trim() !== "") {
-                      navigate(`/all-jewellery?search=${searchTerm.trim()}`);
-                      setMobileOpen(false);
-                      window.location.reload();
-                    }
-                  }}
-                  className="w-full pl-3 pr-8 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
-                />
-              </div>
-              <div className="w-full">
-                <Select
-                  value={selectedOption}
-                  onChange={setSelectedOption}
-                  options={options}
-                  isSearchable={false}
-                />
-              </div>
-            </div>
-          )}
-        </div>
+        )}
+      </div>
 
         {/* NAVBAR WRAPPER */}
         {/* ===== DESKTOP / TABLET NAV ===== */}
         <div
           className="hidden md:flex items-center justify-between px-6 py-2 
-             bg-[#faca14] text-black text-sm font-bold font-serif z-50 "
+  bg-[#D4AF37] text-[#0B0B0B] text-sm font-bold font-serif z-50 "
         >
           {/* LEFT: (optional logo) */}
           <div className="w-1/4 flex items-center"></div>
 
           {/* CENTER LINKS */}
-          <nav className="w-2/4 flex justify-center gap-6 text-sm items-center flex-wrap text-black ">
+          <nav className="w-2/4 flex justify-center gap-6 text-sm items-center flex-wrap text-[#0B0B0B] ">
             <Link
               to="/"
               onClick={(e) => {
                 e.preventDefault(); // stop the SPA navigation
                 window.location.href = "/"; // force full page reload
               }}
-              className="hover:underline"
-            >
+className="hover:text-[#B8962E] transition-colors"            >
               Home
             </Link>
             <span
@@ -390,15 +386,15 @@ const handleSearch = () => {
                 ) : null}
                 {/* Welcome Text */}
                 <div className="flex flex-row  gap-2  items-start justify-start whitespace-wrap text-decoration-none cursor-pointer">
-                  <span className="hidden sm:inline text-black">Welcome</span>
-                  <span className="hidden sm:inline text-black">
-                    {user.name || "Profile"} 
+                  <span className="hidden sm:inline text-[#0B0B0B]">Welcome</span>
+                  <span className="hidden sm:inline text-[#0B0B0B]">
+                    {user.name || "Profile"}
                   </span>
                 </div>
 
                 {/* Dropdown / Option Box */}
                 {open && (
-                             <div className="absolute right-22 top-[1rem] mt-2 bg-white text-black shadow-lg rounded-lg z-50 w-[250px] sm:w-[300px] md:w-[500px] max-h-[80vh] overflow-y-auto no-scrollbar transition-all duration-200">
+                  <div className="absolute right-22 top-[1rem] mt-2 bg-white text-[#0B0B0B] shadow-lg rounded-lg z-50 w-[250px] sm:w-[300px] md:w-[500px] max-h-[80vh] overflow-y-auto no-scrollbar transition-all duration-200">
                     <AccountMenu />
                   </div>
 
@@ -415,8 +411,8 @@ const handleSearch = () => {
                 onBlur={handleLeave}
               >
                 <button className="flex items-center text-sm">
-                  <FaUserAlt size={15} className="mr-2 text-xl text-black" />
-                  <span className="hidden sm:inline text-black">
+                  <FaUserAlt size={15} className="mr-2 text-xl text-[#0B0B0B]" />
+                  <span className="hidden sm:inline text-[#0B0B0B]">
                     Hey There!
                   </span>
                 </button>
@@ -424,7 +420,7 @@ const handleSearch = () => {
                 {/* Dropdown */}
                 {open && (
                   <div
-                    className="p-2 top-[1.5rem] mt-2 bg-white text-black shadow-lg rounded-lg z-50 w-[250px] sm:w-[300px] md:w-[450px] max-h-[80vh] overflow-y-auto no-scrollbar transition-all duration-200"
+                    className="p-2 top-[1.5rem] mt-2 bg-white text-[#0B0B0B] shadow-lg rounded-lg z-50 w-[250px] sm:w-[300px] md:w-[450px] max-h-[80vh] overflow-y-auto no-scrollbar transition-all duration-200"
                     style={{
                       position: "absolute",
                       right: "-12.8rem",
@@ -436,49 +432,49 @@ const handleSearch = () => {
                 )}
               </div>
             )}
-{/* 
+            {/* 
             <Link
               to="/cart"
               className="relative flex items-center gap-2 hover:text-yellow-300 text-decoration-none"
             >
-              <FaShoppingCart size={15} className="text-lg text-black" />
-              <span className="hidden sm:inline text-black">Cart</span>
-              <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full px-1.5">
+              <FaShoppingCart size={15} className="text-lg text-[#0B0B0B]" />
+              <span className="hidden sm:inline text-[#0B0B0B]">Cart</span>
+              <span className="absolute -top-2 -right-3 bg-[#B8962E] text-white text-xs rounded-full px-1.5">
                 {cartCount}
               </span>
             </Link> */}
 
-    <Link
-      to="/cart"
-      className="relative flex items-center gap-2 hover:text-yellow-300 text-decoration-none"
-    >
-      <FaShoppingCart
-        size={15}
-        className={`text-black ${animate ? "animate-cart" : ""}`}
-      />
+            <Link
+              to="/cart"
+              className="relative flex items-center gap-2 hover:text-yellow-300 text-decoration-none"
+            >
+              <FaShoppingCart
+                size={15}
+                className={`text-[#0B0B0B] ${animate ? "animate-cart" : ""}`}
+              />
 
-      <span className="hidden sm:inline text-black">Cart</span>
+              <span className="hidden sm:inline text-[#0B0B0B]">Cart</span>
 
-      {cartCount > 0 && (
-        <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full px-1.5">
-          {cartCount}
-        </span>
-      )}
-    </Link>
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-3 bg-[#B8962E] text-white text-xs rounded-full px-1.5">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
             <Link to="/wishlist" className="relative hover:no-underline">
-              <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full px-1.5 text-decoration-none">
+              <span className="absolute -top-2 -right-3 bg-[#B8962E] text-white text-xs rounded-full px-1.5 text-decoration-none">
                 {wishlistCount}
               </span>
               <span className="text-decoration-none ">
-                <IoIosHeart size={19} className="text-black" />
+                <IoIosHeart size={19} className="text-[#0B0B0B]" />
               </span>
             </Link>
             {/* <Link
               to="/user-settings"
               className="relative flex items-center gap-2 hover:text-yellow-300"
             >
-              <RiUserSettingsFill size={18} className=" text-xl text-black" />
-              <span className="hidden sm:inline text-black">User</span>
+              <RiUserSettingsFill size={18} className=" text-xl text-[#0B0B0B]" />
+              <span className="hidden sm:inline text-[#0B0B0B]">User</span>
             </Link> */}
           </div>
         </div>
@@ -486,8 +482,7 @@ const handleSearch = () => {
         {/* ===== MOBILE NAVBAR ===== */}
         <div
           className="flex md:hidden items-center justify-between px-4 py-3"
-          style={{ backgroundColor: "rgba(13,88,102)", color: "white" }}
-        >
+style={{ backgroundColor: "#0B0B0B", color: "#D4AF37" }}        >
           {/* Logo placeholder or site name */}
           <div className="text-lg font-semibold">Menu</div>
 
@@ -503,7 +498,7 @@ const handleSearch = () => {
         {/* Mobile drawer menu */}
         {mobileOpen && (
           <div
-            className="md:hidden bg-[rgba(13,88,102)] text-white flex flex-row flex-wrap
+            className="md:hidden bg-[#0B0B0B] text-white flex flex-row flex-wrap
            justify-between items-end gap-4 px-6 py-4 transition-all duration-300"
           >
             {/* Nav links */}
@@ -575,7 +570,7 @@ const handleSearch = () => {
                 </div>
                 {open && (
                   <div
-                    className="absolute right-10 left-[-5rem] sm:left-[-15rem] md:left-[20rem] top-[0.6rem] mt-2 bg-white text-black shadow-lg rounded-lg z-50 
+                    className="absolute right-10 left-[-5rem] sm:left-[-15rem] md:left-[20rem] top-[0.6rem] mt-2 bg-white text-[#0B0B0B] shadow-lg rounded-lg z-50 
                   w-[300px] sm:w-[400px] md:w-[400px] max-h-[60vh] overflow-y-auto no-scrollbar transition-all duration-200"
                   >
                     <AccountMenu />
@@ -598,7 +593,7 @@ const handleSearch = () => {
                 {/* Dropdown */}
                 {open && (
                   <div
-                    className="absolute right-10 left-[-5rem] sm:left-[-15rem] md:left-[20rem] top-[0.6rem] mt-2 bg-white text-black shadow-lg rounded-lg z-50 
+                    className="absolute right-10 left-[-5rem] sm:left-[-15rem] md:left-[20rem] top-[0.6rem] mt-2 bg-white text-[#0B0B0B] shadow-lg rounded-lg z-50 
                   w-[300px] sm:w-[400px] md:w-[400px] max-h-[60vh] overflow-y-auto no-scrollbar transition-all duration-200"
                   >
                     {/* Login / Signup Section */}

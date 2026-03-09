@@ -344,7 +344,7 @@ const GoldCollection = () => {
           padding: 10px;
           border-radius: 10px;
           border: none;
-          background: black;
+          background: linear-gradient(135deg,  #c9c751, #d3d625);
           color: white;
           font-weight: 500;
           cursor: pointer;
@@ -352,7 +352,7 @@ const GoldCollection = () => {
         }
 
         .cart-btn:hover {
-          background: #333;
+          background:  linear-gradient(135deg, #000000, #c92a2a);
         }
 
         .bottom-loader,

@@ -5,19 +5,23 @@ module.exports = {
   ],
   theme: {
     extend: {
+
       animation: {
         marquee: 'marquee 35s linear infinite',
       },
+
       keyframes: {
         marquee: {
           '0%': { transform: 'translateX(100%)' },
           '100%': { transform: 'translateX(-100%)' },
         },
       },
+
       fontFamily: {
-        playfair: ['"Playfair Display"', 'serif'],
-        poppins: ['"Poppins"', 'sans-serif'],
+        luxury: ['"Playfair Display"', 'serif'],
+        body: ['Poppins', 'sans-serif'],
       },
+
     },
   },
   plugins: [],
