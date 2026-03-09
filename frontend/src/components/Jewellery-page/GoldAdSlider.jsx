@@ -117,41 +117,66 @@ i === index ? "bg-[#D4AF37]" : "bg-white/50"
 </div>
 
 </div>
-<div className="py-6 max-w-4xl mx-auto flex flex-col md:flex-row justify-center items-center gap-8">
+<div className="py-10">
+  <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-center items-center gap-10">
 
-  <Button
-    className="px-6 py-4 text-lg rounded-lg shadow-lg border-none focus:outline-none focus:ring-0"
-    style={{ background: "#D4AF37", color: "#000" }}
-    onClick={() => (window.location.href = "https://bbscart.com/")}
-  >
-    <span className="flex items-center gap-3">
+    {/* BBSCart */}
+    <div
+      className="flex items-center gap-4 cursor-pointer transition hover:scale-105"
+      onClick={() => window.location.href = "https://bbscart.com/"}
+    >
       <img
         src={bbscart}
         alt="BBSCart"
-        style={{ height: "30px", objectFit: "contain" }}
+        className="h-12 object-contain"
       />
-      BBSCart Online Shopping
-    </span>
-  </Button>
+      <span className="text-lg md:text-xl font-semibold text-[#D4AF37]">
+        BBSCart Online Shopping
+      </span>
+    </div>
 
-  <Button
-    className="px-6 py-4 text-lg rounded-lg shadow-lg border-none focus:outline-none focus:ring-0"
-    style={{ background: "#1C1C1C", color: "#D4AF37" }}
-    onClick={() =>
-      (window.location.href = "http://healthcare.bbscart.com/")
-    }
-  >
-    <span className="flex items-center gap-3">
+    {/* HealthAccess */}
+    <div
+      className="flex items-center gap-4 cursor-pointer transition hover:scale-105"
+      onClick={() => window.location.href = "http://healthcare.bbscart.com/"}
+    >
       <img
         src={healthAccess}
         alt="HealthAccess"
-        style={{ height: "30px", objectFit: "contain" }}
+        className="h-12 object-contain"
       />
-      BBS Global Health Access
-    </span>
-  </Button>
+      <span className="text-lg md:text-xl font-semibold text-[#D4AF37]">
+        BBS Global Health Access
+      </span>
+    </div>
 
+  </div>
 </div>
 </>
 );
 }
+
+
+<style>
+{`
+.logo-link{
+display:flex;
+align-items:center;
+gap:12px;
+cursor:pointer;
+font-size:18px;
+font-weight:600;
+color:#1e63d6;
+transition:all 0.25s ease;
+}
+
+.logo-link:hover{
+text-decoration:underline;
+}
+
+.logo-icon{
+height:30px;
+object-fit:contain;
+}
+`}
+</style>
