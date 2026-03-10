@@ -153,9 +153,9 @@ const ProductDetailPage = () => {
       const actualPrice =
         breakdown.actualPrice ||
         (breakdown.goldValue || 0) +
-          (breakdown.makingValue || 0) +
-          (breakdown.wastageValue || 0) +
-          (breakdown.stoneValue || 0);
+        (breakdown.makingValue || 0) +
+        (breakdown.wastageValue || 0) +
+        (breakdown.stoneValue || 0);
 
       const discountAmount = breakdown.discount || 0;
       const priceAfterDiscount = actualPrice - discountAmount;
@@ -186,13 +186,18 @@ const ProductDetailPage = () => {
     const actualPrice =
       product.breakdown.actualPrice ||
       product.breakdown.goldValue +
-        (product.breakdown.makingValue || 0) +
-        (product.breakdown.wastageValue || 0) +
-        (product.breakdown.stoneValue || 0);
+      (product.breakdown.makingValue || 0) +
+      (product.breakdown.wastageValue || 0) +
+      (product.breakdown.stoneValue || 0);
 
     return actualPrice;
   }, [product]);
+  const discountPercent = useMemo(() => {
+    if (!strike || strike <= payableBase) return null;
 
+    const diff = strike - payableBase;
+    return Math.round((diff / strike) * 100);
+  }, [strike, payableBase]);
   // ================================
   // PARTIAL PAYMENT
   // ================================
@@ -247,11 +252,11 @@ const ProductDetailPage = () => {
 
       _partial: isPartialActive
         ? {
-            enabled: true,
-            advancePct,
-            advanceAmount,
-            remainingAmount,
-          }
+          enabled: true,
+          advancePct,
+          advanceAmount,
+          remainingAmount,
+        }
         : { enabled: false },
     };
 
@@ -351,12 +356,10 @@ const ProductDetailPage = () => {
                     border: "2px solid rgba(255,200,0,0.8)",
                     backgroundImage: `url(${selectedImage})`,
                     backgroundRepeat: "no-repeat",
-                    backgroundSize: `${mainImageSize * zoom}px ${
-                      mainImageSize * zoom
-                    }px`,
-                    backgroundPosition: `-${
-                      lensPos.x * zoom - lensSize / 2
-                    }px -${lensPos.y * zoom - lensSize / 2}px`,
+                    backgroundSize: `${mainImageSize * zoom}px ${mainImageSize * zoom
+                      }px`,
+                    backgroundPosition: `-${lensPos.x * zoom - lensSize / 2
+                      }px -${lensPos.y * zoom - lensSize / 2}px`,
                     pointerEvents: "none",
                   }}
                 />
@@ -553,9 +556,17 @@ const ProductDetailPage = () => {
               </h2>
 
               {strike && (
-                <span className="text-gray-500 line-through text-lg">
-                  ₹{formatINR(strike)}
-                </span>
+                <>
+                  <span className="text-gray-500 line-through text-lg">
+                    ₹{formatINR(strike)}
+                  </span>
+
+                  {discountPercent && (
+                    <span className="bg-red-100 text-red-600 text-sm font-semibold px-2 py-1 rounded">
+                      {discountPercent}% OFF
+                    </span>
+                  )}
+                </>
               )}
             </div>
             {product.isSecurePlanEnabled && (
@@ -651,14 +662,14 @@ const ProductDetailPage = () => {
                   {product.priceSource?.ratePerGram
                     ? `₹${formatINR(product.priceSource.ratePerGram)}/gram`
                     : (() => {
-                        const goldVal = product.breakdown.goldValue;
-                        const wt = product.netWeight;
-                        if (goldVal && wt) {
-                          const computed = goldVal / wt;
-                          return `₹${formatINR(computed)}/gram (derived)`;
-                        }
-                        return "—";
-                      })()}
+                      const goldVal = product.breakdown.goldValue;
+                      const wt = product.netWeight;
+                      if (goldVal && wt) {
+                        const computed = goldVal / wt;
+                        return `₹${formatINR(computed)}/gram (derived)`;
+                      }
+                      return "—";
+                    })()}
                   {product.priceSource?.effectiveDate && (
                     <span className="text-xs text-gray-500 ml-2">
                       (Effective:{" "}

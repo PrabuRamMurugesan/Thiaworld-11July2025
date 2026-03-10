@@ -21,7 +21,7 @@ const HomeProductSection = () => {
 
   const loaderRef = useRef(null);
 
-const { addToCart, mergedCart  } = useContext(CartContext);
+  const { addToCart, removeFromCart, mergedCart } = useContext(CartContext);
   const { isWished, toggle } = useWishlist();
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -38,26 +38,26 @@ const { addToCart, mergedCart  } = useContext(CartContext);
   const handleImageError = (id) => {
     setImgErrors((prev) => ({ ...prev, [id]: true }));
   };
-const handleAddToCart = (product) => {
-  if (!isLoggedIn()) {
-    setShowLoginPopup(true);
-    return;
-  }
+  const handleAddToCart = (product) => {
+    if (!isLoggedIn()) {
+      setShowLoginPopup(true);
+      return;
+    }
 
-  const productId = String(product._id);
+    const productId = String(product._id);
 
-  const alreadyInCart = mergedCart?.find(
-    (item) => String(item._id) === productId
-  );
+    const alreadyInCart = mergedCart?.find(
+      (item) => String(item._id) === productId
+    );
 
-  if (alreadyInCart) {
-    toast.error("Only one quantity allowed for this product");
-    return;
-  }
+    if (alreadyInCart) {
+      toast.error("Only one quantity allowed for this product");
+      return;
+    }
 
-  addToCart(product);
-  toast.success("Product added to cart");
-};
+    addToCart(product);
+    toast.success("Product added to cart");
+  };
   const handleWishlistToggle = (productId, e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -120,6 +120,13 @@ const handleAddToCart = (product) => {
 
         <div className="row justify-content-start g-4 mx-5 py-5">
           {visibleProducts.map((product, index) => {
+            const productId = String(product._id);
+
+            const cartItem = mergedCart?.find(
+              (item) => String(item._id) === productId
+            );
+
+            const isInCart = !!cartItem;
             let currentPrice = Number(product.finalPrice || product.price || 0);
             let previousPrice = null;
 
@@ -192,31 +199,71 @@ const handleAddToCart = (product) => {
                       </div>
 
                       <div className="product-actions">
-                        <button
-                          className="btn-cart"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleAddToCart(product);
-                          }}
-                        >
-                          Add to Cart
-                        </button>
 
-                        <button
-                          className="btn-buy"
-                          onClick={(e) => {
-                            e.preventDefault();
+                        {isInCart ? (
 
-                            if (isLoggedIn()) {
-                              handleAddToCart(product);
-                              navigate("/checkout");
-                            } else {
-                              setShowLoginPopup(true);
-                            }
-                          }}
-                        >
-                          Buy Now
-                        </button>
+                          <div className="qty-box">
+                            <button
+                              className="qty-btn"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+
+                                const item = mergedCart?.find(
+                                  (i) => String(i._id) === String(product._id)
+                                );
+
+                                if (item) {
+                                  const category = (item.category || item.metalType || "").toLowerCase();
+
+                                  removeFromCart(item.cartItemId, category);
+                                  toast.info("Product removed from cart");
+                                }
+                              }}
+                            >
+                              -
+                            </button>
+
+                            <span>1</span>
+
+                            <button className="qty-btn" disabled>
+                              +
+                            </button>
+
+                          </div>
+
+                        ) : (
+
+                          <>
+                            <button
+                              className="btn-cart"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleAddToCart(product);
+                              }}
+                            >
+                              Add to Cart
+                            </button>
+
+                            <button
+                              className="btn-buy"
+                              onClick={(e) => {
+                                e.preventDefault();
+
+                                if (isLoggedIn()) {
+                                  handleAddToCart(product);
+                                  navigate("/checkout");
+                                } else {
+                                  setShowLoginPopup(true);
+                                }
+                              }}
+                            >
+                              Buy Now
+                            </button>
+                          </>
+
+                        )}
+
                       </div>
                     </div>
                   </div>
@@ -310,7 +357,19 @@ const handleAddToCart = (product) => {
   cursor: pointer;
   min-width: 110px;
 }
+.qty-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: #eee;
+  font-size: 16px;
+  border-radius: 4px;
+}
 
+.qty-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
 /* Add to Cart */
 .btn-cart {
   background: linear-gradient(135deg, #000000, #000000);
@@ -379,7 +438,26 @@ const handleAddToCart = (product) => {
 .btn-buy:hover {
   background-color: #000;
 }
+.qty-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
 
+.qty-box span {
+  min-width: 20px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.qty-box button:last-child {
+  width: 28px;
+  height: 28px;
+  background: #eee;
+  border: none;
+  cursor: not-allowed;
+}
 /* ===== Tablet Responsive ===== */
 @media (max-width: 992px) {
   .btn-cart,
