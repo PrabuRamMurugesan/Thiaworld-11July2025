@@ -45,8 +45,7 @@ function MainStyles() {
               style={{
                 borderRadius: '30% 40% 0% 30%',
                 objectFit: 'cover',
-                padding: '4px', 
-                 width: "100px",
+                width: "100px",
                 height: "100px",
                 padding: "4px",
                 background: "linear-gradient(135deg,#caa43b,#f5e08a)",

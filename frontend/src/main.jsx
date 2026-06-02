@@ -5,6 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { CartProvider } from "./context/CartContext"; // ✅ Correct import
 import { AuthProvider } from "../context/AuthContext"; // ✅ import
 import { WishlistProvider } from "./context/WishlistContext";
+import { NotificationProvider } from "./context/NotificationContext";
 
 import App from "./App";
 import "./index.css";
@@ -18,8 +19,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <ScrollToTop />
         <AuthProvider>
           <WishlistProvider>
-            <App />
-            <BrandAIWidget brand="thia" />
+            <NotificationProvider>
+              <App />
+              <BrandAIWidget brand="thia" />
+            </NotificationProvider>
           </WishlistProvider>
         </AuthProvider>
       </BrowserRouter>

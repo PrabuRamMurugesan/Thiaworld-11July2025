@@ -61,10 +61,9 @@ const UserSetting = () => {
           name: data.name,
           email: data.email,
           phone: data.phone,
-            tier: data.tier || "Gold Tier",
+          tier: data.tier || "Gold Tier",
           addresses: data.addresses || user.addresses,
           paymentMethods: data.paymentMethods || user.paymentMethods,
-          profileImage: data.profileImage || user.profileImage,
           profileImage: data.profileImage || user.profileImage,
         };
 

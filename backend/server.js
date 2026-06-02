@@ -27,6 +27,9 @@ const adminAuthRoutes = require("./routes/adminAuthRoutes");
 const aiRoutes = require("./routes/aiRoutes.js");
 const leadRoutes = require("./routes/leadRoutes.js");
 const securePlanRoutes = require("./routes/securePlanRoutes");
+const orderRoutes = require("./routes/orderRoutes");
+const productReviewRoutes = require("./routes/productReviewRoutes");
+const loyaltyRoutes = require("./routes/loyaltyRoutes");
 
 
 
@@ -73,13 +76,21 @@ app.use(
 app.use(cookieParser());
 
 // ---- DB ----
-mongoose
-  .connect(process.env.THIAWORLD_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("✅ Connected to bbshealthcare (Default DB)"))
-  .catch((err) => console.error("❌ Main DB error:", err));
+const mongoUri = process.env.THIAWORLD_URI;
+
+if (mongoUri) {
+  mongoose
+    .connect(mongoUri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(() =>
+      console.log("✅ Connected to bbshealthcare (Default DB)")
+    )
+    .catch((err) => console.error("❌ Main DB error:", err));
+} else {
+  console.error("❌ THIAWORLD_URI is missing. Backend will start, but DB will be unavailable");
+}
 
 // ---- Routes ----
 app.use("/api/contact", contactRoutes);
@@ -101,6 +112,9 @@ app.use("/api/admin", adminAuthRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/leads", leadRoutes);
 app.use("/api/secureplan", securePlanRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/reviews", productReviewRoutes);
+app.use("/api/loyalty", loyaltyRoutes);
 
 // maintenance guide API (cards shown on product page and standalone guide)
 app.use("/api/maintenance", require("./routes/maintenanceRoutes"));

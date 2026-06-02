@@ -21,6 +21,7 @@ import SimilarDesigns from "./components/SimilarDesigns";
 import ThiaSecurePlanPage from "./components/ThiaSecurePlanPage";
 import ProductDetailPage from "./components/ProductDetail";
 import CartPage from "./components/CartPage";
+import CartNotification from "./components/CartNotification";
 import Necklace from "./components/Jewellery-page/Necklace";
 import Bangle from "./components/Jewellery-page/Bangle";
 import Earring from "./components/Jewellery-page/Earring";
@@ -41,6 +42,7 @@ import ContactMessages from "./pages/admin/ContactMessages";
 import ViewAppointments from "./components/ViewAppointments";
 import CardProduct from "./components/CardProduct";
 import GoldCollection from "./components/Jewellery-page/GoldCollection";
+import BridalCollection from "./components/Jewellery-page/BridalCollection";
 import SilverCollection from "./components/Jewellery-page/SilverCollection";
 import PlatinumCollection from "./components/Jewellery-page/PlatinumCollection";
 import DiamondCollection from "./components/Jewellery-page/DiamondCollection";
@@ -88,9 +90,16 @@ import MediaLibrary from "./pages/admin/MediaLibrary";
 import AdminSignup from "./pages/admin/AdminSignup";
 import AdminLogin from "./pages/AdminLogin";
 import EditProfile from "./pages/EditProfile";
+import OrderTrackingPage from "./pages/OrderTrackingPage";
+import SearchResultsPage from "./pages/SearchResultsPage";
+import LiveChat from "./components/LiveChat";
+import LoyaltyProgramPage from "./pages/LoyaltyProgramPage";
+import AnalyticsDashboard from "./pages/admin/AnalyticsDashboard";
 
 export default function App() {
   return (
+    <>
+      <CartNotification />
     <Routes>
       {/* ✅ PUBLIC SITE ROUTES */}
       <Route path="/" element={<ThiaHomePage />} />
@@ -102,6 +111,9 @@ export default function App() {
       <Route path="/virtual-jewelry-on" element={<VirtualJewelryOn />} />
       <Route path="/user-settings" element={<UserSettings />} />
       <Route path="/edit-profile" element={<EditProfile />} />
+      <Route path="/order-tracking" element={<OrderTrackingPage />} />
+      <Route path="/search" element={<SearchResultsPage />} />
+      <Route path="/loyalty-program" element={<LoyaltyProgramPage />} />
       <Route
         path="/thia-world-exclusive-storefront"
         element={<THIAWorldExclusiveStorefrontPage />}
@@ -179,9 +191,9 @@ export default function App() {
       <Route path="/new-arrivals" element={<RecentProducts />} />
       <Route path="/aboutus" element={<Aboutus />} />
       <Route path="/thia-secure" element={<ThiaSecure />} />
-      24.06.2025
       <Route path="/shop-by-budget" element={<ShopByBudget />} />
       <Route path="/gold-collection" element={<GoldCollection />} />
+      <Route path="/collections/bridal" element={<BridalCollection />} />
       <Route path="/silver-collection" element={<SilverCollection />} />
       <Route path="/platinum-collection" element={<PlatinumCollection />} />
       <Route path="/diamond-collection" element={<DiamondCollection />} />
@@ -198,6 +210,7 @@ export default function App() {
         />
         <Route path="orders" element={<OrdersManager />} />
         <Route path="customers" element={<CustomersManager />} />
+        <Route path="analytics" element={<AnalyticsDashboard />} />
         {/* created by medun */}
         <Route path="dragdrop" element={<DragDropBuilderPage />} />
         <Route path="multi-language" element={<MultiLangSupport />} />
@@ -207,9 +220,10 @@ export default function App() {
         <Route path="seo-manager" element={<SeoManagerPage />} />
         <Route path="preview-scheduler" element={<PreviewSchedulerPage />} />
         <Route path="cms-panel-admin" element={<CMSAdvancedAdminPanel />} />
-        // in your app router
       </Route>
     </Routes>
+      <LiveChat />
+    </>
   );
 }
 

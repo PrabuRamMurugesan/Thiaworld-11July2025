@@ -31,8 +31,7 @@ const ChatFloatingButton = ({ onClick, brand, position = "bottom-right" }) => {
     border: "none",
     boxShadow: "0px 4px 12px rgba(0,0,0,0.2)",
     cursor: "pointer",
-    transition: "all 0.3s ease",
-transition: "transform 0.3s ease",
+    transition: "transform 0.3s ease",
     // 🔥 CENTER ICON
     display: "flex",
     alignItems: "center",
